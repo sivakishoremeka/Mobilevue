@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Mobilevue</string>
+    <string name="action_settings">Settings</string>
+    <string name="server_url">https://41.75.85.206:8080/mifosng-provider/api/v1/</string>
+    <string name="hello_world"></string>
+    <string name="description">Media Controls</string>
+
+</resources>
