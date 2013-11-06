@@ -48,11 +48,7 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
 			// Movies fragment activity
 			// return (new NewReleaseFragment("WATCHED"));
 		case 4:
-			bundle = new Bundle();
-			bundle.putString("category", "ALL");
-			fragobj = new CategoryFragment();
-			fragobj.setArguments(bundle);
-			return fragobj;
+			return new SearchFragment();
 			// Movies fragment activity
 			// return (new NewReleaseFragment("WATCHED"));
 		}
