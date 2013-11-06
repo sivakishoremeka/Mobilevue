@@ -5,12 +5,12 @@
     android:background="@drawable/bookplans_activity" >
 
     <Button
-        android:id="@+id/testbutton"
+        android:id="@+id/btn_submit"
         style="@style/btnStyleSeagull"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/footer_layout"
         android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
         android:layout_marginBottom="60dp"
         android:layout_marginLeft="70dp"
         android:minWidth="100dp"
@@ -20,8 +20,9 @@
         android:id="@+id/list"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/testbutton"
+        android:layout_above="@id/btn_submit"
         android:layout_alignParentTop="true"
+        android:layout_marginBottom="5dp"
         android:scrollbars="vertical"
         android:textColor="#000000"
         android:textStyle="bold" />

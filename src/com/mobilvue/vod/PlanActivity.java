@@ -67,7 +67,7 @@ public class PlanActivity extends Activity implements OnClickListener {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_plan);
-		button = (Button) findViewById(R.id.testbutton);
+		button = (Button) findViewById(R.id.btn_submit);
 		listView = (ListView) findViewById(R.id.list);
 		listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		/** We retrive the plans and bind the plans to listview */

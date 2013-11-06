@@ -177,7 +177,7 @@ public class RegisterActivity extends Activity {
 				Intent intent = new Intent(RegisterActivity.this,
 						PlanActivity.class);
 				Bundle bundle = new Bundle();
-				bundle.putInt("Id", clientId);
+				bundle.putInt("CLIENTID", clientId);
 				intent.putExtras(bundle);
 				// RegisterActivity.this.finish();
 				startActivity(intent);
