@@ -57,7 +57,7 @@
                 android:layout_marginTop="5dip"
                 android:hint="User Name"
                 android:inputType="text"
-                android:maxLength="10"
+                android:maxLength="30"
                 android:singleLine="true" />
 
             <!-- Password Label -->
