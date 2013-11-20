@@ -31,6 +31,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -58,6 +60,24 @@ public class AuthenticationAcitivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_authentication);
 		validateDevice();
+	}
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.menu1, menu);
+		return true;
+	}
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu1_btn_refresh:
+			validateDevice();
+			break;
+		default:
+			break;
+		}
+
+		return true;
 	}
 
 	private void validateDevice() {

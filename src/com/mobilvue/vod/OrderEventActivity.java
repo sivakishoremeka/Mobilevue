@@ -104,7 +104,7 @@ public class OrderEventActivity extends Activity {
 				Intent intent = new Intent(OrderEventActivity.this,
 						VideoPlayerActivity.class);
 				Bundle bundle = new Bundle();
-				bundle.putString("url", data.getResourceIdentifier());
+				bundle.putString("URL", data.getResourceIdentifier());
 				intent.putExtras(bundle);
 				OrderEventActivity.this.finish();
 				startActivity(intent);
@@ -121,7 +121,6 @@ public class OrderEventActivity extends Activity {
 				mapper.configure(
 						DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES,
 						false);
-				;
 				data = mapper.readValue(jsonText, VideoUriData.class);
 			} catch (Exception e) {
 				e.printStackTrace();

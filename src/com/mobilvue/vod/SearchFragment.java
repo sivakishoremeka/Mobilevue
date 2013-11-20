@@ -79,7 +79,7 @@ public class SearchFragment extends Fragment {
 				String searchCriteria = Search_et.getText().toString();
 				
 				if (searchCriteria.length() > 0) {
-					searchDtls.category= searchCriteria;
+					searchDtls.category= searchCriteria.replaceAll("\\s+","");
 					getDetails(searchDtls);
 				}
 			}

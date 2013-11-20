@@ -179,7 +179,7 @@ public class RegisterActivity extends Activity {
 				Bundle bundle = new Bundle();
 				bundle.putInt("CLIENTID", clientId);
 				intent.putExtras(bundle);
-				// RegisterActivity.this.finish();
+				RegisterActivity.this.finish();
 				startActivity(intent);
 			} else
 				Toast.makeText(RegisterActivity.this,

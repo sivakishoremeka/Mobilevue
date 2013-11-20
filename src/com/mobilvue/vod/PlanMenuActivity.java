@@ -19,6 +19,8 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -29,6 +31,8 @@ import android.widget.AdapterView.OnItemClickListener;
 
 public class PlanMenuActivity extends Activity {
 
+	/** This is live/Iptv activity */
+
 	public static String TAG = "PlanMenuActivity";
 	private final static String NETWORK_ERROR = "Network error.";
 	static final String KEY_ID = "id";
@@ -37,7 +41,8 @@ public class PlanMenuActivity extends Activity {
 	public static final String KEY_ARTIST = "artist";
 	public static final String KEY_DURATION = "duration";
 	public static final String KEY_THUMB_URL = "thumb_url";
-
+	public static final String KEY_VIDEO_URL = "video_url";
+	
 	GridView gridView;
 	Button vod;
 	Button iptv;
@@ -51,6 +56,53 @@ public class PlanMenuActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_plan_menu);
+		validateIptv();
+	}
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		//validateIptv();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		// menu.findItem(R.id.menu_btn_live_tv).setVisible(false);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_btn_live_tv:
+			// validateIptv();
+			break;
+		case R.id.menu_btn_vod:
+			Intent i = getIntent();
+			Bundle extras = i.getExtras();
+			clientId = extras.getInt("CLIENTID");
+			Intent intent = new Intent(PlanMenuActivity.this,
+					VodMenuActivity.class);
+			Bundle bundle = new Bundle();
+			bundle.putInt("CLIENTID", clientId);
+			intent.putExtras(bundle);
+			startActivity(intent);
+			break;
+
+		default:
+			break;
+		}
+
+		return true;
 	}
 
 	public void btnIptv_Onclick(View v) {
@@ -143,21 +195,21 @@ public class PlanMenuActivity extends Activity {
 			map.put(KEY_TITLE, data.getChannelName());
 			map.put(KEY_DURATION, null);
 			map.put(KEY_THUMB_URL, data.getImage());
-			URL = data.getUrl();
+			map.put(KEY_VIDEO_URL, data.getUrl());
+			//URL = data.getUrl();
 			iptvList.add(map);
 		}
 		list = (ListView) findViewById(R.id.iptv_listView);
-		iptvadapter = new IptvLazyAdapter(this, iptvList);
+		iptvadapter = new IptvLazyAdapter(this, iptvList,clientId);
 		list.setAdapter(iptvadapter);
 	}
 
-	/*
-	 * public void myClickHandler(View v) { // TODO Auto-generated method stub
-	 * Intent intent = new Intent(PlanMenuActivity.this,
-	 * EpgDetailsActivity.class); startActivity(intent);
-	 * 
-	 * }
-	 */
+	public void myClickHandler(View v) { // TODO Auto-generated method stub
+		Intent intent = new Intent(PlanMenuActivity.this,
+				EpgDetailsActivity.class);
+		startActivity(intent);
+
+	}
 
 	public void myClick(View v) {
 		/*
@@ -171,7 +223,7 @@ public class PlanMenuActivity extends Activity {
 				VideoPlayerActivity.class);
 		Bundle bundle = new Bundle();
 		bundle.putInt("CLIENTID", clientId);
-		bundle.putString("url", URL);
+		bundle.putString("URL", URL);
 		// bundle.putString("url", "rtmp://wawootv.com:1935/live/ait");
 		// bundle.putString("url",
 		// "rtmp://wawootv.com:1935/vod/mp4:uploads/admin/don_bishop_1_mid/don_bishop_1_mid.mp4");

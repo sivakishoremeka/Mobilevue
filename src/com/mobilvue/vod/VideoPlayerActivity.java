@@ -12,6 +12,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -30,51 +31,55 @@ public class VideoPlayerActivity extends Activity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.d("VideoPlayerActivity", "OnCreate");
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		setContentView(R.layout.activity_video_player);
-		videoSurface = (SurfaceView) findViewById(R.id.videoSurface);
-		SurfaceHolder videoHolder = videoSurface.getHolder();
-		videoHolder.addCallback(this);
+			videoSurface = (SurfaceView) findViewById(R.id.videoSurface);
+			SurfaceHolder videoHolder = videoSurface.getHolder();
+			videoHolder.addCallback(this);
+			// if(player!=null && !player.isPlaying()){
+			player = new MediaPlayer();
 
-		player = new MediaPlayer();
-		controller = new VideoControllerView(this);
+			controller = new VideoControllerView(this);
 
-		try {
-			player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-			player.setVolume(1.0f, 1.0f);
-			// For the Data to take from previous activity
-			player.setDataSource(this,
-					Uri.parse(getIntent().getStringExtra("url")));
-			Log.d("VideoPlayerActivity", "VideoURL:"
-					+ getIntent().getStringExtra("url"));
+			try {
+				player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+				player.setVolume(1.0f, 1.0f);
+				// For the Data to take from previous activity
+				player.setDataSource(this,
+						Uri.parse(getIntent().getStringExtra("URL")));
+				Log.d("VideoPlayerActivity", "VideoURL:"
+						+ getIntent().getStringExtra("URL"));
 
-			/*
-			 * player.setDataSource(this, Uri.parse(
-			 * "rtmp://wawootv.com:1935/vod/mp4:uploads/admin/my_only_girl_2_mid/my_only_girl_2_mid.mp4"
-			 * ));
-			 */
+				
+				/*player.setDataSource(this,
+						Uri.parse("android.resource://" + getPackageName() +"/"+R.raw.qwe));*/
+				
+/*				  player.setDataSource(this, Uri.parse(
+				  "http://www.wawootv.com/admin/uploads/admin/don_bishop_1_mid/don_bishop_1_mid.mp4"
+				 ));
+	*/			 
 
-			// Internet Wowza server url
+				// Internet Wowza server url
 
-			// player.setDataSource(this,
-			// Uri.parse("http://www.wowza.com/_h264/BigBuckBunny_115k.mov"));
+				// player.setDataSource(this,
+				// Uri.parse("http://www.wowza.com/_h264/BigBuckBunny_115k.mov"));
 
-			player.setOnPreparedListener(this);
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (IllegalStateException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
+				player.setOnPreparedListener(this);
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				e.printStackTrace();
+			} catch (IllegalStateException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}		// }
 	}
 
 	@Override
@@ -92,6 +97,7 @@ public class VideoPlayerActivity extends Activity implements
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
+		Log.d("surfaceCreated","surfaceCreated");
 		player.setDisplay(holder);
 		player.prepareAsync();
 	}
@@ -106,6 +112,7 @@ public class VideoPlayerActivity extends Activity implements
 	// Implement MediaPlayer.OnPreparedListener
 	@Override
 	public void onPrepared(MediaPlayer mp) {
+		Log.d("onPrepared", "onPrepared");
 		controller.setMediaPlayer(this);
 		controller
 				.setAnchorView((RelativeLayout) findViewById(R.id.video_container));
@@ -114,6 +121,7 @@ public class VideoPlayerActivity extends Activity implements
 
 	@Override
 	public void onBackPressed() {
+		Log.d("onBackPressed", "onBackPressed");
 		if (player != null && player.isPlaying())
 			player.stop();
 		player.release();
@@ -146,6 +154,7 @@ public class VideoPlayerActivity extends Activity implements
 
 	@Override
 	public int getCurrentPosition() {
+		Log.d("getCurrentPositon", "getCurrentPositon");
 		return player.getCurrentPosition();
 	}
 
@@ -189,37 +198,30 @@ public class VideoPlayerActivity extends Activity implements
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		// TODO Auto-generated method stub
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			player.stop();
-			player.release();
+			Log.d("onKeyDown", "KeyCodeback");
+			if (player != null && player.isPlaying()) {
+				controller.hide();
+				player.stop();
+				player.release();
+				player = null;
+				finish();
+			}
+			else{
 			finish();
-		} else if (keyCode == 85) {
-			controller.show();
-			if (player.isPlaying()) {
-				player.pause();
-			} else {
-				player.start();
-			}
-		} else if (keyCode == 23) {
-			controller.show();
-			player.pause();
-		} else if (keyCode == 19) {
-			controller.show();
-			player.seekTo(0);
-			player.start();
-		} else if (keyCode == 89) {
-			controller.show();
-			if (player.getCurrentPosition() - 120000 > 0
-					&& (player.isPlaying())) {
-				player.seekTo(player.getCurrentPosition() - 120000);
-				player.start();
-			}
-		} else if (keyCode == 90) {
-			controller.show();
-			if (player.getCurrentPosition() + 120000 < player.getDuration()
-					&& (player.isPlaying())) {
-				player.seekTo(player.getCurrentPosition() + 120000);
-				player.start();
-			}
+			}	/*
+			 * } else if (keyCode == 85) { controller.show(); if
+			 * (player.isPlaying()) { player.pause(); } else { player.start(); }
+			 * } else if (keyCode == 23) { controller.show(); player.pause(); }
+			 * else if (keyCode == 19) { controller.show(); player.seekTo(0);
+			 * player.start(); } else if (keyCode == 89) { controller.show(); if
+			 * (player.getCurrentPosition() - 120000 > 0 &&
+			 * (player.isPlaying())) { player.seekTo(player.getCurrentPosition()
+			 * - 120000); player.start(); } } else if (keyCode == 90) {
+			 * controller.show(); if (player.getCurrentPosition() + 120000 <
+			 * player.getDuration() && (player.isPlaying())) {
+			 * player.seekTo(player.getCurrentPosition() + 120000);
+			 * player.start(); }
+			 */
 		} else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
 				|| keyCode == KeyEvent.KEYCODE_VOLUME_UP
 				|| keyCode == KeyEvent.KEYCODE_VOLUME_MUTE) {

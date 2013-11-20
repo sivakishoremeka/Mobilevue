@@ -5,6 +5,17 @@
     android:background="#3FAACC"
     android:orientation="vertical" >
 
+    <TextView
+        android:id="@+id/title_tv_apm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="10dp"
+        android:text="VOD"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
     <Button
         android:id="@+id/lf_button"
         style="?android:attr/buttonStyleSmall"
@@ -32,7 +43,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_above="@+id/home_page_no"
-        android:layout_below="@+id/search_imgbtn_fs"
+        android:layout_below="@+id/search_et_fs"
         android:layout_toLeftOf="@+id/rt_button"
         android:layout_toRightOf="@+id/lf_button"
         android:columnWidth="100dp"
@@ -42,29 +53,27 @@
         android:numColumns="2"
         android:stretchMode="spacingWidthUniform"
         android:verticalSpacing="35dp" >
-
     </GridView>
 
-      <EditText
-          android:id="@+id/search_et_fs"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_above="@+id/gridview_new_release"
-          android:layout_alignLeft="@+id/lf_button"
-          android:layout_alignParentTop="true"
-          android:layout_marginLeft="23dp"
-          android:ems="10" >
+    <EditText
+        android:id="@+id/search_et_fs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/lf_button"
+        android:layout_below="@+id/title_tv_apm"
+        android:layout_marginLeft="23dp"
+        android:ems="10" >
 
-          <requestFocus />
-      </EditText>
+        <requestFocus />
+    </EditText>
 
-      <ImageButton
-          android:id="@+id/search_imgbtn_fs"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_alignParentTop="true"
-          android:layout_toRightOf="@+id/search_et_fs"
-          android:onClick="searchBtn_Onclick"
-          android:src="@android:drawable/ic_menu_search" />
+    <ImageButton
+        android:id="@+id/search_imgbtn_fs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/gridview_new_release"
+        android:layout_toRightOf="@+id/search_et_fs"
+        android:onClick="searchBtn_Onclick"
+        android:src="@android:drawable/ic_menu_search" />
 
 </RelativeLayout>

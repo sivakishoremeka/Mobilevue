@@ -40,6 +40,7 @@ public class Utilities {
 			HashMap<String, String> param) {
 		Log.d(TAG, "callExternalApiGetMethod");
 		StringBuilder builder = new StringBuilder();
+		ResponseObj resObj = new ResponseObj();
 		HttpClient client = MySSLSocketFactory.getNewHttpClient();
 		StringBuilder url = new StringBuilder(
 				context.getString(R.string.server_url));
@@ -57,15 +58,15 @@ public class Utilities {
 			 * context.getContentResolver(), Settings.Secure.ANDROID_ID);
 			 * url.append(androidId);
 			 */
-		HttpGet httpGet = new HttpGet(url.toString());
-		httpGet.setHeader("X-Mifos-Platform-TenantId", "default");
-		httpGet.setHeader("Authorization", "Basic "
-				+ "YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=");// YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=
-		httpGet.setHeader("Content-Type", "application/json");
-
-		Log.i("callClientsApi", "Calling " + httpGet.getURI());
-		ResponseObj resObj = new ResponseObj();
 		try {
+			HttpGet httpGet = new HttpGet(url.toString());
+			httpGet.setHeader("X-Mifos-Platform-TenantId", "default");
+			httpGet.setHeader("Authorization", "Basic "
+					+ "YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=");// YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=
+			httpGet.setHeader("Content-Type", "application/json");
+
+			Log.i("callClientsApi", "Calling " + httpGet.getURI());
+
 			HttpResponse response = client.execute(httpGet);
 			StatusLine statusLine = response.getStatusLine();
 			int statusCode = statusLine.getStatusCode();
@@ -89,6 +90,9 @@ public class Utilities {
 				resObj.setFailResponse(statusCode, sError);
 				Log.e("callExternalAPI", sError + statusCode);
 			}
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			resObj.setFailResponse(100, e.getMessage());
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 			resObj.setFailResponse(100, e.getMessage());
@@ -105,50 +109,43 @@ public class Utilities {
 	public static ResponseObj callExternalApiPostMethod(Context context,
 			HashMap<String, String> param) {
 		Log.d(TAG, "callExternalApi");
+		ResponseObj resObj = new ResponseObj();
 		StringBuilder builder = new StringBuilder();
 		HttpClient client = MySSLSocketFactory.getNewHttpClient();
 		String url = context.getString(R.string.server_url);
 		url += (param.get("TagURL"));
 		param.remove("TagURL");
 		JSONObject json = new JSONObject();
-		HttpPost httpPost = new HttpPost(url);
-		httpPost.setHeader("X-Mifos-Platform-TenantId", "default");
-		httpPost.setHeader("Authorization", "Basic "
-				+ "YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=");
-		httpPost.setHeader("Content-Type", "application/json");
-		// append device id to url
-		String androidId = Settings.Secure.getString(
-				context.getContentResolver(), Settings.Secure.ANDROID_ID);
-		ResponseObj resObj = new ResponseObj();
-		/*
-		 * try { //json.put("deviceId",androidId);
-		 * json.put("deviceId","efa4c629924f8139"); } catch (JSONException e1) {
-		 * // TODO Auto-generated catch block e1.printStackTrace(); }
-		 */
-
 		try {
+
+			HttpPost httpPost = new HttpPost(url);
+			httpPost.setHeader("X-Mifos-Platform-TenantId", "default");
+			httpPost.setHeader("Authorization", "Basic "
+					+ "YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=");
+			httpPost.setHeader("Content-Type", "application/json");
+			// append device id to url
+			String androidId = Settings.Secure.getString(
+					context.getContentResolver(), Settings.Secure.ANDROID_ID);
+			/*
+			 * try { //json.put("deviceId",androidId);
+			 * json.put("deviceId","efa4c629924f8139"); } catch (JSONException
+			 * e1) { // TODO Auto-generated catch block e1.printStackTrace(); }
+			 */
+
 			for (int i = 0; i < param.size(); i++) {
 				json.put((String) param.keySet().toArray()[i], (String) param
 						.values().toArray()[i]);
 			}
-		} catch (JSONException e2) {
-			e2.printStackTrace();
-		}
-		StringEntity se = null;
-		try {
+			StringEntity se = null;
 			se = new StringEntity(json.toString());
-		} catch (UnsupportedEncodingException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		se.setContentType("application/json");
-		se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE,
-				"application/json"));
-		httpPost.setEntity(se);
-		Log.d("callExternalApiPostMethod",
-				" httpPost.getURI " + httpPost.getURI());
-		Log.d("callExternalApiPostMethod", "json: " + json);
-		try {
+
+			se.setContentType("application/json");
+			se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE,
+					"application/json"));
+			httpPost.setEntity(se);
+			Log.d("callExternalApiPostMethod",
+					" httpPost.getURI " + httpPost.getURI());
+			Log.d("callExternalApiPostMethod", "json: " + json);
 			HttpResponse response = client.execute(httpPost);
 			StatusLine statusLine = response.getStatusLine();
 			int statusCode = statusLine.getStatusCode();
@@ -171,6 +168,13 @@ public class Utilities {
 				resObj.setFailResponse(statusCode, sError);
 				Log.e("callExternalAPI", sError + statusCode);
 			}
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			resObj.setFailResponse(100, e.getMessage());
+		} catch (JSONException e) {
+			e.printStackTrace();
+			resObj.setFailResponse(100, e.getMessage());
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 			resObj.setFailResponse(100, e.getMessage());

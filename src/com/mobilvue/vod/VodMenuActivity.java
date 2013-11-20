@@ -1,14 +1,18 @@
 package com.mobilvue.vod;
 
 import com.mobilevue.vod.R;
+import com.mobilevue.vod.R.menu;
 
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.app.ActionBar.Tab;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.view.Menu;
+import android.view.MenuItem;
 
 public class VodMenuActivity extends FragmentActivity implements
 		ActionBar.TabListener {
@@ -31,7 +35,7 @@ public class VodMenuActivity extends FragmentActivity implements
 		mAdapter = new TabsPagerAdapter(getSupportFragmentManager());
 
 		viewPager.setAdapter(mAdapter);
-		actionBar.setHomeButtonEnabled(false);
+		// actionBar.setHomeButtonEnabled(false);
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
 		// Adding Tabs
@@ -60,6 +64,46 @@ public class VodMenuActivity extends FragmentActivity implements
 			public void onPageScrollStateChanged(int arg0) {
 			}
 		});
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.menu, menu);
+		return true;
+	}
+	
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+	    super.onPrepareOptionsMenu(menu);
+	   // menu.findItem(R.id.menu_btn_vod).setVisible(false);
+	    return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_btn_live_tv:
+			Intent i = getIntent();
+			Bundle extras = i.getExtras();
+			int clientId = extras.getInt("CLIENTID");
+			Intent intent = new Intent(VodMenuActivity.this,
+					PlanMenuActivity.class);
+			Bundle bundle = new Bundle();
+			bundle.putInt("CLIENTID", clientId);
+			intent.putExtras(bundle);
+			startActivity(intent);
+			break;
+		case R.id.menu_btn_vod:
+			// startActivity(new Intent(PlanMenuActivity.this,
+			// VodMenuActivity.class));
+			break;
+
+		default:
+			break;
+		}
+
+		return true;
 	}
 
 	@Override

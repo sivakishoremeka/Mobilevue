@@ -75,7 +75,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/mediatitle"
         android:layout_toRightOf="@+id/thumbnail"
-        android:onClick="myClick"
         android:text="WATCH" />
 
     <Button

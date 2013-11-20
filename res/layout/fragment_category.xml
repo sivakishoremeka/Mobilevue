@@ -5,6 +5,17 @@
     android:background="#3FAACC"
     android:orientation="vertical" >
 
+    <TextView
+        android:id="@+id/title_tv_apm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="10dp"
+        android:text="VOD"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
     <Button
         android:id="@+id/lf_button"
         style="?android:attr/buttonStyleSmall"
@@ -32,7 +43,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_above="@+id/home_page_no"
-        android:layout_alignParentTop="true"
+        android:layout_below="@+id/title_tv_apm"
         android:layout_toLeftOf="@+id/rt_button"
         android:layout_toRightOf="@+id/lf_button"
         android:columnWidth="100dp"
