@@ -24,7 +24,10 @@ import org.json.JSONObject;
 
 import com.mobilevue.vod.R;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.provider.Settings;
@@ -62,7 +65,8 @@ public class Utilities {
 			HttpGet httpGet = new HttpGet(url.toString());
 			httpGet.setHeader("X-Mifos-Platform-TenantId", "default");
 			httpGet.setHeader("Authorization", "Basic "
-					+ "YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=");// YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=
+					+"YWRtaW46b2JzQDEyMw=="); // this is for admin/obs@123(https://spark.openbillingsystem.com/mifosng-provider/api/v1/)
+				//	+ "YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=");// this is for billing/billingadmin@13(https://41.75.85.206:8080/mifosng-provider/api/v1/)// YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=
 			httpGet.setHeader("Content-Type", "application/json");
 
 			Log.i("callClientsApi", "Calling " + httpGet.getURI());
@@ -121,7 +125,10 @@ public class Utilities {
 			HttpPost httpPost = new HttpPost(url);
 			httpPost.setHeader("X-Mifos-Platform-TenantId", "default");
 			httpPost.setHeader("Authorization", "Basic "
-					+ "YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=");
+					+"YWRtaW46b2JzQDEyMw=="); // this is for admin/obs@123(https://spark.openbillingsystem.com/mifosng-provider/api/v1/)
+			//	+ "YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=");// this is for billing/billingadmin@13(https://41.75.85.206:8080/mifosng-provider/api/v1/)// YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=
+		
+			//		+ "YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=");
 			httpPost.setHeader("Content-Type", "application/json");
 			// append device id to url
 			String androidId = Settings.Secure.getString(
@@ -210,5 +217,18 @@ public class Utilities {
 			return true;
 		}
 		return false;
+	}
+
+	public static void lockScreenOrientation(Context context,Activity activity) {
+	    int currentOrientation = context.getResources().getConfiguration().orientation;
+	    if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
+	    activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+	    } else {
+	    	activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+	    }
+	}
+	
+	public static void unlockScreenOrientation(Activity activity) {
+		activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 	}
 }

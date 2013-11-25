@@ -30,6 +30,8 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -61,6 +63,8 @@ public class PlanActivity extends Activity implements OnClickListener {
 	ArrayAdapter<String> adapter;
 	Button button;
 	ArrayList<HashMap<String, String>> viewList;
+	String jsonPlansResult;
+	boolean isListHasPlans = false;
 
 	// @Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +75,18 @@ public class PlanActivity extends Activity implements OnClickListener {
 		listView = (ListView) findViewById(R.id.list);
 		listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		/** We retrive the plans and bind the plans to listview */
-		fetchPlans();
+		if (savedInstanceState != null) {
+			isListHasPlans = savedInstanceState.getBoolean("isListHasPlans");
+			jsonPlansResult = savedInstanceState.getString("jsonPlansResult");
+		}
+		if (!isListHasPlans) {
+			Utilities.lockScreenOrientation(getApplicationContext(),
+					PlanActivity.this);
+			fetchPlans();
+		} else {
+			List<PlansData> activePlansList = getPlansFromJson(jsonPlansResult);
+			buildPlansList(activePlansList);
+		}
 	}
 
 	private void buildPlansList(List<PlansData> result) {
@@ -98,6 +113,8 @@ public class PlanActivity extends Activity implements OnClickListener {
 
 		int count = listView.getCheckedItemCount();
 		if (count > 0) {
+			Utilities.lockScreenOrientation(getApplicationContext(),
+					PlanActivity.this);
 			orderPlans(viewList.get(listView.getCheckedItemPosition())
 					.get("id"));
 		} else {
@@ -127,7 +144,7 @@ public class PlanActivity extends Activity implements OnClickListener {
 			mProgressDialog = new ProgressDialog(PlanActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
 			mProgressDialog.setMessage("Processing Order...");
-			mProgressDialog.setCancelable(true);
+			mProgressDialog.setCancelable(false);
 			mProgressDialog.show();
 		}
 
@@ -151,7 +168,7 @@ public class PlanActivity extends Activity implements OnClickListener {
 				map.put("locale", "en");
 				map.put("contractPeriod", "1");
 				map.put("start_date", formattedDate);
-				map.put("billAlign", "false");
+				map.put("billAlign", "true");
 				map.put("paytermCode", "monthly");
 
 				resObj = Utilities.callExternalApiPostMethod(
@@ -170,6 +187,7 @@ public class PlanActivity extends Activity implements OnClickListener {
 			if (mProgressDialog.isShowing()) {
 				mProgressDialog.dismiss();
 			}
+			// unlockScreenOrientation();
 			if (resObj.getStatusCode() == 200) {
 				Intent intent = new Intent(PlanActivity.this,
 						PlanMenuActivity.class);
@@ -203,7 +221,7 @@ public class PlanActivity extends Activity implements OnClickListener {
 			mProgressDialog = new ProgressDialog(PlanActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
 			mProgressDialog.setMessage("Retrieving Plans...");
-			mProgressDialog.setCancelable(true);
+			mProgressDialog.setCancelable(false);
 			mProgressDialog.show();
 		}
 
@@ -228,14 +246,26 @@ public class PlanActivity extends Activity implements OnClickListener {
 			}
 			if (resObj.getStatusCode() == 200) {
 				Log.d("PlanAct-FetchPlans", resObj.getsResponse());
+				jsonPlansResult = resObj.getsResponse();
+				isListHasPlans = true;
 				List<PlansData> activePlansList = getPlansFromJson(resObj
 						.getsResponse());
 				buildPlansList(activePlansList);
+				Utilities.unlockScreenOrientation(PlanActivity.this);
 			} else {
 				Toast.makeText(PlanActivity.this, resObj.getsErrorMessage(),
 						Toast.LENGTH_LONG).show();
+				Utilities.unlockScreenOrientation(PlanActivity.this);
 			}
 		}
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		// TODO Auto-generated method stub
+		super.onSaveInstanceState(outState);
+		outState.putBoolean("isListHasPlans", isListHasPlans);
+		outState.putString("jsonPlansResult", jsonPlansResult);
 	}
 
 	private List<PlansData> getPlansFromJson(String jsonText) {

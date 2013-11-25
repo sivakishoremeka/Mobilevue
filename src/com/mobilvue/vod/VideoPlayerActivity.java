@@ -3,8 +3,11 @@ package com.mobilvue.vod;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnErrorListener;
+import android.media.MediaPlayer.OnInfoListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +20,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.mobilevue.vod.R;
 
@@ -24,9 +28,11 @@ public class VideoPlayerActivity extends Activity implements
 		SurfaceHolder.Callback, MediaPlayer.OnPreparedListener,
 		VideoControllerView.MediaPlayerControl {
 
+	public static String TAG = "VideoPlayerActivity";
 	SurfaceView videoSurface;
 	MediaPlayer player;
 	VideoControllerView controller;
+	private ProgressDialog mProgressDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -67,8 +73,46 @@ public class VideoPlayerActivity extends Activity implements
 
 				// player.setDataSource(this,
 				// Uri.parse("http://www.wowza.com/_h264/BigBuckBunny_115k.mov"));
-
+                
 				player.setOnPreparedListener(this);
+					player.setOnInfoListener(new OnInfoListener() {					
+					public boolean onInfo(MediaPlayer mp, int what, int extra) {
+						if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
+							if (mProgressDialog != null) {
+								mProgressDialog.dismiss();
+								mProgressDialog = null;
+							}
+							mProgressDialog = new ProgressDialog(VideoPlayerActivity.this,
+									ProgressDialog.THEME_HOLO_DARK);
+							mProgressDialog.setMessage("Buffering...");
+							mProgressDialog.setCancelable(false);
+							mProgressDialog.show();
+	                    } else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
+	                    	if (mProgressDialog.isShowing()) {
+	            				mProgressDialog.dismiss();
+	            			}
+	                    }
+						return false;
+					}
+				});
+				player.setOnErrorListener(new OnErrorListener() {
+					
+					@Override
+					public boolean onError(MediaPlayer arg0, int what, int extra) {
+						
+						Log.d(TAG,"Media player Error is...what:"+what+" Extra:"+extra);
+						if(what==MediaPlayer.MEDIA_ERROR_UNKNOWN && extra==-2147483648)
+						{
+							Toast.makeText(getApplicationContext(),"Incorrect URL or Unsupported Media Format.Media player closed.",Toast.LENGTH_LONG).show();
+							if (player != null && player.isPlaying())
+								player.stop();
+							player.release();
+							player = null;
+							finish();
+						}
+						return false;
+					}
+				});
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
 			} catch (SecurityException e) {
@@ -100,6 +144,15 @@ public class VideoPlayerActivity extends Activity implements
 		Log.d("surfaceCreated","surfaceCreated");
 		player.setDisplay(holder);
 		player.prepareAsync();
+		if (mProgressDialog != null) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+		}
+		mProgressDialog = new ProgressDialog(VideoPlayerActivity.this,
+				ProgressDialog.THEME_HOLO_DARK);
+		mProgressDialog.setMessage("Starting MediaPlayer...");
+		mProgressDialog.setCancelable(false);
+		mProgressDialog.show();
 	}
 
 	@Override
@@ -116,6 +169,9 @@ public class VideoPlayerActivity extends Activity implements
 		controller.setMediaPlayer(this);
 		controller
 				.setAnchorView((RelativeLayout) findViewById(R.id.video_container));
+		if (mProgressDialog.isShowing()) {
+			mProgressDialog.dismiss();
+		}
 		player.start();
 	}
 

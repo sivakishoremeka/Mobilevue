@@ -27,6 +27,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -59,6 +61,7 @@ public class AuthenticationAcitivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_authentication);
+		Utilities.lockScreenOrientation(getApplicationContext(), AuthenticationAcitivity.this);
 		validateDevice();
 	}
 	@Override
@@ -98,7 +101,7 @@ public class AuthenticationAcitivity extends Activity {
 			mProgressDialog = new ProgressDialog(AuthenticationAcitivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
 			mProgressDialog.setMessage("Authenticating Details...");
-			mProgressDialog.setCancelable(true);
+			mProgressDialog.setCancelable(false);
 			mProgressDialog.show();
 		}
 
@@ -166,6 +169,7 @@ public class AuthenticationAcitivity extends Activity {
 			if (mProgressDialog.isShowing()) {
 				mProgressDialog.dismiss();
 			}
+			//unlockScreenOrientation();
 			if (resObj.getStatusCode() == 200) {
 				Log.d("AuthActivity-Planlistdata", resObj.getsResponse());
 				List<ActivePlansData> activePlansList = readJsonUser(resObj

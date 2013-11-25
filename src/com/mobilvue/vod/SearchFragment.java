@@ -12,6 +12,8 @@ import com.mobilvue.utils.Utilities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -45,6 +47,10 @@ public class SearchFragment extends Fragment {
 		final View rootView = inflater.inflate(R.layout.fragment_search,
 				container, false);
 		searchDtls = new SearchDetails(rootView, 0,"");
+		VodMenuActivity factivity=(VodMenuActivity) getActivity();
+		factivity.serviceCount++;
+		Log.d(TAG, "Service count"+factivity.serviceCount);
+		Utilities.lockScreenOrientation(factivity.getApplicationContext(), getActivity());
 		getDetails(searchDtls);
 		((Button) rootView.findViewById(R.id.lf_button))
 				.setVisibility(View.INVISIBLE);
@@ -98,6 +104,7 @@ public class SearchFragment extends Fragment {
 			e.printStackTrace();
 		}
 	}
+	
 
 	private class GetDetailsAsynTask extends
 			AsyncTask<SearchDetails, Void, ResponseObj> {
@@ -114,7 +121,7 @@ public class SearchFragment extends Fragment {
 			mProgressDialog = new ProgressDialog(getActivity(),
 					ProgressDialog.THEME_HOLO_DARK);
 			mProgressDialog.setMessage("Retrieving Details...");
-			mProgressDialog.setCancelable(true);
+			mProgressDialog.setCancelable(false);
 			mProgressDialog.show();
 		}
 
@@ -158,7 +165,12 @@ public class SearchFragment extends Fragment {
 				}
 				Toast.makeText(getActivity(), resObj.getsErrorMessage(),
 						Toast.LENGTH_LONG).show();
-
+			}
+			VodMenuActivity factivity=(VodMenuActivity) getActivity();
+			factivity.serviceCount--;
+			Log.d(TAG, "Service count"+factivity.serviceCount);
+			if(factivity.serviceCount==0){
+				Utilities.unlockScreenOrientation(getActivity());
 			}
 		}
 

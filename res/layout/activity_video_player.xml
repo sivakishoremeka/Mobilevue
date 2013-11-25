@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     android:background="@android:color/black"
     android:gravity="center_horizontal|center_vertical"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:keepScreenOn="true" >
 
     <SurfaceView
         android:id="@+id/videoSurface"

@@ -20,6 +20,7 @@ public class VodMenuActivity extends FragmentActivity implements
 	private ViewPager viewPager;
 	private TabsPagerAdapter mAdapter;
 	private ActionBar actionBar;
+	public static int serviceCount;
 	// Tab titles
 	private String[] tabs = { "New Release", "High Rating", "Comming Soon",
 			"All Movies", "Search Movies" };
@@ -28,7 +29,6 @@ public class VodMenuActivity extends FragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_vodmenu);
-
 		// Initilization
 		viewPager = (ViewPager) findViewById(R.id.pager);
 		actionBar = getActionBar();

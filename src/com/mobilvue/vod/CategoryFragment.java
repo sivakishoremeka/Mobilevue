@@ -12,6 +12,8 @@ import com.mobilvue.utils.Utilities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -45,6 +47,11 @@ public class CategoryFragment extends Fragment {
 				container, false);
 		searchDtls = new SearchDetails(rootView, 0, getArguments().getString(
 				"category"));
+		
+		VodMenuActivity factivity=(VodMenuActivity) getActivity();
+		factivity.serviceCount++;
+		Log.d(TAG, "Service count"+factivity.serviceCount);
+		Utilities.lockScreenOrientation(factivity.getApplicationContext(), getActivity());
 		getDetails(searchDtls);
 		((Button) rootView.findViewById(R.id.lf_button))
 				.setVisibility(View.INVISIBLE);
@@ -99,7 +106,7 @@ public class CategoryFragment extends Fragment {
 			mProgressDialog = new ProgressDialog(getActivity(),
 					ProgressDialog.THEME_HOLO_DARK);
 			mProgressDialog.setMessage("Retrieving Details...");
-			mProgressDialog.setCancelable(true);
+			mProgressDialog.setCancelable(false);
 			mProgressDialog.show();
 		}
 
@@ -108,7 +115,6 @@ public class CategoryFragment extends Fragment {
 			Log.d(TAG, "doInBackground");
 			searchDetails = (SearchDetails) params[0];
 			ResponseObj resObj = new ResponseObj();
-			// ///////////
 
 			if (Utilities.isNetworkAvailable(getActivity()
 					.getApplicationContext())) {
@@ -137,6 +143,7 @@ public class CategoryFragment extends Fragment {
 				if (mProgressDialog.isShowing()) {
 					mProgressDialog.dismiss();
 				}
+				
 			} else {
 				if (mProgressDialog.isShowing()) {
 					mProgressDialog.dismiss();
@@ -145,6 +152,13 @@ public class CategoryFragment extends Fragment {
 						Toast.LENGTH_LONG).show();
 
 			}
+			VodMenuActivity factivity=(VodMenuActivity) getActivity();
+			factivity.serviceCount--;
+			Log.d(TAG, "Service count"+factivity.serviceCount);
+			if(factivity.serviceCount==0){
+				Utilities.unlockScreenOrientation(getActivity());
+			}
+			
 		}
 
 		public void updateDetails(String result, View rootview) {

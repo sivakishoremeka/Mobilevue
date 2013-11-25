@@ -17,6 +17,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -47,18 +49,23 @@ public class RegisterActivity extends Activity {
 		// Button register = (Button) findViewById(R.id.Register);
 		username = (EditText) findViewById(R.id.username);
 		emailValidate = (EditText) findViewById(R.id.EmailId);
+		Utilities.unlockScreenOrientation(RegisterActivity.this);
 	}
 
 	public void btnRegister_onClick(View v) {
 		String email = emailValidate.getText().toString().trim();
 		String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
 		if (email.matches(emailPattern)) {
+			Utilities.lockScreenOrientation(getApplicationContext(),
+					RegisterActivity.this);
 			ClientData client = new ClientData();
 			client.setFullname(username.getText().toString());
 			client.setEmail(emailValidate.getText().toString());
 			CreateClient(client);
+		} else {
+			Toast.makeText(RegisterActivity.this,
+					"Please enter valid Email Id", Toast.LENGTH_LONG).show();
 		}
-
 	}
 
 	private void CreateClient(ClientData client) {
@@ -81,8 +88,8 @@ public class RegisterActivity extends Activity {
 			}
 			mProgressDialog = new ProgressDialog(RegisterActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Authenticating Details...");
-			mProgressDialog.setCancelable(true);
+			mProgressDialog.setMessage("Registering Details...");
+			mProgressDialog.setCancelable(false);
 			mProgressDialog.show();
 		}
 
@@ -172,6 +179,7 @@ public class RegisterActivity extends Activity {
 			if (mProgressDialog.isShowing()) {
 				mProgressDialog.dismiss();
 			}
+			// unlockScreenOrientation();
 			if (resObj.getStatusCode() == 200) {
 				Log.d("RegAct-H/w Allocan", resObj.getsResponse());
 				Intent intent = new Intent(RegisterActivity.this,

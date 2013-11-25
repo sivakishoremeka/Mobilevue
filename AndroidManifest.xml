@@ -18,32 +18,36 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.mobilvue.vod.AuthenticationAcitivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
              <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.mobilvue.vod.RegisterActivity" >
+        <activity 
+            android:name="com.mobilvue.vod.RegisterActivity">
         </activity>
-        <activity android:name="com.mobilvue.vod.PlanActivity" >
-            
+        <activity 
+            android:name="com.mobilvue.vod.PlanActivity">
         </activity>
         <activity
             android:name="com.mobilvue.vod.PlanMenuActivity"
-            android:launchMode="singleTask" >
+            android:launchMode="singleTask">
         </activity>
         <activity
             android:name="com.mobilvue.vod.VodMenuActivity"
-            android:launchMode="singleTask" >
+            android:launchMode="singleTask">
         </activity>
-        <activity android:name="com.mobilvue.vod.OrderEventActivity" >
+        <activity 
+            android:name="com.mobilvue.vod.OrderEventActivity">
         </activity>
-        <activity android:name="com.mobilvue.vod.VideoPlayerActivity"
+        <activity 
+            android:name="com.mobilvue.vod.VideoPlayerActivity"
             android:screenOrientation="landscape" >
         </activity>
-        <activity android:name="com.mobilvue.vod.EpgDetailsActivity" >
+        <activity 
+            android:name="com.mobilvue.vod.EpgDetailsActivity">
         </activity>
     </application>
 

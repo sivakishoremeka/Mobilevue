@@ -10,14 +10,19 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import com.mobilevue.vod.R;
 import com.mobilvue.data.IptvData;
+import com.mobilvue.data.PlansData;
 import com.mobilvue.utils.IptvLazyAdapter;
 import com.mobilvue.utils.ResponseObj;
 import com.mobilvue.utils.Utilities;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,7 +47,7 @@ public class PlanMenuActivity extends Activity {
 	public static final String KEY_DURATION = "duration";
 	public static final String KEY_THUMB_URL = "thumb_url";
 	public static final String KEY_VIDEO_URL = "video_url";
-	
+
 	GridView gridView;
 	Button vod;
 	Button iptv;
@@ -51,19 +56,34 @@ public class PlanMenuActivity extends Activity {
 	IptvLazyAdapter iptvadapter;
 	String URL;
 	int clientId;
+	String jsonIPTVResult;
+	boolean isListHasChannels = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_plan_menu);
-		validateIptv();
+		if (savedInstanceState != null) {
+			isListHasChannels = savedInstanceState
+					.getBoolean("isListHasChannels");
+			jsonIPTVResult = savedInstanceState.getString("jsonIPTVResult");
+		}
+
+		if (!isListHasChannels) {
+			Utilities.lockScreenOrientation(getApplicationContext(),
+					PlanMenuActivity.this);
+
+			validateIptv();
+		} else {
+			buildIptvList(readJsonUserforIPTV(jsonIPTVResult));
+		}
 	}
 
 	@Override
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		//validateIptv();
+		// validateIptv();
 	}
 
 	@Override
@@ -125,7 +145,7 @@ public class PlanMenuActivity extends Activity {
 			mProgressDialog = new ProgressDialog(PlanMenuActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
 			mProgressDialog.setMessage("RetrivingDetials.....");
-			mProgressDialog.setCancelable(true);
+			mProgressDialog.setCancelable(false);
 			mProgressDialog.show();
 		}
 
@@ -152,17 +172,28 @@ public class PlanMenuActivity extends Activity {
 			if (mProgressDialog.isShowing()) {
 				mProgressDialog.dismiss();
 			}
-
 			if (resObj.getStatusCode() == 200) {
 				Log.d("AuthActivity-Planlistdata", resObj.getsResponse());
+				jsonIPTVResult = resObj.getsResponse();
+				isListHasChannels = true;
 				buildIptvList(readJsonUserforIPTV(resObj.getsResponse()));
+				Utilities.unlockScreenOrientation(PlanMenuActivity.this);
 			} else {
 				Toast.makeText(PlanMenuActivity.this,
 						resObj.getsErrorMessage(), Toast.LENGTH_LONG).show();
+				Utilities.unlockScreenOrientation(PlanMenuActivity.this);
 			}
 
 		}
 
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		// TODO Auto-generated method stub
+		super.onSaveInstanceState(outState);
+		outState.putBoolean("isListHasChannels", isListHasChannels);
+		outState.putString("jsonIPTVResult", jsonIPTVResult);
 	}
 
 	private List<IptvData> readJsonUserforIPTV(String jsonText) {
@@ -196,11 +227,11 @@ public class PlanMenuActivity extends Activity {
 			map.put(KEY_DURATION, null);
 			map.put(KEY_THUMB_URL, data.getImage());
 			map.put(KEY_VIDEO_URL, data.getUrl());
-			//URL = data.getUrl();
+			// URL = data.getUrl();
 			iptvList.add(map);
 		}
 		list = (ListView) findViewById(R.id.iptv_listView);
-		iptvadapter = new IptvLazyAdapter(this, iptvList,clientId);
+		iptvadapter = new IptvLazyAdapter(this, iptvList, clientId);
 		list.setAdapter(iptvadapter);
 	}
 

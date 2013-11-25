@@ -12,11 +12,14 @@ import org.codehaus.jackson.map.ObjectMapper;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Window;
+import android.widget.Toast;
 
 import com.mobilevue.vod.R;
 import com.mobilvue.data.VideoUriData;
@@ -34,6 +37,7 @@ public class OrderEventActivity extends Activity {
 		Log.d(TAG, "onCreate");
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_order_event);
+		Utilities.lockScreenOrientation(getApplicationContext(), OrderEventActivity.this);
 		orderEvent();
 	}
 
@@ -54,7 +58,7 @@ public class OrderEventActivity extends Activity {
 			mProgressDialog = new ProgressDialog(OrderEventActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
 			mProgressDialog.setMessage("RetrivingDetials.....");
-			mProgressDialog.setCancelable(true);
+			mProgressDialog.setCancelable(false);
 			mProgressDialog.show();
 		}
 
@@ -106,10 +110,18 @@ public class OrderEventActivity extends Activity {
 				Bundle bundle = new Bundle();
 				bundle.putString("URL", data.getResourceIdentifier());
 				intent.putExtras(bundle);
+				/*Utilities.lockScreenOrientation(getApplicationContext(),
+						OrderEventActivity.this);*/
 				OrderEventActivity.this.finish();
 				startActivity(intent);
 			}
-
+			else
+			{
+				/*Utilities.lockScreenOrientation(getApplicationContext(),
+						OrderEventActivity.this);*/
+				Toast.makeText(getApplicationContext(), resObj.getsErrorMessage(), Toast.LENGTH_LONG).show();
+				finish();
+			}
 		}
 
 		private VideoUriData readJsonUserVideoUri(String jsonText) {
