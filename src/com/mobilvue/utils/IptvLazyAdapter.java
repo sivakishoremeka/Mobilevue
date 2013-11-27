@@ -17,7 +17,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mobilevue.vod.R;
-import com.mobilvue.vod.PlanMenuActivity;
 import com.mobilvue.vod.VideoPlayerActivity;
 
 public class IptvLazyAdapter extends BaseAdapter {

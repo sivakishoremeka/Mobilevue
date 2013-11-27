@@ -1,18 +1,8 @@
 package com.mobilvue.vod;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 
 import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 import org.codehaus.jackson.annotate.JsonMethod;
@@ -27,24 +17,18 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.mobilevue.vod.R;
 import com.mobilvue.data.ActivePlansData;
-import com.mobilvue.data.ClientData;
-import com.mobilvue.data.ClientResponseData;
-import com.mobilvue.utils.MySSLSocketFactory;
-import com.mobilvue.utils.ResponseObj;
+import com.mobilvue.data.ResponseObj;
 import com.mobilvue.utils.Utilities;
 
 public class AuthenticationAcitivity extends Activity {
@@ -67,13 +51,13 @@ public class AuthenticationAcitivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.menu1, menu);
+		getMenuInflater().inflate(R.menu.menu, menu);
 		return true;
 	}
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.menu1_btn_refresh:
+		case R.id.menu_btn_refresh:
 			validateDevice();
 			break;
 		default:
@@ -100,7 +84,7 @@ public class AuthenticationAcitivity extends Activity {
 			}
 			mProgressDialog = new ProgressDialog(AuthenticationAcitivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Authenticating Details...");
+			mProgressDialog.setMessage("Authenticating Details");
 			mProgressDialog.setCancelable(false);
 			mProgressDialog.show();
 		}

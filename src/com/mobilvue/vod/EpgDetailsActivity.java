@@ -23,7 +23,7 @@ import android.widget.Toast;
 import com.mobilevue.vod.R;
 import com.mobilvue.data.EpgData;
 import com.mobilvue.data.ProgramGuideData;
-import com.mobilvue.utils.ResponseObj;
+import com.mobilvue.data.ResponseObj;
 import com.mobilvue.utils.Utilities;
 
 public class EpgDetailsActivity extends Activity {
@@ -43,7 +43,7 @@ public class EpgDetailsActivity extends Activity {
 		TableRow tr_head = new TableRow(this);
 		tr_head.setId(10);
 		tr_head.setBackgroundColor(Color.GRAY);
-		tr_head.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
+		tr_head.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
 				LayoutParams.WRAP_CONTENT));
 
 		TextView program = new TextView(this);
@@ -68,7 +68,7 @@ public class EpgDetailsActivity extends Activity {
 		tr_head.addView(endtime); // add the column to the table row here
 
 		tl.addView(tr_head, new TableLayout.LayoutParams(
-				LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 
 		tl.removeAllViews();
 
@@ -104,7 +104,7 @@ public class EpgDetailsActivity extends Activity {
 			}
 			mProgressDialog = new ProgressDialog(EpgDetailsActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("RetrivingDetials.....");
+			mProgressDialog.setMessage("Retriving Detials");
 			mProgressDialog.setCancelable(false);
 			mProgressDialog.show();
 		}
@@ -222,7 +222,7 @@ public class EpgDetailsActivity extends Activity {
 		TableRow tr_head = new TableRow(this);
 		tr_head.setId(10);
 		tr_head.setBackgroundColor(Color.GRAY);
-		tr_head.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
+		tr_head.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
 				LayoutParams.WRAP_CONTENT));
 
 		TextView program = new TextView(this);
@@ -247,7 +247,7 @@ public class EpgDetailsActivity extends Activity {
 		tr_head.addView(endtime); // add the column to the table row here
 
 		tl.addView(tr_head, new TableLayout.LayoutParams(
-				LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 
 		Integer count = 0;
 		// Here add the tables rows in each iteration
@@ -257,7 +257,7 @@ public class EpgDetailsActivity extends Activity {
 			if (count % 2 != 0)
 				tr.setBackgroundColor(Color.GRAY);
 			tr.setId(100 + count);
-			tr.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
+			tr.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
 					LayoutParams.WRAP_CONTENT));
 
 			TextView programCol = new TextView(this);
@@ -283,7 +283,7 @@ public class EpgDetailsActivity extends Activity {
 
 			// finally add this to the table row
 			tl.addView(tr, new TableLayout.LayoutParams(
-					LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 			count++;
 		}
 

@@ -1,4 +1,4 @@
-package com.mobilvue.utils;
+package com.mobilvue.data;
 
 public class ResponseObj {
 	private int statusCode;

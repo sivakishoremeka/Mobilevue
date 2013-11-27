@@ -1,13 +1,5 @@
 package com.mobilvue.data;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.codehaus.jackson.map.ser.std.SerializableSerializer;
-
-import android.os.Parcelable;
-
 public class PlansData {
 	int id;
 	int statusName;

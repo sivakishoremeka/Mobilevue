@@ -1,6 +1,5 @@
 package com.mobilvue.data;
 
-import java.math.BigDecimal;
 
 public class VodData {
 

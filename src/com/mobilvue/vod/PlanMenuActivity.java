@@ -10,31 +10,23 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import com.mobilevue.vod.R;
 import com.mobilvue.data.IptvData;
-import com.mobilvue.data.PlansData;
+import com.mobilvue.data.ResponseObj;
 import com.mobilvue.utils.IptvLazyAdapter;
-import com.mobilvue.utils.ResponseObj;
 import com.mobilvue.utils.Utilities;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.app.Activity;
+import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
-public class PlanMenuActivity extends Activity {
+public class PlanMenuActivity extends ListActivity {
 
 	/** This is live/Iptv activity */
 
@@ -48,9 +40,6 @@ public class PlanMenuActivity extends Activity {
 	public static final String KEY_THUMB_URL = "thumb_url";
 	public static final String KEY_VIDEO_URL = "video_url";
 
-	GridView gridView;
-	Button vod;
-	Button iptv;
 	private ProgressDialog mProgressDialog;
 	ListView list;
 	IptvLazyAdapter iptvadapter;
@@ -79,56 +68,6 @@ public class PlanMenuActivity extends Activity {
 		}
 	}
 
-	@Override
-	protected void onResume() {
-		// TODO Auto-generated method stub
-		super.onResume();
-		// validateIptv();
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.menu, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		super.onPrepareOptionsMenu(menu);
-		// menu.findItem(R.id.menu_btn_live_tv).setVisible(false);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menu_btn_live_tv:
-			// validateIptv();
-			break;
-		case R.id.menu_btn_vod:
-			Intent i = getIntent();
-			Bundle extras = i.getExtras();
-			clientId = extras.getInt("CLIENTID");
-			Intent intent = new Intent(PlanMenuActivity.this,
-					VodMenuActivity.class);
-			Bundle bundle = new Bundle();
-			bundle.putInt("CLIENTID", clientId);
-			intent.putExtras(bundle);
-			startActivity(intent);
-			break;
-
-		default:
-			break;
-		}
-
-		return true;
-	}
-
-	public void btnIptv_Onclick(View v) {
-		validateIptv();
-	}
-
 	private void validateIptv() {
 		new ValidateIptvAsyncTask().execute();
 	}
@@ -144,7 +83,7 @@ public class PlanMenuActivity extends Activity {
 			}
 			mProgressDialog = new ProgressDialog(PlanMenuActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("RetrivingDetials.....");
+			mProgressDialog.setMessage("Retriving Detials");
 			mProgressDialog.setCancelable(false);
 			mProgressDialog.show();
 		}
@@ -230,7 +169,7 @@ public class PlanMenuActivity extends Activity {
 			// URL = data.getUrl();
 			iptvList.add(map);
 		}
-		list = (ListView) findViewById(R.id.iptv_listView);
+		list = getListView();
 		iptvadapter = new IptvLazyAdapter(this, iptvList, clientId);
 		list.setAdapter(iptvadapter);
 	}
@@ -243,13 +182,7 @@ public class PlanMenuActivity extends Activity {
 	}
 
 	public void myClick(View v) {
-		/*
-		 * Intent i = getIntent(); Bundle extras = i.getExtras(); final String
-		 * ClientId = extras.getString("Id");
-		 */
-
-		// TODO Auto-generated method stub
-
+		
 		Intent intent = new Intent(PlanMenuActivity.this,
 				VideoPlayerActivity.class);
 		Bundle bundle = new Bundle();
@@ -262,14 +195,8 @@ public class PlanMenuActivity extends Activity {
 		// "rtmp://wawootv.com:1935/vod/mp4:uploads/admin/don_bishop_2_mid/don_bishop_2_mid.mp4");
 		// bundle.putString("url",
 		// "rtmp://wawootv.com:1935/vod/mp4:uploads/admin/my_only_girl_1_mid/my_only_girl_1_mid.mp4");
-
 		intent.putExtras(bundle);
 		startActivity(intent);
-
-	}
-
-	public void btnVod_Onclick(View v) {
-		startActivity(new Intent(PlanMenuActivity.this, VodMenuActivity.class));
 	}
 
 }

@@ -1,42 +1,23 @@
 package com.mobilvue.vod;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.util.EntityUtils;
 import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -45,13 +26,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.mobilevue.vod.R;
-import com.mobilvue.data.ActivePlansData;
-import com.mobilvue.data.ClientData;
-import com.mobilvue.data.ClientResponseData;
-import com.mobilvue.data.OrdersData;
 import com.mobilvue.data.PlansData;
-import com.mobilvue.utils.MySSLSocketFactory;
-import com.mobilvue.utils.ResponseObj;
+import com.mobilvue.data.ResponseObj;
 import com.mobilvue.utils.Utilities;
 
 public class PlanActivity extends Activity implements OnClickListener {
@@ -143,7 +119,7 @@ public class PlanActivity extends Activity implements OnClickListener {
 			}
 			mProgressDialog = new ProgressDialog(PlanActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Processing Order...");
+			mProgressDialog.setMessage("Processing Order");
 			mProgressDialog.setCancelable(false);
 			mProgressDialog.show();
 		}
@@ -220,7 +196,7 @@ public class PlanActivity extends Activity implements OnClickListener {
 			}
 			mProgressDialog = new ProgressDialog(PlanActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Retrieving Plans...");
+			mProgressDialog.setMessage("Retrieving Plans");
 			mProgressDialog.setCancelable(false);
 			mProgressDialog.show();
 		}

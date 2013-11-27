@@ -10,15 +10,13 @@ import org.codehaus.jackson.map.ObjectMapper;
 import com.mobilevue.vod.R;
 import com.mobilvue.data.ClientData;
 import com.mobilvue.data.ClientResponseData;
-import com.mobilvue.utils.ResponseObj;
+import com.mobilvue.data.ResponseObj;
 import com.mobilvue.utils.Utilities;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -88,7 +86,7 @@ public class RegisterActivity extends Activity {
 			}
 			mProgressDialog = new ProgressDialog(RegisterActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Registering Details...");
+			mProgressDialog.setMessage("Registering Details");
 			mProgressDialog.setCancelable(false);
 			mProgressDialog.show();
 		}

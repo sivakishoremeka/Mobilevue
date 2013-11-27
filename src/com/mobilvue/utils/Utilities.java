@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
@@ -18,11 +19,11 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.mobilevue.vod.R;
+import com.mobilvue.data.ResponseObj;
 
 import android.app.Activity;
 import android.content.Context;
@@ -30,7 +31,6 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.provider.Settings;
 import android.util.Log;
 
 public class Utilities {
@@ -131,8 +131,8 @@ public class Utilities {
 			//		+ "YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=");
 			httpPost.setHeader("Content-Type", "application/json");
 			// append device id to url
-			String androidId = Settings.Secure.getString(
-					context.getContentResolver(), Settings.Secure.ANDROID_ID);
+			//String androidId = Settings.Secure.getString(
+			//		context.getContentResolver(), Settings.Secure.ANDROID_ID);
 			/*
 			 * try { //json.put("deviceId",androidId);
 			 * json.put("deviceId","efa4c629924f8139"); } catch (JSONException
@@ -231,4 +231,5 @@ public class Utilities {
 	public static void unlockScreenOrientation(Activity activity) {
 		activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 	}
+	
 }

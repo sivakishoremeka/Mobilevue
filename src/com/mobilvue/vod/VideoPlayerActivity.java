@@ -15,10 +15,8 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -48,8 +46,12 @@ public class VideoPlayerActivity extends Activity implements
 			videoHolder.addCallback(this);
 			// if(player!=null && !player.isPlaying()){
 			player = new MediaPlayer();
-
-			controller = new VideoControllerView(this);
+/** Siva Kishore
+ * To disable rew and ffwd we using new VideoControllerView(this,false) instead of VideoControllerView(this).
+ *  The boolean value sets ffwd and rew button's visibility to "gone". 
+ */
+			//controller = new VideoControllerView(this);
+			controller = new VideoControllerView(this,false);
 
 			try {
 				player.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -59,21 +61,11 @@ public class VideoPlayerActivity extends Activity implements
 						Uri.parse(getIntent().getStringExtra("URL")));
 				Log.d("VideoPlayerActivity", "VideoURL:"
 						+ getIntent().getStringExtra("URL"));
-
-				
 				/*player.setDataSource(this,
 						Uri.parse("android.resource://" + getPackageName() +"/"+R.raw.qwe));*/
-				
-/*				  player.setDataSource(this, Uri.parse(
+                /*player.setDataSource(this, Uri.parse(
 				  "http://www.wawootv.com/admin/uploads/admin/don_bishop_1_mid/don_bishop_1_mid.mp4"
-				 ));
-	*/			 
-
-				// Internet Wowza server url
-
-				// player.setDataSource(this,
-				// Uri.parse("http://www.wowza.com/_h264/BigBuckBunny_115k.mov"));
-                
+				 ));*/                 
 				player.setOnPreparedListener(this);
 					player.setOnInfoListener(new OnInfoListener() {					
 					public boolean onInfo(MediaPlayer mp, int what, int extra) {
@@ -84,7 +76,7 @@ public class VideoPlayerActivity extends Activity implements
 							}
 							mProgressDialog = new ProgressDialog(VideoPlayerActivity.this,
 									ProgressDialog.THEME_HOLO_DARK);
-							mProgressDialog.setMessage("Buffering...");
+							mProgressDialog.setMessage("Buffering");
 							mProgressDialog.setCancelable(false);
 							mProgressDialog.show();
 	                    } else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
@@ -92,6 +84,13 @@ public class VideoPlayerActivity extends Activity implements
 	            				mProgressDialog.dismiss();
 	            			}
 	                    }
+	                    else if (what == MediaPlayer.MEDIA_ERROR_TIMED_OUT) {
+	                    	if (mProgressDialog.isShowing()) {
+	            				mProgressDialog.dismiss();
+	            			}
+	                    	Log.d(TAG,"Request timed out.Closing MediaPlayer");
+	                    	finish();
+	                    	}
 						return false;
 					}
 				});
@@ -123,7 +122,7 @@ public class VideoPlayerActivity extends Activity implements
 				e.printStackTrace();
 			} catch (Exception e) {
 				e.printStackTrace();
-			}		// }
+			}		
 	}
 
 	@Override
@@ -150,7 +149,7 @@ public class VideoPlayerActivity extends Activity implements
 		}
 		mProgressDialog = new ProgressDialog(VideoPlayerActivity.this,
 				ProgressDialog.THEME_HOLO_DARK);
-		mProgressDialog.setMessage("Starting MediaPlayer...");
+		mProgressDialog.setMessage("Starting MediaPlayer");
 		mProgressDialog.setCancelable(false);
 		mProgressDialog.show();
 	}

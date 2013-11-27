@@ -12,8 +12,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -22,8 +20,8 @@ import android.view.Window;
 import android.widget.Toast;
 
 import com.mobilevue.vod.R;
+import com.mobilvue.data.ResponseObj;
 import com.mobilvue.data.VideoUriData;
-import com.mobilvue.utils.ResponseObj;
 import com.mobilvue.utils.Utilities;
 
 public class OrderEventActivity extends Activity {
@@ -57,7 +55,7 @@ public class OrderEventActivity extends Activity {
 			}
 			mProgressDialog = new ProgressDialog(OrderEventActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("RetrivingDetials.....");
+			mProgressDialog.setMessage("Retriving Detials");
 			mProgressDialog.setCancelable(false);
 			mProgressDialog.show();
 		}
