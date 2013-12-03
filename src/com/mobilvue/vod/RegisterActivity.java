@@ -36,8 +36,10 @@ public class RegisterActivity extends Activity {
 	private Editor mPrefsEditor;
 	private ProgressDialog mProgressDialog;
 	Handler handler = null;
-	EditText username;
-	EditText emailValidate;
+	EditText et_MobileNumber;
+	EditText et_FirstName;
+	EditText et_LastName;
+	EditText et_EmailId;
 	int clientId;
 
 	@Override
@@ -45,25 +47,36 @@ public class RegisterActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_register);
 		// Button register = (Button) findViewById(R.id.Register);
-		username = (EditText) findViewById(R.id.username);
-		emailValidate = (EditText) findViewById(R.id.EmailId);
+		et_MobileNumber = (EditText) findViewById(R.id.a_reg_et_mobile_no);
+		et_FirstName = (EditText) findViewById(R.id.a_reg_et_first_name);
+		et_LastName = (EditText) findViewById(R.id.a_reg_et_last_name);
+		et_EmailId = (EditText) findViewById(R.id.a_reg_et_email_id);
 		Utilities.unlockScreenOrientation(RegisterActivity.this);
 	}
 
-	public void btnRegister_onClick(View v) {
-		String email = emailValidate.getText().toString().trim();
+	public void btnSubmit_onClick(View v) {
+		String email = et_EmailId.getText().toString().trim();
 		String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
 		if (email.matches(emailPattern)) {
 			Utilities.lockScreenOrientation(getApplicationContext(),
 					RegisterActivity.this);
 			ClientData client = new ClientData();
-			client.setFullname(username.getText().toString());
-			client.setEmail(emailValidate.getText().toString());
+			client.setPhone(et_MobileNumber.getText().toString());
+			client.setFirstname(et_FirstName.getText().toString());
+			client.setLastname(et_LastName.getText().toString());
+			client.setEmail(et_EmailId.getText().toString());
 			CreateClient(client);
 		} else {
 			Toast.makeText(RegisterActivity.this,
 					"Please enter valid Email Id", Toast.LENGTH_LONG).show();
 		}
+	}
+	public void btnCancel_onClick(View v) {
+		/*et_MobileNumber.setText("");
+		et_FirstName.setText("");
+		et_LastName.setText("");
+		et_EmailId.setText("");*/
+		finish();
 	}
 
 	private void CreateClient(ClientData client) {
@@ -100,13 +113,13 @@ public class RegisterActivity extends Activity {
 				if (Utilities.isNetworkAvailable(getApplicationContext())) {
 					HashMap<String, String> map = new HashMap<String, String>();
 					map.put("TagURL", "clients");
-					map.put("officeId", "1");// paymentInfo.getClientId());
+					map.put("officeId", "1");
 					map.put("dateFormat", "dd MMMM yyyy");
-					map.put("lastname", "");// paymentInfo.getPaymentDate());
-					map.put("firstname", "");// paymentInfo.getPaymentCode());
+					map.put("lastname", clientData.getLastname());
+					map.put("firstname", clientData.getFirstname());
 					map.put("middlename", "");
 					map.put("locale", "en");
-					map.put("fullname", clientData.getFullname());
+					map.put("fullname", "");
 					map.put("externalId", "");
 					map.put("clientCategory", "22");
 					map.put("active", "false");
@@ -117,7 +130,7 @@ public class RegisterActivity extends Activity {
 					map.put("state", "ANDHRA PRADESH");
 					map.put("country", "India");
 					map.put("zipCode", "436346");
-					map.put("phone", "346346");
+					map.put("phone", clientData.getPhone());
 					map.put("email", clientData.getEmail());
 					resObj = Utilities.callExternalApiPostMethod(
 							getApplicationContext(), map);

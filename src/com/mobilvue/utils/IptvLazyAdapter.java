@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mobilevue.vod.R;
+import com.mobilvue.vod.EpgDetailsActivity;
 import com.mobilvue.vod.VideoPlayerActivity;
 
 public class IptvLazyAdapter extends BaseAdapter {
@@ -61,13 +62,9 @@ public class IptvLazyAdapter extends BaseAdapter {
 		
 		final HashMap<String, String> vod  = data.get(position);;
 		
-		TextView title = (TextView) vi.findViewById(R.id.mediatitle); // title
-		TextView artist = (TextView) vi.findViewById(R.id.artist); // artist
-																	// name
-		TextView duration = (TextView) vi.findViewById(R.id.duration); // duration
-		ImageView thumb_image = (ImageView) vi.findViewById(R.id.list_image); // thumb
-																				// image
-        Button watch = (Button)vi.findViewById(R.id.watch);  
+		TextView title = (TextView) vi.findViewById(R.id.iptv_list_row_tv_ch_name); 
+		ImageView thumb_image = (ImageView) vi.findViewById(R.id.iptv_list_row_iv_ch_image);
+        Button watch = (Button)vi.findViewById(R.id.iptv_list_row_btn_watch);  
         watch.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -83,10 +80,21 @@ public class IptvLazyAdapter extends BaseAdapter {
 				
 			}
 		});
-		// Setting all values in listview
+        
+        Button btn_EPG_Details = (Button)vi.findViewById(R.id.iptv_list_row_btn_epg); 
+        btn_EPG_Details.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(activity,
+						EpgDetailsActivity.class);
+				Bundle bundle = new Bundle();
+				bundle.putString(KEY_TITLE, vod.get(KEY_TITLE));
+				intent.putExtras(bundle);
+				activity.startActivity(intent);
+			}
+		});
 		title.setText(vod.get(KEY_TITLE));
-		artist.setText(vod.get(KEY_ARTIST));
-		duration.setText(vod.get(KEY_DURATION));
 		imageLoader.DisplayImage(vod.get(KEY_THUMB_URL), thumb_image);
 		return vi;
 	}

@@ -15,14 +15,15 @@ import org.codehaus.jackson.type.TypeReference;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobilevue.vod.R;
@@ -30,14 +31,14 @@ import com.mobilvue.data.PlansData;
 import com.mobilvue.data.ResponseObj;
 import com.mobilvue.utils.Utilities;
 
-public class PlanActivity extends Activity implements OnClickListener {
+public class PlanActivity extends Activity {
 
 	public static String TAG = "PlanActivity";
 	private final static String NETWORK_ERROR = "Network error.";
 	private ProgressDialog mProgressDialog;
 	ListView listView;
 	ArrayAdapter<String> adapter;
-	Button button;
+	//Button button;
 	ArrayList<HashMap<String, String>> viewList;
 	String jsonPlansResult;
 	boolean isListHasPlans = false;
@@ -47,8 +48,8 @@ public class PlanActivity extends Activity implements OnClickListener {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_plan);
-		button = (Button) findViewById(R.id.btn_submit);
-		listView = (ListView) findViewById(R.id.list);
+		//button = (Button) findViewById(R.id.a_plan_btn_submit);
+		listView = (ListView) findViewById(R.id.a_plan_listview);
 		listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		/** We retrive the plans and bind the plans to listview */
 		if (savedInstanceState != null) {
@@ -62,42 +63,59 @@ public class PlanActivity extends Activity implements OnClickListener {
 		} else {
 			List<PlansData> activePlansList = getPlansFromJson(jsonPlansResult);
 			buildPlansList(activePlansList);
-		}
+		}				
 	}
 
 	private void buildPlansList(List<PlansData> result) {
 		viewList = new ArrayList<HashMap<String, String>>();
-		String[] codeArr = new String[result.size()];
 
+		String[] codeArr = new String[result.size()];
 		for (int i = 0; i < result.size(); i++) {
 			HashMap<String, String> dataMap = new HashMap<String, String>();
 			PlansData data = result.get(i);
-			codeArr[i] = data.getPlanCode();
+			codeArr[i] = data.getPlanCode().toUpperCase();
 			dataMap.put("id", (data.getId()) + "");
 			dataMap.put("code", data.getPlanCode());
 			dataMap.put("status", data.getPlanstatus().getValue());
 			dataMap.put("description", data.getPlanDescription());
 			viewList.add(dataMap);
 		}
-		adapter = new ArrayAdapter<String>(this,
-				android.R.layout.simple_list_item_single_choice, codeArr);
-		listView.setAdapter(adapter);
-		button.setOnClickListener(this);
-	}
+		//adapter = new ArrayAdapter<String>(this,
+		//		android.R.layout.simple_list_item_single_choice, codeArr);
+		//listView.setAdapter(adapter);
+		 adapter=new ArrayAdapter<String>(
+		            this,android.R.layout.simple_list_item_single_choice, codeArr){
 
-	public void onClick(View v) {
-
-		int count = listView.getCheckedItemCount();
-		if (count > 0) {
-			Utilities.lockScreenOrientation(getApplicationContext(),
-					PlanActivity.this);
-			orderPlans(viewList.get(listView.getCheckedItemPosition())
-					.get("id"));
-		} else {
-			Toast.makeText(getApplicationContext(), "Select a Plan",
-					Toast.LENGTH_SHORT).show();
-		}
+						@Override
+						public View getView(int position, View convertView,
+								ViewGroup parent) {
+							View view =  super.getView(position, convertView, parent);
+							TextView textview = (TextView) view.findViewById(android.R.id.text1);
+							textview.setTextColor(Color.rgb(255, 124, 0));
+					       	return view;	
+						}
+		    };
+		    listView.setAdapter(adapter);
+		    //button.setOnClickListener(this);
 	}
+	
+	
+	public void btnSubmit_onClick(View v) {
+	    int count = listView.getCheckedItemCount();
+			if (count > 0) {
+				Utilities.lockScreenOrientation(getApplicationContext(),
+						PlanActivity.this);
+				orderPlans(viewList.get(listView.getCheckedItemPosition())
+						.get("id"));
+			} else {
+				Toast.makeText(getApplicationContext(), "Select a Plan",
+						Toast.LENGTH_SHORT).show();
+			}
+	}
+	public void btnCancel_onClick(View v) {
+		finish();
+	}
+	
 
 	public void orderPlans(String planid) {
 		new OrderPlansAsyncTask().execute(planid);
@@ -166,7 +184,7 @@ public class PlanActivity extends Activity implements OnClickListener {
 			// unlockScreenOrientation();
 			if (resObj.getStatusCode() == 200) {
 				Intent intent = new Intent(PlanActivity.this,
-						PlanMenuActivity.class);
+						IPTVActivity.class);
 				Bundle bundle = new Bundle();
 				bundle.putInt("CLIENTID", clientId);
 				intent.putExtras(bundle);

@@ -159,8 +159,11 @@ public class AuthenticationAcitivity extends Activity {
 				List<ActivePlansData> activePlansList = readJsonUser(resObj
 						.getsResponse());
 				if (!activePlansList.isEmpty()) {
+				//	Intent intent = new Intent(AuthenticationAcitivity.this,
+				//			PlanMenuActivity.class);
 					Intent intent = new Intent(AuthenticationAcitivity.this,
-							PlanMenuActivity.class);
+							IPTVActivity.class);
+				
 					Bundle bundle = new Bundle();
 					bundle.putInt("CLIENTID", clientid);
 					intent.putExtras(bundle);

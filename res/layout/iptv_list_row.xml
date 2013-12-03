@@ -2,90 +2,48 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/list_selector"
-    android:orientation="horizontal"
-    android:padding="5dip" >
+    android:background="#DAD8D9" >
 
-    <!-- ListRow Left sied Thumbnail image -->
+    <ImageView
+        android:id="@+id/iptv_list_row_iv_ch_image"
+        android:layout_width="100dp"
+        android:layout_height="80dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:padding="5dp"
+        android:src="@drawable/img_film_clap" />
 
     <LinearLayout
-        android:id="@+id/thumbnail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_marginRight="5dip"
-        android:background="@drawable/image_bg"
-        android:padding="3dip" >
+        android:layout_toRightOf="@+id/iptv_list_row_iv_ch_image"
+        android:orientation="vertical" >
 
-        <ImageView
-            android:id="@+id/list_image"
-            android:layout_width="50dip"
-            android:layout_height="50dip"
-            android:src="@drawable/rihanna" />
+        <TextView
+            android:id="@+id/iptv_list_row_tv_ch_name"
+            style="@android:style/TextAppearance.Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1" >
+
+            <Button
+                android:id="@+id/iptv_list_row_btn_watch"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_watch" />
+
+            <Button
+                android:id="@+id/iptv_list_row_btn_epg"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:background="@drawable/btn_epg" />
+        </LinearLayout>
     </LinearLayout>
-
-    <!-- Title Of Movie -->
-
-    <TextView
-        android:id="@+id/mediatitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/thumbnail"
-        android:layout_toRightOf="@+id/thumbnail"
-        android:text="Rihanna Love the way lie"
-        android:textColor="#040404"
-        android:textSize="15dip"
-        android:textStyle="bold"
-        android:typeface="sans" />
-
-    <!-- Artist Name -->
-
-    <TextView
-        android:id="@+id/artist"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/watch"
-        android:text="List Of Channel Data  ..."
-        android:textColor="#343434"
-        android:textSize="50dip"
-        android:textStyle="bold" />
-
-    <!-- Rightend Duration -->
-
-    <TextView
-        android:id="@+id/duration"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignTop="@id/mediatitle"
-        android:layout_marginRight="5dip"
-        android:gravity="right"
-        android:text="5:45"
-        android:textColor="#10bcc9"
-        android:textSize="10dip"
-        android:textStyle="bold" />
-
-    <!-- EPG BUTTON FOR LIST -->
-    <!-- android:focusable="false" -->
-
-    <Button
-        android:id="@+id/watch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/mediatitle"
-        android:layout_toRightOf="@+id/thumbnail"
-        android:text="WATCH" />
-
-    <Button
-        android:id="@+id/epg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/watch"
-        android:layout_alignBottom="@+id/watch"
-        android:layout_marginLeft="15dp"
-        android:layout_toRightOf="@+id/watch"
-        android:onClick="myClickHandler"
-        android:text="EPG" />
 
 </RelativeLayout>

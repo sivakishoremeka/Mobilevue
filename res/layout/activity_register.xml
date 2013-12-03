@@ -1,100 +1,133 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:fillViewport="true" >
+    android:background="#FF7C00"
+    android:orientation="vertical" >
 
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/mobilvue" >
+    <ImageView
+        android:id="@+id/a_reg_iv_img_acc"
+        android:layout_width="50dp"
+        android:layout_height="35dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="3dp"
+        android:layout_marginTop="3dp"
+        android:src="@drawable/img_acc" />
 
-        <!-- Header  Starts -->
+    <LinearLayout
+        android:layout_width="170dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/img_bg_reg_forum"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/a_reg_tv_user_reg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="3dp"
+            android:layout_marginTop="2dp"
+            android:text="@string/user_reg"
+            android:textColor="#5A5A5A"
+            android:textSize="9sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/a_reg_et_mobile_no"
+            android:layout_width="140dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/img_et_reg"
+            android:ems="10"
+            android:hint="@string/mobile_no"
+            android:inputType="phone"
+            android:textSize="9sp"
+            android:paddingLeft="10dp" >
+
+            <requestFocus />
+        </EditText>
+
+        <EditText
+            android:id="@+id/a_reg_et_first_name"
+            android:layout_width="140dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/img_et_reg"
+            android:ems="10"
+            android:hint="@string/first_name"
+            android:inputType="text"
+            android:textSize="9sp"
+            android:paddingLeft="10dp" />
+
+        <EditText
+            android:id="@+id/a_reg_et_last_name"
+            android:layout_width="140dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/img_et_reg"
+            android:ems="10"
+            android:hint="@string/last_name"
+            android:inputType="text"
+            android:textSize="9sp"
+            android:paddingLeft="10dp" />
+
+        <EditText
+            android:id="@+id/a_reg_et_email_id"
+            android:layout_width="140dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/img_et_reg"
+            android:ems="10"
+            android:hint="@string/email_id"
+            android:inputType="text"
+            android:textSize="9sp"
+            android:paddingLeft="10dp" />
 
         <LinearLayout
-            android:id="@+id/header"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:background="@layout/header_gradient"
-            android:paddingBottom="5dip"
-            android:paddingTop="5dip" >
-
-            <!-- Logo Start -->
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dip" />
-            <!-- Logo Ends -->
-        </LinearLayout>
-        <!-- Header Ends -->
-        <!-- Footer Start -->
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true" >
-        </LinearLayout>
-        <!-- Footer Ends -->
-
-
-        <!-- Login Form -->
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:orientation="vertical"
-            android:padding="10dip" >
-
-            <!-- Username Label -->
-
-            <EditText
-                android:id="@+id/username"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="20dip"
-                android:layout_marginTop="5dip"
-                android:hint="User Name"
-                android:inputType="text"
-                android:maxLength="30"
-                android:singleLine="true" />
-
-            <!-- Password Label -->
-
-            <EditText
-                android:id="@+id/EmailId"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dip"
-                android:hint="Email ID"
-                android:singleLine="true" />
-
-            <!-- Login button -->
+            android:layout_width="140dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="3dp" >
 
             <Button
-                android:id="@+id/Register"
-                style="@style/btnStyleSeagull"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="35dp"
-                android:layout_marginRight="35dp"
-                android:layout_marginTop="10dip"
-                android:onClick="btnRegister_onClick"
-                android:text="Register" />
-            <!-- Link to Registration Screen -->
+                android:id="@+id/a_reg_btn_cancel"
+                android:layout_width="60dp"
+                android:layout_height="19dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_weight="1"
+                android:background="@drawable/btn_cancel"
+                android:onClick="btnCancel_onClick" />
 
-            <TextView
-                android:id="@+id/link_to_register"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="40dip"
-                android:layout_marginTop="40dip"
-                android:gravity="center"
-                android:textColor="#0b84aa"
-                android:textSize="20dip" />
+            <Button
+                android:id="@+id/a_reg_btn_submit"
+                android:layout_width="60dp"
+                android:layout_height="19dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="3dp"
+                android:layout_weight="1"
+                android:background="@drawable/btn_submit"
+                android:onClick="btnSubmit_onClick" />
         </LinearLayout>
-        <!-- Login Form Ends -->
-    </RelativeLayout>
 
-</RelativeLayout>
+        <TextView
+            android:id="@+id/a_reg_tv_note"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:layout_marginTop="3dp"
+            android:gravity="center_horizontal"
+            android:text="@string/reg_note"
+            android:textAlignment="center"
+            android:textColor="#5A5A5A"
+            android:textSize="7sp" />
+    </LinearLayout>
+
+</LinearLayout>
