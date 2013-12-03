@@ -12,14 +12,15 @@
     <string name="mobile_no">Mobile No</string>
     <string name="prog_guide">Program Guide</string>
     <string name="prog_title">Program Title</string>
+    <string name="refresh">Refresh</string>
     <string name="reg_acc">Register your account</string>
     <string name="reg_note">ACC Mobile TV allows user with Mobile Phones, Smart Phones &amp; Tablets
          to enjoy premium digital TV signals on their devices.</string>
     <string name="sel_pkg">Select Package</string>
-    <string name="server_url1">https://41.75.85.206:8080/mifosng-provider/api/v1/</string>
-    <string name="server_url">https://spark.openbillingsystem.com/mifosng-provider/api/v1/</string>
+    <string name="server_url">https://spark.openbillingsystem.com/obsplatform/api/v1/</string>
     <string name="start_time">Start Time</string>
     <string name="user_name">User Name</string>
     <string name="user_reg">User Registration</string>
+    <string name="vod">VOD</string>
 
 </resources>

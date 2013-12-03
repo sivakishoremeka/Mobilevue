@@ -102,7 +102,7 @@
                 android:layout_marginRight="5dp"
                 android:layout_weight="1"
                 android:onClick="btnCancel_onClick" 
-                android:background="@drawable/btn_cancel" />
+                android:background="@drawable/btn_cancel_selector" />
 
             <Button
                 android:id="@+id/a_reg_btn_submit"
@@ -112,7 +112,7 @@
                 android:layout_marginRight="5dp"
                 android:layout_weight="1"
                 android:onClick="btnSubmit_onClick" 
-                android:background="@drawable/btn_submit" />
+                android:background="@drawable/btn_submit_selector" />
         </LinearLayout>
 
         <TextView

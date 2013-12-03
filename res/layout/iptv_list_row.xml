@@ -36,13 +36,13 @@
                 android:id="@+id/iptv_list_row_btn_watch"
                 android:layout_width="100dp"
                 android:layout_height="40dp"
-                android:background="@drawable/btn_watch" />
+                android:background="@drawable/btn_watch_selector" />
 
             <Button
                 android:id="@+id/iptv_list_row_btn_epg"
                 android:layout_width="100dp"
                 android:layout_height="40dp"
-                android:background="@drawable/btn_epg" />
+                android:background="@drawable/btn_epg_selector" />
         </LinearLayout>
     </LinearLayout>
 

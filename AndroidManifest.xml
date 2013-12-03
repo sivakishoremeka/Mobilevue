@@ -42,6 +42,11 @@
             android:launchMode="singleTask" >
         </activity>
         <activity
+            android:name="com.mobilvue.vod.VodMenuActivity"
+            android:launchMode="singleTask"
+            android:label="">
+        </activity>
+        <activity
             android:name="com.mobilvue.vod.OrderEventActivity"
             android:label="OrderEvent" >
         </activity>

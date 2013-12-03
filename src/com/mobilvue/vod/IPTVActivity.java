@@ -19,6 +19,8 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -61,6 +63,13 @@ public class IPTVActivity extends Activity {
 		} else {
 			buildIptvList(readJsonUserforIPTV(jsonIPTVResult));
 		}
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.nav_menu, menu);
+		return true;
 	}
 
 	private void validateIptv() {
@@ -118,6 +127,31 @@ public class IPTVActivity extends Activity {
 				Utilities.unlockScreenOrientation(IPTVActivity.this);
 			}
 		}
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_btn_live_tv:
+			// validateIptv();
+			break;
+		case R.id.menu_btn_vod:
+			Intent i = getIntent();
+			Bundle extras = i.getExtras();
+			clientId = extras.getInt("CLIENTID");
+			Intent intent = new Intent(IPTVActivity.this,
+					VodActivity.class);
+			Bundle bundle = new Bundle();
+			bundle.putInt("CLIENTID", clientId);
+			intent.putExtras(bundle);
+			startActivity(intent);
+			break;
+
+		default:
+			break;
+		}
+
+		return true;
 	}
 
 	@Override
