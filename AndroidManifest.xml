@@ -10,16 +10,17 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="ACC Mobile TV"
-        android:logo="@drawable/ic_logo"
+        android:logo="@drawable/ic_launcher"
+        android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.mobilvue.vod.AuthenticationAcitivity"
-            android:label="ACC Mobile TV" >
+            android:name="com.mobilevue.vod.AuthenticationAcitivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,36 +28,41 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.mobilvue.vod.RegisterActivity"
-            android:label="Registration" >
+            android:name="com.mobilevue.vod.RegisterActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="" >
         </activity>
         <activity
-            android:name="com.mobilvue.vod.PlanActivity"
-            android:gravity="center"
-            android:label="Plans" >
+            android:name="com.mobilevue.vod.PlanActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="" >
         </activity>
         <activity
-            android:name="com.mobilvue.vod.IPTVActivity"
-            android:gravity="center"
+            android:name="com.mobilevue.vod.IPTVActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:label=""
             android:launchMode="singleTask" >
         </activity>
         <activity
-            android:name="com.mobilvue.vod.VodMenuActivity"
-            android:launchMode="singleTask"
-            android:label="">
+            android:name="com.mobilevue.vod.VodMenuActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label=""
+            android:launchMode="singleTask" >
         </activity>
         <activity
-            android:name="com.mobilvue.vod.OrderEventActivity"
-            android:label="OrderEvent" >
+            android:name="com.mobilevue.vod.OrderEventActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="" >
         </activity>
         <activity
-            android:name="com.mobilvue.vod.VideoPlayerActivity"
+            android:name="com.mobilevue.vod.VideoPlayerActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="landscape" >
         </activity>
         <activity
-            android:name="com.mobilvue.vod.EpgDetailsActivity"
-            android:label="EPG Details" >
+            android:name="com.mobilevue.vod.EpgDetailsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:label="" >
         </activity>
     </application>
 

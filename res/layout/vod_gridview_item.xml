@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:background="@drawable/gv_img_selector" >
 
-    <com.mobilvue.imagehandler.SmartImageView
+    <com.mobilevue.imagehandler.SmartImageView
         android:id="@+id/gridview_img"
         android:layout_width="100dp"
         android:layout_height="135dp"
