@@ -34,7 +34,8 @@ public class IptvLazyAdapter extends BaseAdapter {
 	public ImageLoader imageLoader;
 	public int clientId;
 
-	public IptvLazyAdapter(Activity a, ArrayList<HashMap<String, String>> d,int clientId) {
+	public IptvLazyAdapter(Activity a, ArrayList<HashMap<String, String>> d,
+			int clientId) {
 		activity = a;
 		data = d;
 		inflater = (LayoutInflater) activity
@@ -59,35 +60,37 @@ public class IptvLazyAdapter extends BaseAdapter {
 		View vi = convertView;
 		if (convertView == null)
 			vi = inflater.inflate(R.layout.iptv_list_row, null);
-		
-		final HashMap<String, String> vod  = data.get(position);;
-		
-		TextView title = (TextView) vi.findViewById(R.id.iptv_list_row_tv_ch_name); 
-		ImageView thumb_image = (ImageView) vi.findViewById(R.id.iptv_list_row_iv_ch_image);
-        Button watch = (Button)vi.findViewById(R.id.iptv_list_row_btn_watch);  
-        watch.setOnClickListener(new OnClickListener() {
-			
+
+		final HashMap<String, String> vod = data.get(position);
+		;
+
+		TextView title = (TextView) vi
+				.findViewById(R.id.iptv_list_row_tv_ch_name);
+		ImageView thumb_image = (ImageView) vi
+				.findViewById(R.id.iptv_list_row_iv_ch_image);
+		Button watch = (Button) vi.findViewById(R.id.iptv_list_row_btn_watch);
+		watch.setOnClickListener(new OnClickListener() {
+
 			@Override
 			public void onClick(View arg0) {
-				Intent intent = new Intent(activity,
-						VideoPlayerActivity.class);
+				Intent intent = new Intent(activity, VideoPlayerActivity.class);
 				Bundle bundle = new Bundle();
 				bundle.putInt("CLIENTID", clientId);
+				bundle.putString("VIDEOTYPE", "LIVETV");
 				bundle.putString("URL", vod.get(KEY_VIDEO_URL));
 				intent.putExtras(bundle);
 				activity.startActivity(intent);
 
-				
 			}
 		});
-        
-        Button btn_EPG_Details = (Button)vi.findViewById(R.id.iptv_list_row_btn_epg); 
-        btn_EPG_Details.setOnClickListener(new OnClickListener() {
-			
+
+		Button btn_EPG_Details = (Button) vi
+				.findViewById(R.id.iptv_list_row_btn_epg);
+		btn_EPG_Details.setOnClickListener(new OnClickListener() {
+
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(activity,
-						EpgDetailsActivity.class);
+				Intent intent = new Intent(activity, EpgDetailsActivity.class);
 				Bundle bundle = new Bundle();
 				bundle.putString(KEY_TITLE, vod.get(KEY_TITLE));
 				intent.putExtras(bundle);

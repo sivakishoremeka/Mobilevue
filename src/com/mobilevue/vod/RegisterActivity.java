@@ -1,8 +1,10 @@
 package com.mobilevue.vod;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
+
 import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.map.DeserializationConfig;
@@ -69,11 +71,12 @@ public class RegisterActivity extends Activity {
 					"Please enter valid Email Id", Toast.LENGTH_LONG).show();
 		}
 	}
+
 	public void btnCancel_onClick(View v) {
-		/*et_MobileNumber.setText("");
-		et_FirstName.setText("");
-		et_LastName.setText("");
-		et_EmailId.setText("");*/
+		/*
+		 * et_MobileNumber.setText(""); et_FirstName.setText("");
+		 * et_LastName.setText(""); et_EmailId.setText("");
+		 */
 		finish();
 	}
 
@@ -157,11 +160,10 @@ public class RegisterActivity extends Activity {
 								Settings.Secure.ANDROID_ID);
 						map.put("serialNumber", androidId);// paymentInfo.getPaymentDate());
 						map.put("provisioningSerialNumber", "PROVISIONINGDATA");// paymentInfo.getPaymentCode());
-						Calendar c = Calendar.getInstance();
-						// System.out.println("Current time => " + c.getTime());
+						Date date = new Date();
 						SimpleDateFormat df = new SimpleDateFormat(
-								"dd MMMM yyyy");
-						String formattedDate = df.format(c.getTime());
+								"dd MMMM yyyy", new Locale("en"));
+						String formattedDate = df.format(date);
 						map.put("allocationDate", formattedDate);
 						map.put("locale", "en");
 						map.put("status", "");

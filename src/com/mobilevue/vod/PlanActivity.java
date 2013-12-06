@@ -2,9 +2,10 @@ package com.mobilevue.vod;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 import org.codehaus.jackson.annotate.JsonMethod;
@@ -147,10 +148,10 @@ public class PlanActivity extends Activity {
 			clientId = extras.getInt("CLIENTID");
 			if (Utilities.isNetworkAvailable(getApplicationContext())) {
 				HashMap<String, String> map = new HashMap<String, String>();
-				Calendar c = Calendar.getInstance();
-				SimpleDateFormat df = new SimpleDateFormat("dd MMMM yyyy");
-				String formattedDate = df.format(c.getTime());
-
+				Date date = new Date();
+				SimpleDateFormat df = new SimpleDateFormat("dd MMMM yyyy",
+						new Locale("en"));
+				String formattedDate = df.format(date);
 				map.put("TagURL", "orders/" + clientId);
 				map.put("planCode", planId);
 				map.put("dateFormat", "dd MMMM yyyy");

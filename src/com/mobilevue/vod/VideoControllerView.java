@@ -77,7 +77,8 @@ public class VideoControllerView extends FrameLayout {
 	private TextView mEndTime, mCurrentTime;
 	private boolean mShowing;
 	private boolean mDragging;
-	private static final int sDefaultTimeout = 3000;
+	// private static final int sDefaultTimeout = 3000;
+	public static int sDefaultTimeout = 3000;
 	private static final int FADE_OUT = 1;
 	private static final int SHOW_PROGRESS = 2;
 	private boolean mUseFastForward;
@@ -108,7 +109,6 @@ public class VideoControllerView extends FrameLayout {
 		super(context);
 		mContext = context;
 		mUseFastForward = useFastForward;
-
 		Log.i(TAG, TAG);
 	}
 
@@ -143,7 +143,7 @@ public class VideoControllerView extends FrameLayout {
 		FrameLayout.LayoutParams frameParams = new FrameLayout.LayoutParams(
 				ViewGroup.LayoutParams.MATCH_PARENT,
 				ViewGroup.LayoutParams.MATCH_PARENT);
-
+		// frameParams.gravity= Gravity.CENTER;
 		removeAllViews();
 		View v = makeControllerView();
 		addView(v, frameParams);
@@ -159,8 +159,10 @@ public class VideoControllerView extends FrameLayout {
 	protected View makeControllerView() {
 		LayoutInflater inflate = (LayoutInflater) mContext
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		mRoot = inflate.inflate(R.layout.media_controller, null);
-
+		if (mUseFastForward)
+			mRoot = inflate.inflate(R.layout.media_controller, null);
+		else
+			mRoot = inflate.inflate(R.layout.media_controller_live_tv, null);
 		initControllerView(mRoot);
 
 		return mRoot;
@@ -230,7 +232,6 @@ public class VideoControllerView extends FrameLayout {
 	 * seconds of inactivity.
 	 */
 	public void show() {
-		Log.d("d-show", "show");
 		show(sDefaultTimeout);
 	}
 
@@ -271,7 +272,6 @@ public class VideoControllerView extends FrameLayout {
 	 *            until hide() is called.
 	 */
 	public void show(int timeout) {
-		Log.d("d-show", "show(int)");
 		if (!mShowing && mAnchor != null) {
 			setProgress();
 			if (mPauseButton != null) {
@@ -282,7 +282,6 @@ public class VideoControllerView extends FrameLayout {
 			FrameLayout.LayoutParams tlp = new FrameLayout.LayoutParams(
 					ViewGroup.LayoutParams.MATCH_PARENT,
 					ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM);
-
 			mAnchor.addView(this, tlp);
 			mShowing = true;
 		}
@@ -309,7 +308,6 @@ public class VideoControllerView extends FrameLayout {
 	 * Remove the controller from the screen.
 	 */
 	public void hide() {
-		Log.d("d-hide", "hide");
 		if (mAnchor == null) {
 			return;
 		}
@@ -340,7 +338,6 @@ public class VideoControllerView extends FrameLayout {
 	}
 
 	private int setProgress() {
-		Log.d("d-setprogress", "setprogress");
 		if (mPlayer == null || mDragging) {
 			return 0;
 		}
@@ -379,7 +376,6 @@ public class VideoControllerView extends FrameLayout {
 
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
-		Log.d("DispatchEvent", "DispatchEvent");
 		if (mPlayer == null) {
 			return true;
 		}
@@ -448,10 +444,22 @@ public class VideoControllerView extends FrameLayout {
 			return;
 		}
 
-		if (mPlayer.isPlaying()) {
-			mPauseButton.setImageResource(R.drawable.ic_media_pause);
+		if (mUseFastForward) {
+
+			if (mPlayer.isPlaying()) {
+				mPauseButton.setImageResource(R.drawable.ic_media_pause);
+			} else {
+				mPauseButton.setImageResource(R.drawable.ic_media_play);
+			}
 		} else {
-			mPauseButton.setImageResource(R.drawable.ic_media_play);
+			if (mPlayer.isPlaying()) {
+				// mPauseButton.setImageResource(R.drawable.ic_media_pause);
+				mPauseButton.setImageResource(R.drawable.ic_av_play_over_video);
+			} else {
+				// mPauseButton.setImageResource(R.drawable.ic_media_play);
+				mPauseButton
+						.setImageResource(R.drawable.ic_av_pause_over_video);
+			}
 		}
 	}
 
@@ -466,7 +474,8 @@ public class VideoControllerView extends FrameLayout {
 	 * R.drawable.ic_media_fullscreen_stretch); } }
 	 */
 
-	private void doPauseResume() {
+	/* private void doPauseResume() { */
+	public void doPauseResume() {
 		if (mPlayer == null) {
 			return;
 		}
@@ -664,7 +673,6 @@ public class VideoControllerView extends FrameLayout {
 
 		@Override
 		public void handleMessage(Message msg) {
-			Log.d("handleMessage", "handleMessage(msg)");
 			VideoControllerView view = mView.get();
 			if (view == null || view.mPlayer == null) {
 				return;

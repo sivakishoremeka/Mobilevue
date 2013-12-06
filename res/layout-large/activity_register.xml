@@ -10,7 +10,7 @@
         android:layout_height="100dp"
         android:layout_gravity="center_horizontal"
         android:layout_margin="10dp"
-        android:src="@drawable/img_acc" />
+        android:src="@drawable/ic_logo" />
 
     <LinearLayout
         android:layout_width="match_parent"
