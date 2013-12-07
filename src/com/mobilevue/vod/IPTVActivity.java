@@ -18,7 +18,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnCancelListener;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,8 +42,6 @@ public class IPTVActivity extends Activity {
 	public static final String KEY_VIDEO_URL = "video_url";
 
 	private ProgressDialog mProgressDialog;
-	// ListView listview;
-	// IptvLazyAdapter iptvadapter;
 	int clientId;
 	String jsonIPTVResult;
 	boolean isListHasChannels = false;
@@ -63,13 +63,12 @@ public class IPTVActivity extends Activity {
 		}
 	}
 
-/*	@Override
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.nav_menu, menu);
 		return true;
 	}
-*/
+
 	private void validateIptv() {
 		new ValidateIptvAsyncTask().execute();
 	}
@@ -86,7 +85,15 @@ public class IPTVActivity extends Activity {
 			mProgressDialog = new ProgressDialog(IPTVActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
 			mProgressDialog.setMessage("Retriving Detials");
-			mProgressDialog.setCancelable(false);
+			mProgressDialog.setCanceledOnTouchOutside(false);
+			mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+				public void onCancel(DialogInterface arg0) {
+					if (mProgressDialog.isShowing())
+						mProgressDialog.dismiss();
+					cancel(true);
+				}
+			});
 			mProgressDialog.show();
 		}
 

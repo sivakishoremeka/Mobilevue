@@ -44,7 +44,7 @@ public class ImageLoader {
 		executorService = Executors.newFixedThreadPool(5);
 	}
 
-	final int stub_id = R.drawable.motion_graphic;
+	final int stub_id = R.drawable.img_film_clap;
 
 	public void DisplayImage(String url, ImageView imageView) {
 

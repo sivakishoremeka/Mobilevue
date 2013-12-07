@@ -11,7 +11,9 @@ import com.mobilevue.utils.Utilities;
 import com.mobilevue.vod.R;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
@@ -101,7 +103,15 @@ public class CategoryFragment extends Fragment {
 			mProgressDialog = new ProgressDialog(getActivity(),
 					ProgressDialog.THEME_HOLO_DARK);
 			mProgressDialog.setMessage("Retrieving Details...");
-			mProgressDialog.setCancelable(false);
+			mProgressDialog.setCanceledOnTouchOutside(false);
+			mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+				public void onCancel(DialogInterface arg0) {
+					if (mProgressDialog.isShowing())
+						mProgressDialog.dismiss();
+					cancel(true);
+				}
+			});
 			mProgressDialog.show();
 		}
 
@@ -138,7 +148,7 @@ public class CategoryFragment extends Fragment {
 				if (mProgressDialog.isShowing()) {
 					mProgressDialog.dismiss();
 				}
-				
+
 			} else {
 				if (mProgressDialog.isShowing()) {
 					mProgressDialog.dismiss();

@@ -13,8 +13,10 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -44,7 +46,8 @@ public class AuthenticationAcitivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_authentication);
-        setTitle("");
+
+		setTitle("");
 		validateDevice();
 	}
 
@@ -86,7 +89,15 @@ public class AuthenticationAcitivity extends Activity {
 			mProgressDialog = new ProgressDialog(AuthenticationAcitivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
 			mProgressDialog.setMessage("Authenticating Details");
-			mProgressDialog.setCancelable(false);
+			mProgressDialog.setCanceledOnTouchOutside(false);
+			mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+				public void onCancel(DialogInterface arg0) {
+					if (mProgressDialog.isShowing())
+						mProgressDialog.dismiss();
+					cancel(true);
+				}
+			});
 			mProgressDialog.show();
 		}
 

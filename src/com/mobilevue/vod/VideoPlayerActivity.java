@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
@@ -86,7 +88,15 @@ public class VideoPlayerActivity extends Activity implements
 								VideoPlayerActivity.this,
 								ProgressDialog.THEME_HOLO_DARK);
 						mProgressDialog.setMessage("Buffering");
-						mProgressDialog.setCancelable(false);
+						mProgressDialog.setCanceledOnTouchOutside(false);
+						mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+							public void onCancel(DialogInterface arg0) {
+								if (mProgressDialog.isShowing())
+									mProgressDialog.dismiss();
+								finish();
+							}
+						});
 						mProgressDialog.show();
 					} else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
 						if (mProgressDialog.isShowing()) {
@@ -183,7 +193,15 @@ public class VideoPlayerActivity extends Activity implements
 		mProgressDialog = new ProgressDialog(VideoPlayerActivity.this,
 				ProgressDialog.THEME_HOLO_DARK);
 		mProgressDialog.setMessage("Starting MediaPlayer");
-		mProgressDialog.setCancelable(false);
+		mProgressDialog.setCanceledOnTouchOutside(false);
+		mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+			public void onCancel(DialogInterface arg0) {
+				if (mProgressDialog.isShowing())
+					mProgressDialog.dismiss();
+				finish();
+			}
+		});
 		mProgressDialog.show();
 	}
 

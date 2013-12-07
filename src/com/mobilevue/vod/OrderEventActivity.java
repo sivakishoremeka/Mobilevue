@@ -12,7 +12,9 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -56,7 +58,15 @@ public class OrderEventActivity extends Activity {
 			mProgressDialog = new ProgressDialog(OrderEventActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
 			mProgressDialog.setMessage("Retriving Detials");
-			mProgressDialog.setCancelable(false);
+			mProgressDialog.setCanceledOnTouchOutside(false);
+			mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+				public void onCancel(DialogInterface arg0) {
+					if (mProgressDialog.isShowing())
+						mProgressDialog.dismiss();
+					cancel(true);
+				}
+			});
 			mProgressDialog.show();
 		}
 

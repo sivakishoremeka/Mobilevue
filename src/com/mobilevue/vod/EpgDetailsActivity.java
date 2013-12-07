@@ -11,12 +11,15 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnCancelListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
 import android.widget.TableLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mobilevue.data.EpgData;
@@ -38,6 +41,11 @@ public class EpgDetailsActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_epg_details);
+		Intent i = getIntent();
+		Bundle extras = i.getExtras();
+		String title = extras.getString(IPTVActivity.KEY_TITLE);
+		TextView tv = (TextView) findViewById(R.id.a_epg_tv_prog_guide);
+		tv.setText(title);
 		if (savedInstanceState != null) {
 			isListHasEPGDetails = savedInstanceState
 					.getBoolean("isListHasEPGDetails");
@@ -69,7 +77,15 @@ public class EpgDetailsActivity extends Activity {
 			mProgressDialog = new ProgressDialog(EpgDetailsActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
 			mProgressDialog.setMessage("Retriving Detials");
-			mProgressDialog.setCancelable(false);
+			mProgressDialog.setCanceledOnTouchOutside(false);
+			mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+				public void onCancel(DialogInterface arg0) {
+					if (mProgressDialog.isShowing())
+						mProgressDialog.dismiss();
+					cancel(true);
+				}
+			});
 			mProgressDialog.show();
 		}
 
