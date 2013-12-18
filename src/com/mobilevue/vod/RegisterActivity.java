@@ -51,11 +51,12 @@ public class RegisterActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_register);
-		// Button register = (Button) findViewById(R.id.Register);
+
 		et_MobileNumber = (EditText) findViewById(R.id.a_reg_et_mobile_no);
 		et_FirstName = (EditText) findViewById(R.id.a_reg_et_first_name);
 		et_LastName = (EditText) findViewById(R.id.a_reg_et_last_name);
 		et_EmailId = (EditText) findViewById(R.id.a_reg_et_email_id);
+
 	}
 
 	public void btnSubmit_onClick(View v) {
@@ -132,7 +133,7 @@ public class RegisterActivity extends Activity {
 					map.put("locale", "en");
 					map.put("fullname", "");
 					map.put("externalId", "");
-					map.put("clientCategory", "22");
+					map.put("clientCategory", "20");
 					map.put("active", "false");
 					map.put("activationDate", "");
 					map.put("addressNo", "ghcv");
@@ -194,13 +195,13 @@ public class RegisterActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(ResponseObj resObj) {
-			// TODO Auto-generated method stub
+
 			super.onPostExecute(resObj);
 			Log.d(TAG, "onPostExecute");
 			if (mProgressDialog.isShowing()) {
 				mProgressDialog.dismiss();
 			}
-			// unlockScreenOrientation();
+
 			if (resObj.getStatusCode() == 200) {
 				Log.d("RegAct-H/w Allocan", resObj.getsResponse());
 				Intent intent = new Intent(RegisterActivity.this,
