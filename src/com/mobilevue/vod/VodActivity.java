@@ -125,18 +125,18 @@ public class VodActivity extends FragmentActivity implements
 		protected void onPreExecute() {
 			super.onPreExecute();
 			Log.d(TAG, "onPreExecute");
-			/*
-			 * if (mProgressDialog != null) { mProgressDialog.dismiss();
-			 * mProgressDialog = null; } mProgressDialog = new
-			 * ProgressDialog(VodActivity.this, ProgressDialog.THEME_HOLO_DARK);
-			 * mProgressDialog.setMessage("Retrieving Details...");
-			 * mProgressDialog.setCanceledOnTouchOutside(false);
-			 * mProgressDialog.setOnCancelListener(new OnCancelListener() {
-			 * 
-			 * public void onCancel(DialogInterface arg0) { if
-			 * (mProgressDialog.isShowing()) mProgressDialog.dismiss();
-			 * cancel(true); } }); mProgressDialog.show();
-			 */
+			
+			  if (mProgressDialog != null) { mProgressDialog.dismiss();
+			  mProgressDialog = null; } mProgressDialog = new
+			  ProgressDialog(VodActivity.this, ProgressDialog.THEME_HOLO_DARK);
+			  mProgressDialog.setMessage("Retrieving Details...");
+			  mProgressDialog.setCanceledOnTouchOutside(false);
+			  mProgressDialog.setOnCancelListener(new OnCancelListener() {
+			  
+			  public void onCancel(DialogInterface arg0) { if
+			  (mProgressDialog.isShowing()) mProgressDialog.dismiss();
+			  cancel(true); } }); mProgressDialog.show();
+			 
 		}
 
 		@Override
