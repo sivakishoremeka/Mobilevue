@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FF7C00" >
+
+    <TextView
+        android:id="@+id/a_iptv_tv_iptv_channels"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:layout_margin="5dp"
+        android:text="@string/live_tv"
+        android:textColor="#FFFFFF"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <ListView
+        android:id="@+id/a_iptv_lv_channels"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/a_iptv_tv_iptv_channels"
+        android:background="#DAD8D9"
+        android:divider="#FF7C00"
+        android:dividerHeight="2dp"
+        android:scrollbars="vertical" >
+    </ListView>
+
+</RelativeLayout>

@@ -6,15 +6,15 @@
 
     <ImageView
         android:id="@+id/a_reg_iv_img_acc"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:layout_width="38dp"
+        android:layout_height="30dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="3dp"
         android:layout_marginTop="3dp"
         android:src="@drawable/ic_logo" />
 
     <LinearLayout
-        android:layout_width="180dp"
+        android:layout_width="160dp"
         android:layout_height="200dp"
         android:layout_gravity="center_horizontal"
         android:background="@drawable/img_bg_reg_forum"
@@ -25,8 +25,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="3dp"
-            android:layout_marginTop="2dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="4dp"
             android:text="@string/user_reg"
             android:textColor="#5A5A5A"
             android:textSize="9sp"
@@ -37,7 +37,7 @@
             android:layout_width="140dp"
             android:layout_height="20dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="6dp"
             android:background="@drawable/img_et_reg"
             android:ems="10"
             android:hint="@string/mobile_no"
@@ -53,7 +53,7 @@
             android:layout_width="140dp"
             android:layout_height="20dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="6dp"
             android:background="@drawable/img_et_reg"
             android:ems="10"
             android:hint="@string/first_name"
@@ -66,7 +66,7 @@
             android:layout_width="140dp"
             android:layout_height="20dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="6dp"
             android:background="@drawable/img_et_reg"
             android:ems="10"
             android:hint="@string/last_name"
@@ -79,7 +79,7 @@
             android:layout_width="140dp"
             android:layout_height="20dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="6dp"
             android:background="@drawable/img_et_reg"
             android:ems="10"
             android:hint="@string/email_id"
@@ -91,7 +91,7 @@
             android:layout_width="140dp"
             android:layout_height="20dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="6dp"
             android:layout_marginTop="3dp" >
 
             <Button
@@ -101,8 +101,8 @@
                 android:layout_marginLeft="3dp"
                 android:layout_marginRight="3dp"
                 android:layout_weight="1"
-                android:onClick="btnCancel_onClick" 
-                android:background="@drawable/btn_cancel_selector" />
+                android:background="@drawable/selector_btn_cancel"
+                android:onClick="btnCancel_onClick" />
 
             <Button
                 android:id="@+id/a_reg_btn_submit"
@@ -111,8 +111,8 @@
                 android:layout_marginLeft="3dp"
                 android:layout_marginRight="3dp"
                 android:layout_weight="1"
-                android:onClick="btnSubmit_onClick" 
-                android:background="@drawable/btn_submit_selector" />
+                android:background="@drawable/selector_btn_submit"
+                android:onClick="btnSubmit_onClick" />
         </LinearLayout>
 
         <TextView
@@ -120,12 +120,11 @@
             android:layout_width="wrap_content"
             android:layout_height="58dp"
             android:layout_marginBottom="5dp"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:layout_marginTop="3dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
             android:gravity="center_horizontal"
             android:text="@string/reg_note"
-            android:textAlignment="center"
             android:textColor="#5A5A5A"
             android:textSize="7sp" />
     </LinearLayout>

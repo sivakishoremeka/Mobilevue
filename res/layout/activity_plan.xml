@@ -35,7 +35,7 @@
             android:layout_width="121dp"
             android:layout_height="44dp"
             android:layout_margin="5dp"
-            android:background="@drawable/btn_cancel_selector"
+            android:background="@drawable/selector_btn_cancel"
             android:minWidth="100dp"
             android:onClick="btnCancel_onClick" />
         <Button
@@ -43,7 +43,7 @@
             android:layout_width="121dp"
             android:layout_height="44dp"
             android:layout_margin="5dp"
-            android:background="@drawable/btn_submit_selector"
+            android:background="@drawable/selector_btn_submit"
             android:minWidth="100dp"
             android:onClick="btnSubmit_onClick" />
     </LinearLayout>

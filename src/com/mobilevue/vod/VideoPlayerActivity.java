@@ -88,27 +88,29 @@ public class VideoPlayerActivity extends Activity implements
 								VideoPlayerActivity.this,
 								ProgressDialog.THEME_HOLO_DARK);
 						mProgressDialog.setMessage("Buffering");
+						// mProgressDialog.setCancelable(true);
 						mProgressDialog.setCanceledOnTouchOutside(false);
-						mProgressDialog.setOnCancelListener(new OnCancelListener() {
+						mProgressDialog
+								.setOnCancelListener(new OnCancelListener() {
 
-							public void onCancel(DialogInterface arg0) {
-								if (mProgressDialog.isShowing())
-									mProgressDialog.dismiss();
-								finish();
-							}
-						});
+									public void onCancel(DialogInterface arg0) {
+										if (mProgressDialog.isShowing())
+											mProgressDialog.dismiss();
+										finish();
+									}
+								});
 						mProgressDialog.show();
 					} else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
 						if (mProgressDialog.isShowing()) {
 							mProgressDialog.dismiss();
 						}
-					} else if (what == MediaPlayer.MEDIA_ERROR_TIMED_OUT) {
+					} /*else if (what == MediaPlayer.MEDIA_ERROR_TIMED_OUT) {
 						if (mProgressDialog.isShowing()) {
 							mProgressDialog.dismiss();
 						}
 						Log.d(TAG, "Request timed out.Closing MediaPlayer");
 						finish();
-					}
+					}*/
 					return false;
 				}
 			});
@@ -129,6 +131,9 @@ public class VideoPlayerActivity extends Activity implements
 							player.stop();
 						player.release();
 						player = null;
+						if (mProgressDialog.isShowing()) {
+							mProgressDialog.dismiss();
+						}
 						finish();
 					}
 					return false;

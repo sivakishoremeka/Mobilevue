@@ -48,6 +48,15 @@ public class Utilities {
 				context.getString(R.string.server_url));
 		url.append(param.get("TagURL"));
 		param.remove("TagURL");
+
+		if (param.size() > 0) {
+			url.append("?");
+			for (int i = 0; i < param.size(); i++) {
+				url.append("&" + (String) param.keySet().toArray()[i] + "="
+						+ (String) param.values().toArray()[i]);
+			}
+		}
+
 		/*
 		 * // adding params to url for (int i = 0; i < param.size(); i++) {
 		 * url.append("&" + (String) param.keySet().toArray()[i] + "=" +
@@ -223,5 +232,4 @@ public class Utilities {
 		}
 		return false;
 	}
-
 }

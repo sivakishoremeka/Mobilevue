@@ -14,14 +14,17 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -41,17 +44,20 @@ public class PlanActivity extends Activity {
 	private ProgressDialog mProgressDialog;
 	ListView listView;
 	ArrayAdapter<String> adapter;
-	// Button button;
 	ArrayList<HashMap<String, String>> viewList;
 	String jsonPlansResult;
 	boolean isListHasPlans = false;
+	int clientId;
 
 	// @Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_plan);
-		// button = (Button) findViewById(R.id.a_plan_btn_submit);
+		SharedPreferences mPrefs = getSharedPreferences(
+				AuthenticationAcitivity.PREFS_FILE, 0);
+		clientId = mPrefs.getInt("CLIENTID", 0);
+		Log.d(TAG + "-onCreate", "CLIENTID :" + clientId);
 		listView = (ListView) findViewById(R.id.a_plan_listview);
 		listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		/** We retrive the plans and bind the plans to listview */
@@ -60,6 +66,7 @@ public class PlanActivity extends Activity {
 			jsonPlansResult = savedInstanceState.getString("jsonPlansResult");
 		}
 		if (!isListHasPlans) {
+
 			fetchPlans();
 		} else {
 			List<PlansData> activePlansList = getPlansFromJson(jsonPlansResult);
@@ -81,9 +88,6 @@ public class PlanActivity extends Activity {
 			dataMap.put("description", data.getPlanDescription());
 			viewList.add(dataMap);
 		}
-		// adapter = new ArrayAdapter<String>(this,
-		// android.R.layout.simple_list_item_single_choice, codeArr);
-		// listView.setAdapter(adapter);
 		adapter = new ArrayAdapter<String>(this,
 				android.R.layout.simple_list_item_single_choice, codeArr) {
 
@@ -97,12 +101,12 @@ public class PlanActivity extends Activity {
 			}
 		};
 		listView.setAdapter(adapter);
-		// button.setOnClickListener(this);
 	}
 
 	public void btnSubmit_onClick(View v) {
 		int count = listView.getCheckedItemCount();
 		if (count > 0) {
+
 			orderPlans(viewList.get(listView.getCheckedItemPosition())
 					.get("id"));
 		} else {
@@ -112,7 +116,38 @@ public class PlanActivity extends Activity {
 	}
 
 	public void btnCancel_onClick(View v) {
-		finish();
+		closeApp();
+	}
+
+	private void closeApp() {
+		AlertDialog dialog = new AlertDialog.Builder(PlanActivity.this,
+				AlertDialog.THEME_HOLO_DARK).create();
+		dialog.setIcon(R.drawable.ic_logo_confirm_dialog);
+		dialog.setTitle("Confirmation");
+		dialog.setMessage("Do you want to close the app?");
+		dialog.setCancelable(false);
+
+		dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int buttonId) {
+						PlanActivity.this.finish();
+					}
+				});
+		dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int buttonId) {
+
+					}
+				});
+		dialog.show();
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+			closeApp();
+		}
+		return super.onKeyDown(keyCode, event);
 	}
 
 	public void orderPlans(String planid) {
@@ -123,7 +158,6 @@ public class PlanActivity extends Activity {
 			AsyncTask<String, Void, ResponseObj> {
 
 		private String planId;
-		int clientId;
 
 		@Override
 		protected void onPreExecute() {
@@ -153,15 +187,13 @@ public class PlanActivity extends Activity {
 			Log.d(TAG, "doInBackground");
 			planId = params[0];
 			ResponseObj resObj = new ResponseObj();
-			Intent intent = getIntent();
-			Bundle extras = intent.getExtras();
-			clientId = extras.getInt("CLIENTID");
 			if (Utilities.isNetworkAvailable(getApplicationContext())) {
 				HashMap<String, String> map = new HashMap<String, String>();
 				Date date = new Date();
 				SimpleDateFormat df = new SimpleDateFormat("dd MMMM yyyy",
 						new Locale("en"));
 				String formattedDate = df.format(date);
+
 				map.put("TagURL", "orders/" + clientId);
 				map.put("planCode", planId);
 				map.put("dateFormat", "dd MMMM yyyy");
@@ -187,13 +219,10 @@ public class PlanActivity extends Activity {
 			if (mProgressDialog.isShowing()) {
 				mProgressDialog.dismiss();
 			}
-			// unlockScreenOrientation();
+
 			if (resObj.getStatusCode() == 200) {
 				Intent intent = new Intent(PlanActivity.this,
-						IPTVActivity.class);
-				Bundle bundle = new Bundle();
-				bundle.putInt("CLIENTID", clientId);
-				intent.putExtras(bundle);
+						MainActivity.class);// IPTVActivity.class);
 				PlanActivity.this.finish();
 				startActivity(intent);
 			} else {
@@ -259,23 +288,23 @@ public class PlanActivity extends Activity {
 				List<PlansData> activePlansList = getPlansFromJson(resObj
 						.getsResponse());
 				buildPlansList(activePlansList);
+
 			} else {
 				Toast.makeText(PlanActivity.this, resObj.getsErrorMessage(),
 						Toast.LENGTH_LONG).show();
+
 			}
 		}
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		// TODO Auto-generated method stub
 		super.onSaveInstanceState(outState);
 		outState.putBoolean("isListHasPlans", isListHasPlans);
 		outState.putString("jsonPlansResult", jsonPlansResult);
 	}
 
 	private List<PlansData> getPlansFromJson(String jsonText) {
-		// TODO Auto-generated method stub
 		Log.i("getPlansFromJson", "result is \r\n" + jsonText);
 		List<PlansData> data = null;
 		try {
@@ -290,7 +319,6 @@ public class PlanActivity extends Activity {
 					});
 			System.out.println(data.get(0).getId());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return data;

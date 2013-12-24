@@ -17,11 +17,14 @@ import com.mobilevue.vod.R;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -50,6 +53,10 @@ public class IPTVActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_iptv);
+		SharedPreferences mPrefs = getSharedPreferences(
+				AuthenticationAcitivity.PREFS_FILE, 0);
+		clientId = mPrefs.getInt("CLIENTID",0);
+		Log.d(TAG+"-onCreate","CLIENTID :"+clientId);
 		if (savedInstanceState != null) {
 			isListHasChannels = savedInstanceState
 					.getBoolean("isListHasChannels");
@@ -66,6 +73,23 @@ public class IPTVActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.nav_menu, menu);
+		MenuItem searchItem = menu.findItem(R.id.action_search);
+		searchItem.setVisible(false);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		switch (item.getItemId()) {
+		case R.id.menu_btn_home:
+			Intent intent = new Intent();
+			intent.setClass(IPTVActivity.this, MainActivity.class);
+			startActivity(intent);
+			break;
+		default:
+			break;
+		}
 		return true;
 	}
 
@@ -100,9 +124,6 @@ public class IPTVActivity extends Activity {
 		@Override
 		protected ResponseObj doInBackground(Void... args0) {
 			ResponseObj resObj = new ResponseObj();
-			Intent i = getIntent();
-			Bundle extras = i.getExtras();
-			clientId = extras.getInt("CLIENTID");
 			if (Utilities.isNetworkAvailable(getApplicationContext())) {
 				HashMap<String, String> map = new HashMap<String, String>();
 				map.put("TagURL", "planservices/" + clientId
@@ -132,30 +153,6 @@ public class IPTVActivity extends Activity {
 
 			}
 		}
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menu_btn_live_tv:
-			// validateIptv();
-			break;
-		case R.id.menu_btn_vod:
-			Intent i = getIntent();
-			Bundle extras = i.getExtras();
-			clientId = extras.getInt("CLIENTID");
-			Intent intent = new Intent(IPTVActivity.this, VodActivity.class);
-			Bundle bundle = new Bundle();
-			bundle.putInt("CLIENTID", clientId);
-			intent.putExtras(bundle);
-			startActivity(intent);
-			break;
-
-		default:
-			break;
-		}
-
-		return true;
 	}
 
 	@Override
@@ -197,7 +194,6 @@ public class IPTVActivity extends Activity {
 			map.put(KEY_DURATION, null);
 			map.put(KEY_THUMB_URL, data.getImage());
 			map.put(KEY_VIDEO_URL, data.getUrl());
-			// URL = data.getUrl();
 			iptvList.add(map);
 		}
 		ListView list = (ListView) findViewById(R.id.a_iptv_lv_channels);
@@ -205,4 +201,7 @@ public class IPTVActivity extends Activity {
 				clientId);
 		list.setAdapter(iptvadapter);
 	}
+
+
+
 }

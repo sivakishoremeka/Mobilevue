@@ -40,20 +40,19 @@ public class AuthenticationAcitivity extends Activity {
 	private Editor mPrefsEditor;
 	private ProgressDialog mProgressDialog;
 	Button button;
-	int clientid;
+	int clientId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_authentication);
-
 		setTitle("");
+
 		validateDevice();
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.menu, menu);
 		return true;
 	}
@@ -122,11 +121,11 @@ public class AuthenticationAcitivity extends Activity {
 							Log.d(TAG, resObj.getsResponse());
 							JSONObject clientJson = new JSONObject(
 									resObj.getsResponse());
-							clientid = (Integer) (clientJson.get("clientId"));
+							clientId = (Integer) (clientJson.get("clientId"));
 							mPrefs = getSharedPreferences(
 									AuthenticationAcitivity.PREFS_FILE, 0);
 							mPrefsEditor = mPrefs.edit();
-							mPrefsEditor.putInt("CLIENTID", clientid);
+							mPrefsEditor.putInt("CLIENTID", clientId);
 							mPrefsEditor.commit();
 
 							/** Calling client's plans data */
@@ -135,7 +134,7 @@ public class AuthenticationAcitivity extends Activity {
 										.isNetworkAvailable(getApplicationContext())) {
 									map = new HashMap<String, String>();
 									// String androidId = "efa4c6299";
-									map.put("TagURL", "orders/" + clientid
+									map.put("TagURL", "orders/" + clientId
 											+ "/activeplans");
 									resObj = Utilities
 											.callExternalApiGetMethod(
@@ -165,28 +164,20 @@ public class AuthenticationAcitivity extends Activity {
 			if (mProgressDialog.isShowing()) {
 				mProgressDialog.dismiss();
 			}
-			// unlockScreenOrientation();
+
 			if (resObj.getStatusCode() == 200) {
 				Log.d("AuthActivity-Planlistdata", resObj.getsResponse());
 				List<ActivePlansData> activePlansList = readJsonUser(resObj
 						.getsResponse());
 				if (!activePlansList.isEmpty()) {
-					// Intent intent = new Intent(AuthenticationAcitivity.this,
-					// PlanMenuActivity.class);
 					Intent intent = new Intent(AuthenticationAcitivity.this,
-							IPTVActivity.class);
+							MainActivity.class);//	IPTVActivity.class);
 
-					Bundle bundle = new Bundle();
-					bundle.putInt("CLIENTID", clientid);
-					intent.putExtras(bundle);
 					AuthenticationAcitivity.this.finish();
 					startActivity(intent);
 				} else {
 					Intent intent = new Intent(AuthenticationAcitivity.this,
 							PlanActivity.class);
-					Bundle bundle = new Bundle();
-					bundle.putInt("CLIENTID", clientid);
-					intent.putExtras(bundle);
 					AuthenticationAcitivity.this.finish();
 					startActivity(intent);
 				}
@@ -194,9 +185,6 @@ public class AuthenticationAcitivity extends Activity {
 			} else if (resObj.getStatusCode() == 403) {
 				Intent intent = new Intent(AuthenticationAcitivity.this,
 						RegisterActivity.class);
-				Bundle bundle = new Bundle();
-				bundle.putInt("CLIENTID", clientid);
-				intent.putExtras(bundle);
 				AuthenticationAcitivity.this.finish();
 				startActivity(intent);
 			} else {
@@ -215,11 +203,9 @@ public class AuthenticationAcitivity extends Activity {
 			mapper.configure(
 					DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES,
 					false);
-			;
 			data = mapper.readValue(jsonText,
 					new TypeReference<List<ActivePlansData>>() {
 					});
-			System.out.println(data);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -101,7 +101,7 @@
                 android:layout_marginLeft="3dp"
                 android:layout_marginRight="3dp"
                 android:layout_weight="1"
-                android:background="@drawable/btn_cancel_selector"
+                android:background="@drawable/selector_btn_cancel"
                 android:onClick="btnCancel_onClick" />
 
             <Button
@@ -111,7 +111,7 @@
                 android:layout_marginLeft="3dp"
                 android:layout_marginRight="3dp"
                 android:layout_weight="1"
-                android:background="@drawable/btn_submit_selector"
+                android:background="@drawable/selector_btn_submit"
                 android:onClick="btnSubmit_onClick" />
         </LinearLayout>
 
@@ -125,7 +125,6 @@
             android:layout_marginTop="3dp"
             android:gravity="center_horizontal"
             android:text="@string/reg_note"
-            android:textAlignment="center"
             android:textColor="#5A5A5A"
             android:textSize="7sp" />
     </LinearLayout>

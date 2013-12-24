@@ -6,5 +6,5 @@
             android:drawable ="@drawable/img_hover" /> 
     <item android:state_focused="true" android:state_pressed="true" 
             android:drawable ="@drawable/img_hover" /> 
-    <item android:drawable="@android:color/transparent"/> 
+   <item android:drawable="@android:color/transparent"/>
 </selector> 

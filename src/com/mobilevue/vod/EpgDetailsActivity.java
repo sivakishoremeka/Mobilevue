@@ -1,6 +1,5 @@
 package com.mobilevue.vod;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -41,16 +40,16 @@ public class EpgDetailsActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_epg_details);
-		Intent i = getIntent();
-		Bundle extras = i.getExtras();
-		String title = extras.getString(IPTVActivity.KEY_TITLE);
-		TextView tv = (TextView) findViewById(R.id.a_epg_tv_prog_guide);
-		tv.setText(title);
 		if (savedInstanceState != null) {
 			isListHasEPGDetails = savedInstanceState
 					.getBoolean("isListHasEPGDetails");
 			jsonEPGResult = savedInstanceState.getString("jsonEPGResult");
 		}
+		Intent i = getIntent();
+		Bundle extras = i.getExtras();
+		String title = extras.getString(IPTVActivity.KEY_TITLE);
+		TextView tv = (TextView) findViewById(R.id.a_epg_tv_prog_guide);
+		tv.setText(title);
 		if (!isListHasEPGDetails) {
 			getEpgDetails();
 		} else {

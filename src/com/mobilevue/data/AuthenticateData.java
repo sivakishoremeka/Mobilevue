@@ -2,7 +2,7 @@ package com.mobilevue.data;
 
 public class AuthenticateData {
 
-	String deviceId;
+	/*String deviceId;
 	String clientId;
 	String clientType;
 	String clientTypeId;
@@ -37,6 +37,6 @@ public class AuthenticateData {
 
 	public void setClientTypeId(String clientTypeId) {
 		this.clientTypeId = clientTypeId;
-	}
+	}*/
 
 }
