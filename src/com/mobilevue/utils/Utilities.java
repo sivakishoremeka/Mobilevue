@@ -35,12 +35,15 @@ import android.util.Log;
 public class Utilities {
 
 	private static final String TAG = "Utilities";
+	static boolean D;
 
 	// private static ResponseObj resObj;
 
 	public static ResponseObj callExternalApiGetMethod(Context context,
 			HashMap<String, String> param) {
-		Log.d(TAG, "callExternalApiGetMethod");
+		D = ((com.mobilevue.vod.MyApplication) context.getApplicationContext()).D;
+		if (D)
+			Log.d(TAG, "callExternalApiGetMethod");
 		StringBuilder builder = new StringBuilder();
 		ResponseObj resObj = new ResponseObj();
 		HttpClient client = MySSLSocketFactory.getNewHttpClient();
@@ -57,18 +60,6 @@ public class Utilities {
 			}
 		}
 
-		/*
-		 * // adding params to url for (int i = 0; i < param.size(); i++) {
-		 * url.append("&" + (String) param.keySet().toArray()[i] + "=" +
-		 * (String) param.values().toArray()[i]); } // append device id to url
-		 * String androidId = Settings.Secure.getString(
-		 * context.getContentResolver(), Settings.Secure.ANDROID_ID);
-		 * //url.append("&deviceId="+androidId);
-		 *//*
-			 * String androidId = Settings.Secure.getString(
-			 * context.getContentResolver(), Settings.Secure.ANDROID_ID);
-			 * url.append(androidId);
-			 */
 		try {
 			HttpGet httpGet = new HttpGet(url.toString());
 			httpGet.setHeader("X-Mifos-Platform-TenantId", "default");
@@ -79,8 +70,8 @@ public class Utilities {
 			// billing/billingadmin@13(https://41.75.85.206:8080/mifosng-provider/api/v1/)//
 			// YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=
 			httpGet.setHeader("Content-Type", "application/json");
-
-			Log.i("callClientsApi", "Calling " + httpGet.getURI());
+			if (D)
+				Log.d("callClientsApi", "Calling " + httpGet.getURI());
 
 			HttpResponse response = client.execute(httpGet);
 			StatusLine statusLine = response.getStatusLine();
@@ -123,7 +114,9 @@ public class Utilities {
 
 	public static ResponseObj callExternalApiPostMethod(Context context,
 			HashMap<String, String> param) {
-		Log.d(TAG, "callExternalApi");
+		D = ((com.mobilevue.vod.MyApplication) context.getApplicationContext()).D;
+		if (D)
+			Log.d(TAG, "callExternalApi");
 		ResponseObj resObj = new ResponseObj();
 		StringBuilder builder = new StringBuilder();
 		HttpClient client = MySSLSocketFactory.getNewHttpClient();
@@ -164,9 +157,11 @@ public class Utilities {
 			se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE,
 					"application/json"));
 			httpPost.setEntity(se);
-			Log.d("callExternalApiPostMethod",
-					" httpPost.getURI " + httpPost.getURI());
-			Log.d("callExternalApiPostMethod", "json: " + json);
+			if (D)
+				Log.d("callExternalApiPostMethod", " httpPost.getURI "
+						+ httpPost.getURI());
+			if (D)
+				Log.d("callExternalApiPostMethod", "json: " + json);
 			HttpResponse response = client.execute(httpPost);
 			StatusLine statusLine = response.getStatusLine();
 			int statusCode = statusLine.getStatusCode();
@@ -210,7 +205,9 @@ public class Utilities {
 	}
 
 	public static boolean isNetworkAvailable(Context context) {
-		Log.d(TAG, "getDetails");
+		D = ((com.mobilevue.vod.MyApplication) context.getApplicationContext()).D;
+		if (D)
+			Log.d(TAG, "getDetails");
 		ConnectivityManager connectivityManager = (ConnectivityManager) context
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 

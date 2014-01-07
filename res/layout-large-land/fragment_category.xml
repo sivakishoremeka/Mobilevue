@@ -13,7 +13,7 @@
         android:paddingTop="30dp"
         android:gravity="center"
         android:horizontalSpacing="10dp"
-        android:numColumns="6"
+        android:numColumns="5"
         android:stretchMode="spacingWidthUniform"
         android:listSelector="@drawable/gv_img_selector"
         android:verticalSpacing="30dp">

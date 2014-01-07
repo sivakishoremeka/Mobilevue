@@ -1,6 +1,5 @@
 package com.mobilevue.vod;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.codehaus.jackson.annotate.JsonMethod;
@@ -8,66 +7,91 @@ import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.NavUtils;
+import android.support.v4.view.ViewPager;
 
 import com.mobilevue.data.IptvData;
 import com.mobilevue.data.ResponseObj;
-import com.mobilevue.utils.IptvLazyAdapter;
+import com.mobilevue.utils.EPGFragmentPagerAdapter;
+import com.mobilevue.utils.ImageLoader;
 import com.mobilevue.utils.Utilities;
 import com.mobilevue.vod.R;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.Activity;
-import android.app.AlertDialog;
+import android.app.ActionBar;
 import android.app.ProgressDialog;
+
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.SharedPreferences.Editor;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ListView;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
-public class IPTVActivity extends Activity {
+public class IPTVActivity extends FragmentActivity {
 
 	/** This is live/Iptv activity */
 
 	public static String TAG = "IPTVActivity";
 	private final static String NETWORK_ERROR = "Network error.";
-	static final String KEY_ID = "id";
-	public static final String EVENT_ID = "event_id";
-	public static final String KEY_TITLE = "title";
-	public static final String KEY_ARTIST = "artist";
-	public static final String KEY_DURATION = "duration";
-	public static final String KEY_THUMB_URL = "thumb_url";
-	public static final String KEY_VIDEO_URL = "video_url";
-
+	public final static String CHANNEL_EPG = "Channel Epg";
 	private ProgressDialog mProgressDialog;
 	int clientId;
-	String jsonIPTVResult;
-	boolean isListHasChannels = false;
+	EPGFragmentPagerAdapter mEpgPagerAdapter;
+	ViewPager mViewPager;
+	private String mChannelURL;
+	boolean D;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_iptv);
+		findViewById(R.id.a_iptv_rl_root_layout).setVisibility(View.INVISIBLE);
+		D = ((MyApplication) getApplicationContext()).D;
+		ActionBar actionBar = getActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
 		SharedPreferences mPrefs = getSharedPreferences(
 				AuthenticationAcitivity.PREFS_FILE, 0);
-		clientId = mPrefs.getInt("CLIENTID",0);
-		Log.d(TAG+"-onCreate","CLIENTID :"+clientId);
-		if (savedInstanceState != null) {
-			isListHasChannels = savedInstanceState
-					.getBoolean("isListHasChannels");
-			jsonIPTVResult = savedInstanceState.getString("jsonIPTVResult");
-		}
+		clientId = mPrefs.getInt("CLIENTID", 0);
+		if (D)
+			Log.d(TAG + "-onCreate", "CLIENTID :" + clientId);
 
-		if (!isListHasChannels) {
-			validateIptv();
-		} else {
-			buildIptvList(readJsonUserforIPTV(jsonIPTVResult));
-		}
+		Button btn = (Button) findViewById(R.id.a_iptv_btn_watch_remind);
+		btn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+
+				String label = ((Button) v).getText().toString();
+				if (label.trim().equalsIgnoreCase("Watch")) {
+
+					Intent intent = new Intent(IPTVActivity.this,
+							VideoPlayerActivity.class);
+					Bundle bundle = new Bundle();
+					bundle.putInt("CLIENTID", clientId);
+					bundle.putString("VIDEOTYPE", "LIVETV");
+					bundle.putString("URL", mChannelURL);
+					intent.putExtras(bundle);
+					startActivity(intent);
+				} else {
+					Toast.makeText(IPTVActivity.this,
+							"Event is created for this program",
+							Toast.LENGTH_LONG).show();
+				}
+			}
+		});
+
+		mViewPager = (ViewPager) findViewById(R.id.a_iptv_pager);
+		GetChannelsList();
 	}
 
 	@Override
@@ -82,10 +106,11 @@ public class IPTVActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 
 		switch (item.getItemId()) {
+		case android.R.id.home:
+			NavUtils.navigateUpFromSameTask(this);
+			break;
 		case R.id.menu_btn_home:
-			Intent intent = new Intent();
-			intent.setClass(IPTVActivity.this, MainActivity.class);
-			startActivity(intent);
+			NavUtils.navigateUpFromSameTask(this);
 			break;
 		default:
 			break;
@@ -93,12 +118,13 @@ public class IPTVActivity extends Activity {
 		return true;
 	}
 
-	private void validateIptv() {
-		new ValidateIptvAsyncTask().execute();
+	private void GetChannelsList() {
+		new GetChannelsListTask().execute();
 	}
 
-	private class ValidateIptvAsyncTask extends
-			AsyncTask<Void, Void, ResponseObj> {
+	private class GetChannelsListTask extends
+			AsyncTask<String, Void, ResponseObj> {
+		// String task;
 		protected void onPreExecute() {
 			super.onPreExecute();
 
@@ -122,9 +148,10 @@ public class IPTVActivity extends Activity {
 		}
 
 		@Override
-		protected ResponseObj doInBackground(Void... args0) {
+		protected ResponseObj doInBackground(String... args) {
 			ResponseObj resObj = new ResponseObj();
 			if (Utilities.isNetworkAvailable(getApplicationContext())) {
+
 				HashMap<String, String> map = new HashMap<String, String>();
 				map.put("TagURL", "planservices/" + clientId
 						+ "?serviceType=IPTV");
@@ -137,34 +164,31 @@ public class IPTVActivity extends Activity {
 		}
 
 		protected void onPostExecute(ResponseObj resObj) {
-			Log.d(TAG, "onPostExecute");
+			if (D)
+				Log.d(TAG, "onPostExecute");
+
 			if (mProgressDialog.isShowing()) {
 				mProgressDialog.dismiss();
 			}
-			if (resObj.getStatusCode() == 200) {
-				Log.d("AuthActivity-Planlistdata", resObj.getsResponse());
-				jsonIPTVResult = resObj.getsResponse();
-				isListHasChannels = true;
-				buildIptvList(readJsonUserforIPTV(resObj.getsResponse()));
 
+			if (resObj.getStatusCode() == 200) {
+
+				if (D)
+					Log.d("AuthActivity-Planlistdata", resObj.getsResponse());
+
+				updateChannels(readJsonUserforIPTV(resObj.getsResponse()));
 			} else {
 				Toast.makeText(IPTVActivity.this, resObj.getsErrorMessage(),
 						Toast.LENGTH_LONG).show();
 
 			}
 		}
-	}
 
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		// TODO Auto-generated method stub
-		super.onSaveInstanceState(outState);
-		outState.putBoolean("isListHasChannels", isListHasChannels);
-		outState.putString("jsonIPTVResult", jsonIPTVResult);
 	}
 
 	private List<IptvData> readJsonUserforIPTV(String jsonText) {
-		Log.d("readJsonUser", "result is \r\n" + jsonText);
+		if (D)
+			Log.d("readJsonUser", "result is \r\n" + jsonText);
 		List<IptvData> response = null;
 		try {
 			ObjectMapper mapper = new ObjectMapper().setVisibility(
@@ -184,24 +208,59 @@ public class IPTVActivity extends Activity {
 
 	}
 
-	private void buildIptvList(List<IptvData> result) {
-		ArrayList<HashMap<String, String>> iptvList = new ArrayList<HashMap<String, String>>();
-
+	private void updateChannels(List<IptvData> result) {
+		int imgno = 0;
+		LinearLayout channels = (LinearLayout) findViewById(R.id.a_iptv_ll_channels);
+		ImageButton button;
 		for (IptvData data : result) {
-			HashMap<String, String> map = new HashMap<String, String>();
+			SharedPreferences mPrefs = getSharedPreferences(
+					AuthenticationAcitivity.PREFS_FILE, 0);
+			final Editor editor = mPrefs.edit();
+			editor.putString(data.getChannelName(), data.getUrl());
+			editor.commit();
+			imgno += 1;
+			ChannelInfo chInfo = new ChannelInfo(data.getChannelName(),
+					data.getUrl());
+			button = new ImageButton(this);
+			button.setLayoutParams(new LinearLayout.LayoutParams(48, 48));
+			button.setId(1000 + imgno);
+			button.setTag(chInfo);
+			button.setFocusable(false);
+			button.setFocusableInTouchMode(false);
+			if (imgno == 1) {
+				editor.putString(CHANNEL_EPG, data.getChannelName());
+				editor.commit();
+				mChannelURL = data.getUrl();
+			}
+			ImageLoader imgLoader = new ImageLoader(IPTVActivity.this);
+			imgLoader.DisplayImage(data.getImage(), button);
+			button.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					ChannelInfo info = (ChannelInfo) v.getTag();
+					editor.putString("EPGChannel", info.channelName);
+					editor.commit();
+					mChannelURL = info.channelURL;
+					mEpgPagerAdapter = new EPGFragmentPagerAdapter(
+							IPTVActivity.this.getSupportFragmentManager());
+					mViewPager.setAdapter(mEpgPagerAdapter);
+				}
+			});
+			channels.addView(button);
 
-			map.put(KEY_TITLE, data.getChannelName());
-			map.put(KEY_DURATION, null);
-			map.put(KEY_THUMB_URL, data.getImage());
-			map.put(KEY_VIDEO_URL, data.getUrl());
-			iptvList.add(map);
 		}
-		ListView list = (ListView) findViewById(R.id.a_iptv_lv_channels);
-		IptvLazyAdapter iptvadapter = new IptvLazyAdapter(this, iptvList,
-				clientId);
-		list.setAdapter(iptvadapter);
+		mEpgPagerAdapter = new EPGFragmentPagerAdapter(
+				this.getSupportFragmentManager());
+		mViewPager.setAdapter(mEpgPagerAdapter);
 	}
 
+	private class ChannelInfo {
+		private String channelName;
+		private String channelURL;
 
-
+		public ChannelInfo(String channelName, String channelURL) {
+			this.channelName = channelName;
+			this.channelURL = channelURL;
+		}
+	}
 }

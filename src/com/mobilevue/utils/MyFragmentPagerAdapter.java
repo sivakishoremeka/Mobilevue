@@ -13,11 +13,10 @@ import com.mobilevue.vod.VodActivity;
 public class MyFragmentPagerAdapter extends FragmentPagerAdapter {
 
 	SharedPreferences mPrefs;
-	Context ctx;
+	
 
-	public MyFragmentPagerAdapter(FragmentManager fragmentManager, Context ctx) {
+	public MyFragmentPagerAdapter(FragmentManager fragmentManager) {
 		super(fragmentManager);
-		this.ctx = ctx;
 	}
 
 	@Override

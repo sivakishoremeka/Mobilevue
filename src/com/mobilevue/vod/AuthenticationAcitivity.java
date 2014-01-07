@@ -10,13 +10,11 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import android.app.Activity;
-import android.app.ProgressDialog;
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,9 +22,9 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
-
+import android.widget.ProgressBar;
 import com.mobilevue.data.ActivePlansData;
 import com.mobilevue.data.ResponseObj;
 import com.mobilevue.utils.Utilities;
@@ -38,16 +36,19 @@ public class AuthenticationAcitivity extends Activity {
 	public final static String PREFS_FILE = "PREFS_FILE";
 	private SharedPreferences mPrefs;
 	private Editor mPrefsEditor;
-	private ProgressDialog mProgressDialog;
+	private ProgressBar mProgressBar;
 	Button button;
 	int clientId;
+	boolean D;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_authentication);
 		setTitle("");
-
+		D = ((MyApplication) getApplicationContext()).D;
+		mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+		mProgressBar.setVisibility(View.INVISIBLE);
 		validateDevice();
 	}
 
@@ -80,29 +81,19 @@ public class AuthenticationAcitivity extends Activity {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			Log.d(TAG, "onPreExecute");
-			if (mProgressDialog != null) {
-				mProgressDialog.dismiss();
-				mProgressDialog = null;
+			if (D)
+				if (D)
+					Log.d(TAG, "onPreExecute");
+			if (!mProgressBar.isShown()) {
+				mProgressBar.setVisibility(View.VISIBLE);
 			}
-			mProgressDialog = new ProgressDialog(AuthenticationAcitivity.this,
-					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Authenticating Details");
-			mProgressDialog.setCanceledOnTouchOutside(false);
-			mProgressDialog.setOnCancelListener(new OnCancelListener() {
-
-				public void onCancel(DialogInterface arg0) {
-					if (mProgressDialog.isShowing())
-						mProgressDialog.dismiss();
-					cancel(true);
-				}
-			});
-			mProgressDialog.show();
 		}
 
 		@Override
 		protected ResponseObj doInBackground(Void... arg0) {
-			Log.d(TAG, "doInBackground");
+			if (D)
+				if (D)
+					Log.d(TAG, "doInBackground");
 			ResponseObj resObj = new ResponseObj();
 			/** authentication deviceid */
 			{
@@ -118,7 +109,9 @@ public class AuthenticationAcitivity extends Activity {
 
 					if (resObj.getStatusCode() == 200) {
 						try {
-							Log.d(TAG, resObj.getsResponse());
+
+							if (D)
+								Log.d(TAG, resObj.getsResponse());
 							JSONObject clientJson = new JSONObject(
 									resObj.getsResponse());
 							clientId = (Integer) (clientJson.get("clientId"));
@@ -160,18 +153,20 @@ public class AuthenticationAcitivity extends Activity {
 		@Override
 		protected void onPostExecute(ResponseObj resObj) {
 			super.onPostExecute(resObj);
-			Log.d(TAG, "onPostExecute");
-			if (mProgressDialog.isShowing()) {
-				mProgressDialog.dismiss();
-			}
+			if (D)
+				Log.d(TAG, "onPostExecute");
+			/*
+			 * if (mProgressDialog.isShowing()) { mProgressDialog.dismiss(); }
+			 */
 
 			if (resObj.getStatusCode() == 200) {
-				Log.d("AuthActivity-Planlistdata", resObj.getsResponse());
+				if (D)
+					Log.d("AuthActivity-Planlistdata", resObj.getsResponse());
 				List<ActivePlansData> activePlansList = readJsonUser(resObj
 						.getsResponse());
 				if (!activePlansList.isEmpty()) {
 					Intent intent = new Intent(AuthenticationAcitivity.this,
-							MainActivity.class);//	IPTVActivity.class);
+							MainActivity.class);// IPTVActivity.class);
 
 					AuthenticationAcitivity.this.finish();
 					startActivity(intent);
@@ -188,14 +183,43 @@ public class AuthenticationAcitivity extends Activity {
 				AuthenticationAcitivity.this.finish();
 				startActivity(intent);
 			} else {
-				Toast.makeText(AuthenticationAcitivity.this,
-						resObj.getsErrorMessage(), Toast.LENGTH_LONG).show();
+				mProgressBar.setVisibility(View.INVISIBLE);
+				AlertDialog.Builder builder = new AlertDialog.Builder(
+						AuthenticationAcitivity.this,
+						AlertDialog.THEME_HOLO_LIGHT);
+				// Add the buttons
+				builder.setNegativeButton("Close",
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								AuthenticationAcitivity.this.finish();
+							}
+						});
+				AlertDialog dialog = builder.create();
+				dialog.setMessage(resObj.getsErrorMessage());
+				/*
+				 * TextView messageText =
+				 * (TextView)dialog.findViewById(android.R.id.message);
+				 * messageText.setGravity(Gravity.CENTER);
+				 */
+				dialog.show();
+
+				/*
+				 * Toast.makeText(AuthenticationAcitivity.this,
+				 * resObj.getsErrorMessage(), Toast.LENGTH_LONG).show();
+				 */
+
+				/*
+				 * Intent intent = new Intent(getApplicationContext(),
+				 * NetworkCheckActivity.class); startActivity(intent);
+				 * AuthenticationAcitivity.this.finish();
+				 */
 			}
 		}
 	}
 
 	private List<ActivePlansData> readJsonUser(String jsonText) {
-		Log.i("readJsonUser", "result is \r\n" + jsonText);
+		if (D)
+			Log.d("readJsonUser", "result is \r\n" + jsonText);
 		List<ActivePlansData> data = null;
 		try {
 			ObjectMapper mapper = new ObjectMapper().setVisibility(

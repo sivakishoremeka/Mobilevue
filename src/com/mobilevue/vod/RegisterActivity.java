@@ -45,11 +45,13 @@ public class RegisterActivity extends Activity {
 	EditText et_FirstName;
 	EditText et_LastName;
 	EditText et_EmailId;
+	boolean D;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_register);
+		D = ((MyApplication) getApplicationContext()).D;
 		et_MobileNumber = (EditText) findViewById(R.id.a_reg_et_mobile_no);
 		et_FirstName = (EditText) findViewById(R.id.a_reg_et_first_name);
 		et_LastName = (EditText) findViewById(R.id.a_reg_et_last_name);
@@ -78,27 +80,28 @@ public class RegisterActivity extends Activity {
 	}
 
 	private void closeApp() {
-			AlertDialog dialog = new AlertDialog.Builder(RegisterActivity.this,
-					AlertDialog.THEME_HOLO_DARK).create();
-			dialog.setIcon(R.drawable.ic_logo_confirm_dialog);
-			dialog.setTitle("Confirmation");
-			dialog.setMessage("Do you want to close the app?");
-			dialog.setCancelable(false);
+		AlertDialog dialog = new AlertDialog.Builder(RegisterActivity.this,
+				AlertDialog.THEME_HOLO_DARK).create();
+		dialog.setIcon(R.drawable.ic_logo_confirm_dialog);
+		dialog.setTitle("Confirmation");
+		dialog.setMessage("Do you want to close the app?");
+		dialog.setCancelable(false);
 
-			dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes",
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int buttonId) {
-							RegisterActivity.this.finish();
-						}
-					});
-			dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No",
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int buttonId) {
+		dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int buttonId) {
+						RegisterActivity.this.finish();
+					}
+				});
+		dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int buttonId) {
 
-						}
-					});
-			dialog.show();
+					}
+				});
+		dialog.show();
 	}
+
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if ((keyCode == KeyEvent.KEYCODE_BACK)) {
@@ -118,7 +121,8 @@ public class RegisterActivity extends Activity {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			Log.d(TAG, "onPreExecute");
+			if (D)
+				Log.d(TAG, "onPreExecute");
 			if (mProgressDialog != null) {
 				mProgressDialog.dismiss();
 				mProgressDialog = null;
@@ -140,7 +144,8 @@ public class RegisterActivity extends Activity {
 
 		@Override
 		protected ResponseObj doInBackground(ClientData... arg0) {
-			Log.d(TAG, "doInBackground");
+			if (D)
+				Log.d(TAG, "doInBackground");
 			clientData = (ClientData) arg0[0];
 			ResponseObj resObj = new ResponseObj();
 			{
@@ -160,8 +165,8 @@ public class RegisterActivity extends Activity {
 					map.put("flag", "false");
 					map.put("activationDate", "");
 					map.put("addressNo", "ghcv");
-					map.put("street", "hyderabad");
-					map.put("city", "hyderabad");
+					map.put("street", "Hyderabad");
+					map.put("city", "Hyderabad");
 					map.put("state", "ANDHRA PRADESH");
 					map.put("country", "India");
 					map.put("zipCode", "436346");
@@ -169,7 +174,8 @@ public class RegisterActivity extends Activity {
 					map.put("email", clientData.getEmail());
 					resObj = Utilities.callExternalApiPostMethod(
 							getApplicationContext(), map);
-					// Log.d("RegAct-CreateClient", resObj.getsResponse());
+					// if(D) Log.d("RegAct-CreateClient",
+					// resObj.getsResponse());
 				} else {
 					resObj.setFailResponse(100, NETWORK_ERROR);
 					// return resObj;
@@ -214,13 +220,15 @@ public class RegisterActivity extends Activity {
 		protected void onPostExecute(ResponseObj resObj) {
 
 			super.onPostExecute(resObj);
-			Log.d(TAG, "onPostExecute");
+			if (D)
+				Log.d(TAG, "onPostExecute");
 			if (mProgressDialog.isShowing()) {
 				mProgressDialog.dismiss();
 			}
 
 			if (resObj.getStatusCode() == 200) {
-				Log.d("RegAct-H/w Allocan", resObj.getsResponse());
+				if (D)
+					Log.d("RegAct-H/w Allocan", resObj.getsResponse());
 				Intent intent = new Intent(RegisterActivity.this,
 						PlanActivity.class);
 				RegisterActivity.this.finish();
@@ -237,7 +245,8 @@ public class RegisterActivity extends Activity {
 	}
 
 	private ClientResponseData readJsonUser(String jsonText) {
-		Log.i("readJsonUser", "result is \r\n" + jsonText);
+		if (D)
+			Log.d("readJsonUser", "result is " + jsonText);
 		ClientResponseData response = new ClientResponseData();
 		try {
 			ObjectMapper mapper = new ObjectMapper().setVisibility(

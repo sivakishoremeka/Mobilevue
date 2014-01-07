@@ -21,7 +21,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-
 import com.mobilevue.vod.R;
 
 public class VideoPlayerActivity extends Activity implements
@@ -34,16 +33,19 @@ public class VideoPlayerActivity extends Activity implements
 	VideoControllerView controller;
 	private ProgressDialog mProgressDialog;
 	private boolean isLiveController;
+	boolean D;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.d("VideoPlayerActivity", "OnCreate");
+		if (D)
+			Log.d("VideoPlayerActivity", "OnCreate");
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		setContentView(R.layout.activity_video_player);
+		D = ((MyApplication) getApplicationContext()).D;
 		videoSurface = (SurfaceView) findViewById(R.id.videoSurface);
 		SurfaceHolder videoHolder = videoSurface.getHolder();
 		videoHolder.addCallback(this);
@@ -65,8 +67,9 @@ public class VideoPlayerActivity extends Activity implements
 			// For the Data to take from previous activity
 			player.setDataSource(this,
 					Uri.parse(getIntent().getStringExtra("URL")));
-			Log.d("VideoPlayerActivity", "VideoURL:"
-					+ getIntent().getStringExtra("URL"));
+			if (D)
+				Log.d("VideoPlayerActivity", "VideoURL:"
+						+ getIntent().getStringExtra("URL"));
 			/*
 			 * player.setDataSource(this, Uri.parse("android.resource://" +
 			 * getPackageName() +"/"+R.raw.qwe));
@@ -104,13 +107,12 @@ public class VideoPlayerActivity extends Activity implements
 						if (mProgressDialog.isShowing()) {
 							mProgressDialog.dismiss();
 						}
-					} /*else if (what == MediaPlayer.MEDIA_ERROR_TIMED_OUT) {
-						if (mProgressDialog.isShowing()) {
-							mProgressDialog.dismiss();
-						}
-						Log.d(TAG, "Request timed out.Closing MediaPlayer");
-						finish();
-					}*/
+					} /*
+					 * else if (what == MediaPlayer.MEDIA_ERROR_TIMED_OUT) { if
+					 * (mProgressDialog.isShowing()) {
+					 * mProgressDialog.dismiss(); } Log.d(TAG,
+					 * "Request timed out.Closing MediaPlayer"); finish(); }
+					 */
 					return false;
 				}
 			});
@@ -119,8 +121,9 @@ public class VideoPlayerActivity extends Activity implements
 				@Override
 				public boolean onError(MediaPlayer arg0, int what, int extra) {
 
-					Log.d(TAG, "Media player Error is...what:" + what
-							+ " Extra:" + extra);
+					if (D)
+						Log.d(TAG, "Media player Error is...what:" + what
+								+ " Extra:" + extra);
 					if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN
 							&& extra == -2147483648) {
 						Toast.makeText(
@@ -188,7 +191,8 @@ public class VideoPlayerActivity extends Activity implements
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		Log.d("surfaceCreated", "surfaceCreated");
+		if (D)
+			Log.d("surfaceCreated", "surfaceCreated");
 		player.setDisplay(holder);
 		player.prepareAsync();
 		if (mProgressDialog != null) {
@@ -220,7 +224,8 @@ public class VideoPlayerActivity extends Activity implements
 	// Implement MediaPlayer.OnPreparedListener
 	@Override
 	public void onPrepared(MediaPlayer mp) {
-		Log.d("onPrepared", "onPrepared");
+		if (D)
+			Log.d("onPrepared", "onPrepared");
 		controller.setMediaPlayer(this);
 		controller
 				.setAnchorView((RelativeLayout) findViewById(R.id.video_container));
@@ -232,7 +237,8 @@ public class VideoPlayerActivity extends Activity implements
 
 	@Override
 	public void onBackPressed() {
-		Log.d("onBackPressed", "onBackPressed");
+		if (D)
+			Log.d("onBackPressed", "onBackPressed");
 		if (player != null && player.isPlaying())
 			player.stop();
 		player.release();
@@ -308,7 +314,8 @@ public class VideoPlayerActivity extends Activity implements
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		// TODO Auto-generated method stub
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			Log.d("onKeyDown", "KeyCodeback");
+			if (D)
+				Log.d("onKeyDown", "KeyCodeback");
 			if (player != null && player.isPlaying()) {
 				controller.hide();
 				player.stop();

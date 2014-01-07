@@ -2,22 +2,17 @@ package com.mobilevue.vod;
 
 import com.mobilevue.utils.MainMenuAdapter;
 import com.mobilevue.utils.MyFragmentPagerAdapter;
-import com.mobilevue.vod.R.drawable;
-
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ImageView;
 import android.widget.ListView;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 
@@ -27,11 +22,15 @@ public class MainActivity extends Activity {
 	private static final String TAG = "MainActivity";
 	MyFragmentPagerAdapter mAdapter;
 	ListView listView;
+	boolean D;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if (D)
+			Log.d(TAG, "onCreate");
 		setContentView(R.layout.activity_main);
+		D = ((MyApplication) getApplicationContext()).D;
 		listView = (ListView) findViewById(R.id.a_main_lv_menu);
 		MainMenuAdapter menuAdapter = new MainMenuAdapter(this);
 		listView.setAdapter(menuAdapter);
@@ -80,7 +79,7 @@ public class MainActivity extends Activity {
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if ((keyCode == KeyEvent.KEYCODE_BACK)) {
 			AlertDialog dialog = new AlertDialog.Builder(MainActivity.this,
-					AlertDialog.THEME_HOLO_DARK).create();
+					AlertDialog.THEME_HOLO_LIGHT).create();
 			dialog.setIcon(R.drawable.ic_logo_confirm_dialog);
 			dialog.setTitle("Confirmation");
 			dialog.setMessage("Do you want to close the app?");

@@ -8,6 +8,8 @@ import com.mobilevue.data.ResponseObj;
 import com.mobilevue.utils.MyFragmentPagerAdapter;
 import com.mobilevue.utils.Utilities;
 import com.mobilevue.utils.VodCategoryAdapter;
+
+import android.app.ActionBar;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,6 +20,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
@@ -25,7 +28,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -48,12 +50,15 @@ public class VodActivity extends FragmentActivity implements
 	private SearchView mSearchView;
 	ListView listView;
 	private ProgressDialog mProgressDialog;
+	boolean D;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_vod);
-
+		D = ((MyApplication) getApplicationContext()).D;
+		ActionBar actionBar = getActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
 		listView = (ListView) findViewById(R.id.a_vod_lv_category);
 		String[] arrMovCategNames = getResources().getStringArray(
 				R.array.arrMovCategNames);
@@ -110,7 +115,8 @@ public class VodActivity extends FragmentActivity implements
 	}
 
 	protected void setPageCountAndGetDetails() {
-		Log.d(TAG, "setPageCountAndGetDetails");
+		if (D)
+			Log.d(TAG, "setPageCountAndGetDetails");
 		mPrefs = getSharedPreferences(PREFS_FILE, 0);
 		String category = mPrefs.getString(CATEGORY, "");
 		new GetPageCountAndGetDetailsAsynTask()
@@ -124,24 +130,33 @@ public class VodActivity extends FragmentActivity implements
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			Log.d(TAG, "onPreExecute");
-			
-			  if (mProgressDialog != null) { mProgressDialog.dismiss();
-			  mProgressDialog = null; } mProgressDialog = new
-			  ProgressDialog(VodActivity.this, ProgressDialog.THEME_HOLO_DARK);
-			  mProgressDialog.setMessage("Retrieving Details...");
-			  mProgressDialog.setCanceledOnTouchOutside(false);
-			  mProgressDialog.setOnCancelListener(new OnCancelListener() {
-			  
-			  public void onCancel(DialogInterface arg0) { if
-			  (mProgressDialog.isShowing()) mProgressDialog.dismiss();
-			  cancel(true); } }); mProgressDialog.show();
-			 
+			if (D)
+				Log.d(TAG, "onPreExecute");
+
+			if (mProgressDialog != null) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			mProgressDialog = new ProgressDialog(VodActivity.this,
+					ProgressDialog.THEME_HOLO_DARK);
+			mProgressDialog.setMessage("Retrieving Details...");
+			mProgressDialog.setCanceledOnTouchOutside(false);
+			mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+				public void onCancel(DialogInterface arg0) {
+					if (mProgressDialog.isShowing())
+						mProgressDialog.dismiss();
+					cancel(true);
+				}
+			});
+			mProgressDialog.show();
+
 		}
 
 		@Override
 		protected ResponseObj doInBackground(String... params) {
-			Log.d(TAG, "doInBackground");
+			if (D)
+				Log.d(TAG, "doInBackground");
 			String category = params[0];
 			ResponseObj resObj = new ResponseObj();
 
@@ -163,9 +178,11 @@ public class VodActivity extends FragmentActivity implements
 		@Override
 		protected void onPostExecute(ResponseObj resObj) {
 			super.onPostExecute(resObj);
-			Log.d(TAG, "onPostExecute");
+			if (D)
+				Log.d(TAG, "onPostExecute");
 			if (resObj.getStatusCode() == 200) {
-				Log.d(TAG, resObj.getsResponse());
+				if (D)
+					Log.d(TAG, resObj.getsResponse());
 				updatePageCountAndDetails(resObj.getsResponse());
 				if (mProgressDialog.isShowing()) {
 					mProgressDialog.dismiss();
@@ -181,12 +198,13 @@ public class VodActivity extends FragmentActivity implements
 		}
 
 		public void updatePageCountAndDetails(String result) {
-			Log.d(TAG, "updateDetails" + result);
+			if (D)
+				Log.d(TAG, "updateDetails" + result);
 			if (result != null) {
 				GridViewData gvDataObj = MovieEngine.parseMovieDetails(result);
 				ITEMS = gvDataObj.getPageCount();
 				mAdapter = new MyFragmentPagerAdapter(
-						getSupportFragmentManager(), getApplicationContext());
+						getSupportFragmentManager());
 				mPager.setAdapter(mAdapter);
 			}
 
@@ -208,11 +226,11 @@ public class VodActivity extends FragmentActivity implements
 	public boolean onOptionsItemSelected(MenuItem item) {
 
 		switch (item.getItemId()) {
+		case android.R.id.home:
+			NavUtils.navigateUpFromSameTask(this);
+			break;
 		case R.id.menu_btn_home:
-			Intent intent = new Intent();
-			intent.setClass(VodActivity.this, MainActivity.class);
-			startActivity(intent);
-
+			NavUtils.navigateUpFromSameTask(this);
 			break;
 		default:
 			break;

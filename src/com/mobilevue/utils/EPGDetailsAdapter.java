@@ -1,5 +1,8 @@
 package com.mobilevue.utils;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import android.app.Activity;
@@ -38,20 +41,24 @@ public class EPGDetailsAdapter extends BaseAdapter {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View vi = convertView;
 		if (convertView == null)
-			vi = inflater.inflate(R.layout.epg_details_list_row, null);
+			vi = inflater.inflate(R.layout.fragment_epg_details_list_row, null);
 
 		final ProgramGuideData pData = data.get(position);
 
 		TextView prog_title = (TextView) vi
-				.findViewById(R.id.epg_details_list_row_tv_prog_title);
+				.findViewById(R.id.epg_details_list_row_new_tv_prog_title);
 		TextView start_time = (TextView) vi
-				.findViewById(R.id.epg_details_list_row_tv_start_time);
-		TextView end_time = (TextView) vi
-				.findViewById(R.id.epg_details_list_row_tv_end_time);
-
+				.findViewById(R.id.epg_details_list_row_new_tv_start_time);
 		prog_title.setText(pData.getProgramTitle());
-		start_time.setText(pData.getStartTime());
-		end_time.setText(pData.getStopTime());
+		SimpleDateFormat tf = new SimpleDateFormat("HH:mm");
+		Date sTime= null;
+		try {
+			sTime = tf.parse(pData.getStartTime());
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		start_time.setText(tf.format(sTime));
 		return vi;
 	}
 }

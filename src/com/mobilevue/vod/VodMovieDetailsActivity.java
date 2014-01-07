@@ -3,57 +3,37 @@ package com.mobilevue.vod;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.Menu;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
-
 import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.mobilevue.data.ActivePlansData;
 import com.mobilevue.data.MovieDetailsObj;
-import com.mobilevue.data.PriceDetailsObj;
 import com.mobilevue.data.ResponseObj;
-import com.mobilevue.data.VideoUriData;
-import com.mobilevue.utils.MovieDetailsEngine;
 import com.mobilevue.utils.Utilities;
 import com.mobilevue.imagehandler.SmartImageView;
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnErrorListener;
-import android.media.MediaPlayer.OnInfoListener;
-import android.net.Uri;
-import android.os.Bundle;
 import android.provider.Settings;
+import android.support.v4.app.NavUtils;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.SurfaceHolder;
+import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import android.widget.RatingBar;
 import android.widget.TextView;
-
-;
 
 public class VodMovieDetailsActivity extends Activity
 // implements
@@ -72,12 +52,15 @@ public class VodMovieDetailsActivity extends Activity
 	private ProgressDialog mProgressDialog;
 	String mediaId;
 	String eventId;
+	boolean D;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_vod_mov_details);
-
+		D = ((MyApplication) getApplicationContext()).D;
+		ActionBar actionBar = getActionBar();
+		actionBar.setDisplayHomeAsUpEnabled(true);
 		Bundle b = getIntent().getExtras();
 		mediaId = b.getString("MediaId");
 		eventId = b.getString("EventId");
@@ -91,13 +74,25 @@ public class VodMovieDetailsActivity extends Activity
 
 	}
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			NavUtils.navigateUpFromSameTask(this);
+			break;
+		default:
+			break;
+		}
+		return true;
+	}
+
 	public void btnOnClick(View v) {
-		Log.d("Btn Click", ((Button) v).getText().toString());
-		
-		
-		
-		AlertDialog dialog = new AlertDialog.Builder(VodMovieDetailsActivity.this,
-				AlertDialog.THEME_HOLO_DARK).create();
+		if (D)
+			Log.d("Btn Click", ((Button) v).getText().toString());
+		AlertDialog dialog = new AlertDialog.Builder(
+				VodMovieDetailsActivity.this, AlertDialog.THEME_HOLO_LIGHT)
+				.create();
 		dialog.setIcon(R.drawable.ic_logo_confirm_dialog);
 		dialog.setTitle("Confirmation");
 		dialog.setMessage("Do you want to continue?");
@@ -112,15 +107,11 @@ public class VodMovieDetailsActivity extends Activity
 		dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No",
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int buttonId) {
-						
+
 					}
 				});
 		dialog.show();
 
-		
-		
-		
-		
 		/*
 		 * switch (v.getId()) { case R.id.button1: doSomething1(); break; case
 		 * R.id.button2: doSomething2(); break; }
@@ -133,7 +124,7 @@ public class VodMovieDetailsActivity extends Activity
 	}
 
 	public void UpdateDetails() {
-		// Log.d(TAG, "getDetails");
+		// if(D) Log.d(TAG, "getDetails");
 		try {
 
 			new doBackGround().execute(GET_MOVIE_DETAILS);
@@ -148,7 +139,7 @@ public class VodMovieDetailsActivity extends Activity
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			// Log.d(TAG, "onPreExecute");
+			// if(D) Log.d(TAG, "onPreExecute");
 			if (mProgressDialog != null) {
 				mProgressDialog.dismiss();
 				mProgressDialog = null;
@@ -162,7 +153,7 @@ public class VodMovieDetailsActivity extends Activity
 
 		@Override
 		protected ResponseObj doInBackground(String... params) {
-			// Log.d(TAG, "doInBackground");
+			// if(D) Log.d(TAG, "doInBackground");
 			taskName = params[0];
 			ResponseObj resObj = new ResponseObj();
 			if (Utilities.isNetworkAvailable(VodMovieDetailsActivity.this
@@ -217,7 +208,8 @@ public class VodMovieDetailsActivity extends Activity
 		@Override
 		protected void onPostExecute(ResponseObj resObj) {
 			super.onPostExecute(resObj);
-			Log.d(TAG, "onPostExecute");
+			if (D)
+				Log.d(TAG, "onPostExecute");
 
 			if (resObj.getStatusCode() == 200) {
 				if (taskName.equalsIgnoreCase(GET_MOVIE_DETAILS)) {
@@ -273,7 +265,8 @@ public class VodMovieDetailsActivity extends Activity
 		}
 
 		public void updateUI(String jsonText) {
-			Log.d(TAG, "updateUI" + jsonText);
+			if (D)
+				Log.d(TAG, "updateUI" + jsonText);
 			if (jsonText != null) {
 
 				/*
@@ -385,15 +378,15 @@ public class VodMovieDetailsActivity extends Activity
 	 * MediaPlayer.MEDIA_INFO_BUFFERING_END) { if (mProgressDialog.isShowing())
 	 * { mProgressDialog.dismiss(); } } else if (what ==
 	 * MediaPlayer.MEDIA_ERROR_TIMED_OUT) { if (mProgressDialog.isShowing()) {
-	 * mProgressDialog.dismiss(); } Log.d(TAG,
+	 * mProgressDialog.dismiss(); } if(D) Log.d(TAG,
 	 * "Request timed out.Closing MediaPlayer"); finish(); } return false; } });
 	 * player.setOnErrorListener(new OnErrorListener() {
 	 * 
 	 * @Override public boolean onError(MediaPlayer arg0, int what, int extra) {
 	 * 
-	 * Log.d(TAG, "Media player Error is...what:" + what + " Extra:" + extra);
-	 * if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == -2147483648) {
-	 * Toast.makeText( getApplicationContext(),
+	 * if(D) Log.d(TAG, "Media player Error is...what:" + what + " Extra:" +
+	 * extra); if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra ==
+	 * -2147483648) { Toast.makeText( getApplicationContext(),
 	 * "Incorrect URL or Unsupported Media Format.Media player closed.",
 	 * Toast.LENGTH_LONG).show(); if (player != null && player.isPlaying())
 	 * player.stop(); player.release(); player = null; finish(); } return false;
@@ -418,7 +411,7 @@ public class VodMovieDetailsActivity extends Activity
 	 */
 
 	/*
-	 * @Override public void surfaceCreated(SurfaceHolder holder) {
+	 * @Override public void surfaceCreated(SurfaceHolder holder) { if(D)
 	 * Log.d("surfaceCreated", "surfaceCreated"); player.setDisplay(holder);
 	 * player.prepareAsync(); if (mProgressDialog != null) {
 	 * mProgressDialog.dismiss(); mProgressDialog = null; } mProgressDialog =
@@ -436,16 +429,16 @@ public class VodMovieDetailsActivity extends Activity
 	 * 
 	 * }
 	 * 
-	 * @Override public void onPrepared(MediaPlayer mp) { Log.d("onPrepared",
-	 * "onPrepared"); controller.setMediaPlayer(this); controller
-	 * .setAnchorView((RelativeLayout)
+	 * @Override public void onPrepared(MediaPlayer mp) { if(D)
+	 * Log.d("onPrepared", "onPrepared"); controller.setMediaPlayer(this);
+	 * controller .setAnchorView((RelativeLayout)
 	 * findViewById(R.id.a_vod_mov_dtls_video_container)); if
 	 * (mProgressDialog.isShowing()) { mProgressDialog.dismiss(); }
 	 * controller.show(5000); // player.start();
 	 * 
 	 * }
 	 * 
-	 * @Override public void onBackPressed() { Log.d("onBackPressed",
+	 * @Override public void onBackPressed() { if(D) Log.d("onBackPressed",
 	 * "onBackPressed"); if (player != null && player.isPlaying())
 	 * player.stop(); player.release(); player = null; // finish(); }
 	 */
@@ -484,7 +477,7 @@ public class VodMovieDetailsActivity extends Activity
 	 * 
 	 * // End VideoMediaController.MediaPlayerControl public boolean
 	 * onKeyDown(int keyCode, KeyEvent event) { // TODO Auto-generated method
-	 * stub if (keyCode == KeyEvent.KEYCODE_BACK) { Log.d("onKeyDown",
+	 * stub if (keyCode == KeyEvent.KEYCODE_BACK) { if(D) Log.d("onKeyDown",
 	 * "KeyCodeback"); if (player != null && player.isPlaying()) {
 	 * controller.hide(); player.stop(); player.release(); player = null;
 	 * finish(); } else { finish(); } } else if (keyCode ==

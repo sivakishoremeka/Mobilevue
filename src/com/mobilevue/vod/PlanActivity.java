@@ -48,16 +48,19 @@ public class PlanActivity extends Activity {
 	String jsonPlansResult;
 	boolean isListHasPlans = false;
 	int clientId;
+	boolean D;
 
 	// @Override
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_plan);
+		D = ((MyApplication) getApplicationContext()).D;
 		SharedPreferences mPrefs = getSharedPreferences(
 				AuthenticationAcitivity.PREFS_FILE, 0);
 		clientId = mPrefs.getInt("CLIENTID", 0);
-		Log.d(TAG + "-onCreate", "CLIENTID :" + clientId);
+		if (D)
+			Log.d(TAG + "-onCreate", "CLIENTID :" + clientId);
 		listView = (ListView) findViewById(R.id.a_plan_listview);
 		listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		/** We retrive the plans and bind the plans to listview */
@@ -162,7 +165,8 @@ public class PlanActivity extends Activity {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			Log.d(TAG, "onPreExecute");
+			if (D)
+				Log.d(TAG, "onPreExecute");
 			if (mProgressDialog != null) {
 				mProgressDialog.dismiss();
 				mProgressDialog = null;
@@ -184,7 +188,8 @@ public class PlanActivity extends Activity {
 
 		@Override
 		protected ResponseObj doInBackground(String... params) {
-			Log.d(TAG, "doInBackground");
+			if (D)
+				Log.d(TAG, "doInBackground");
 			planId = params[0];
 			ResponseObj resObj = new ResponseObj();
 			if (Utilities.isNetworkAvailable(getApplicationContext())) {
@@ -215,7 +220,8 @@ public class PlanActivity extends Activity {
 		@Override
 		protected void onPostExecute(ResponseObj resObj) {
 			super.onPostExecute(resObj);
-			Log.d(TAG, "onPostExecute");
+			if (D)
+				Log.d(TAG, "onPostExecute");
 			if (mProgressDialog.isShowing()) {
 				mProgressDialog.dismiss();
 			}
@@ -242,7 +248,8 @@ public class PlanActivity extends Activity {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			Log.d(TAG, "onPreExecute");
+			if (D)
+				Log.d(TAG, "onPreExecute");
 			if (mProgressDialog != null) {
 				mProgressDialog.dismiss();
 				mProgressDialog = null;
@@ -282,7 +289,8 @@ public class PlanActivity extends Activity {
 				mProgressDialog.dismiss();
 			}
 			if (resObj.getStatusCode() == 200) {
-				Log.d("PlanAct-FetchPlans", resObj.getsResponse());
+				if (D)
+					Log.d("PlanAct-FetchPlans", resObj.getsResponse());
 				jsonPlansResult = resObj.getsResponse();
 				isListHasPlans = true;
 				List<PlansData> activePlansList = getPlansFromJson(resObj
@@ -305,7 +313,8 @@ public class PlanActivity extends Activity {
 	}
 
 	private List<PlansData> getPlansFromJson(String jsonText) {
-		Log.i("getPlansFromJson", "result is \r\n" + jsonText);
+		if (D)
+			Log.d("getPlansFromJson", "result is \r\n" + jsonText);
 		List<PlansData> data = null;
 		try {
 			ObjectMapper mapper = new ObjectMapper().setVisibility(

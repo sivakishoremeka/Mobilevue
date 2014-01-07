@@ -38,6 +38,7 @@ public class CategoryFragment extends Fragment {
 	private ProgressDialog mProgressDialog;
 	private SearchDetails searchDtls;
 	private SharedPreferences mPrefs;
+	boolean D;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -45,6 +46,7 @@ public class CategoryFragment extends Fragment {
 
 		final View rootView = inflater.inflate(R.layout.fragment_category,
 				container, false);
+		D = ((MyApplication) getActivity().getApplicationContext()).D;
 		mPrefs = getActivity().getSharedPreferences(PREFS_FILE, 0);
 		String category = mPrefs.getString("CATEGORY", "RELEASE");
 		searchDtls = new SearchDetails(rootView, getArguments()
@@ -54,7 +56,8 @@ public class CategoryFragment extends Fragment {
 	}
 
 	public void getDetails(SearchDetails sd) {
-		Log.d(TAG, "getDetails");
+		if (D)
+			Log.d(TAG, "getDetails");
 		try {
 			new GetDetailsAsynTask().execute(sd);
 		} catch (Exception e) {
@@ -69,7 +72,8 @@ public class CategoryFragment extends Fragment {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			Log.d(TAG, "onPreExecute");
+			if (D)
+				Log.d(TAG, "onPreExecute");
 			if (mProgressDialog != null) {
 				mProgressDialog.dismiss();
 				mProgressDialog = null;
@@ -91,7 +95,8 @@ public class CategoryFragment extends Fragment {
 
 		@Override
 		protected ResponseObj doInBackground(SearchDetails... params) {
-			Log.d(TAG, "doInBackground");
+			if (D)
+				Log.d(TAG, "doInBackground");
 			searchDetails = (SearchDetails) params[0];
 			ResponseObj resObj = new ResponseObj();
 
@@ -115,9 +120,11 @@ public class CategoryFragment extends Fragment {
 		@Override
 		protected void onPostExecute(ResponseObj resObj) {
 			super.onPostExecute(resObj);
-			Log.d(TAG, "onPostExecute");
+			if (D)
+				Log.d(TAG, "onPostExecute");
 			if (resObj.getStatusCode() == 200) {
-				Log.d(TAG, resObj.getsResponse());
+				if (D)
+					Log.d(TAG, resObj.getsResponse());
 				updateDetails(resObj.getsResponse(), searchDetails.rootview);
 				if (mProgressDialog.isShowing()) {
 					mProgressDialog.dismiss();
@@ -134,7 +141,8 @@ public class CategoryFragment extends Fragment {
 		}
 
 		public void updateDetails(String result, View rootview) {
-			Log.d(TAG, "updateDetails" + result);
+			if (D)
+				Log.d(TAG, "updateDetails" + result);
 			if (result != null) {
 				final GridViewData gvDataObj = MovieEngine
 						.parseMovieDetails(result);

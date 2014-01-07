@@ -16,9 +16,9 @@
     <string name="description">Media Controls</string>
     <string name="duration">Duration</string>
     <string name="email_id">Email Id</string>
-    <string name="end_time">End Time</string>
     <string name="first_name">First Name</string>
     <string name="home">Home</string>
+    <string name="header_title">Communication Error</string>
     <string name="language">Language</string>
     <string name="last_name">Last Name</string>
     <string name="live_tv">Live TV</string>
@@ -26,9 +26,7 @@
     <string name="movie_descr">Movie Description</string>
     <string name="movie_details">Movie Details</string>
     <string name="own_buy">Own / Buy :</string>
-    
-    <string name="prog_guide">Program Guide</string>
-    <string name="prog_title">Program Title</string>
+    <string name="remind_me">Remind Me</string>
     <string name="reg_acc">Register your account</string>
     <string name="release">Release</string>
     <string name="rental">Rental :</string>
@@ -36,10 +34,12 @@
          to enjoy premium digital TV signals on their devices.</string>
     <string name="sel_pkg">Select Package</string>
     <string name="server_url">https://spark.openbillingsystem.com/obsplatform/api/v1/</string>
-    <string name="start_time">Start Time</string>
     <string name="user_name">User Name</string>
     <string name="user_reg">User Registration</string>
     <string name="vod">VOD</string>
+    <string name="watch">  Watch  </string>
+    
+    
 
     <!-- String Arrays -->
      <string-array name="arrMenu">
