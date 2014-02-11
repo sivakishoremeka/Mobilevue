@@ -12,7 +12,6 @@ import com.mobilevue.utils.VodCategoryAdapter;
 import android.app.ActionBar;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences.Editor;
@@ -93,7 +92,6 @@ public class VodActivity extends FragmentActivity implements
 			public void onPageScrolled(int arg0, float arg1, int arg2) {
 				Button button = (Button) findViewById(R.id.a_vod_btn_pgno);
 				button.setText("" + (arg0 + 1));
-
 			}
 
 			@Override
@@ -207,9 +205,7 @@ public class VodActivity extends FragmentActivity implements
 						getSupportFragmentManager());
 				mPager.setAdapter(mAdapter);
 			}
-
 		}
-
 	}
 
 	@Override

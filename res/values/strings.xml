@@ -33,7 +33,8 @@
     <string name="reg_note">ACC Mobile TV allows user with Mobile Phones, Smart Phones &amp; Tablets
          to enjoy premium digital TV signals on their devices.</string>
     <string name="sel_pkg">Select Package</string>
-    <string name="server_url">https://spark.openbillingsystem.com/obsplatform/api/v1/</string>
+    <string name="server_url">https://46.21.175.210:8443/obsplatform/api/v1/</string>
+    <string name="server_url123">https://spark.openbillingsystem.com/obsplatform/api/v1/</string>
     <string name="user_name">User Name</string>
     <string name="user_reg">User Registration</string>
     <string name="vod">VOD</string>

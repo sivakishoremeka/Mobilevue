@@ -20,6 +20,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,6 +38,7 @@ public class AuthenticationAcitivity extends Activity {
 	private SharedPreferences mPrefs;
 	private Editor mPrefsEditor;
 	private ProgressBar mProgressBar;
+	ValidateDeviceAsyncTask mValidateDeviceTask;
 	Button button;
 	int clientId;
 	boolean D;
@@ -72,7 +74,8 @@ public class AuthenticationAcitivity extends Activity {
 	}
 
 	private void validateDevice() {
-		new ValidateDeviceAsyncTask().execute();
+		mValidateDeviceTask = new ValidateDeviceAsyncTask();
+		mValidateDeviceTask.execute();
 	}
 
 	private class ValidateDeviceAsyncTask extends
@@ -92,8 +95,7 @@ public class AuthenticationAcitivity extends Activity {
 		@Override
 		protected ResponseObj doInBackground(Void... arg0) {
 			if (D)
-				if (D)
-					Log.d(TAG, "doInBackground");
+				Log.d(TAG, "doInBackground");
 			ResponseObj resObj = new ResponseObj();
 			/** authentication deviceid */
 			{
@@ -196,24 +198,8 @@ public class AuthenticationAcitivity extends Activity {
 						});
 				AlertDialog dialog = builder.create();
 				dialog.setMessage(resObj.getsErrorMessage());
-				/*
-				 * TextView messageText =
-				 * (TextView)dialog.findViewById(android.R.id.message);
-				 * messageText.setGravity(Gravity.CENTER);
-				 */
 				dialog.show();
-
-				/*
-				 * Toast.makeText(AuthenticationAcitivity.this,
-				 * resObj.getsErrorMessage(), Toast.LENGTH_LONG).show();
-				 */
-
-				/*
-				 * Intent intent = new Intent(getApplicationContext(),
-				 * NetworkCheckActivity.class); startActivity(intent);
-				 * AuthenticationAcitivity.this.finish();
-				 */
-			}
+					}
 		}
 	}
 
@@ -235,4 +221,12 @@ public class AuthenticationAcitivity extends Activity {
 		}
 		return data;
 	}
+	
+	 @Override
+	    public boolean onKeyDown(int keyCode, KeyEvent event) {
+	        if (keyCode == KeyEvent.KEYCODE_BACK) {
+	        	mValidateDeviceTask.cancel(true);
+	        }
+	        return super.onKeyDown(keyCode, event);
+	    }
 }

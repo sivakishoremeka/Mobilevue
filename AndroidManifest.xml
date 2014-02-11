@@ -10,6 +10,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name="MyApplication"
@@ -20,14 +21,12 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.mobilevue.vod.AuthenticationAcitivity"
-            android:configChanges="keyboardHidden|orientation"
             android:label="@string/app_name"
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" >
         </activity>
         <activity
             android:name="com.mobilevue.vod.NetworkCheckActivity"
-            android:configChanges="keyboardHidden|orientation"
             android:excludeFromRecents="true"
             android:label="@string/app_name"
             android:launchMode="singleInstance"
@@ -42,26 +41,22 @@
         </activity>
         <activity
             android:name="com.mobilevue.vod.MainActivity"
-            android:configChanges="keyboardHidden|orientation"
             android:label=""
             android:launchMode="singleTask"
             android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name="com.mobilevue.vod.RegisterActivity"
-            android:configChanges="keyboardHidden|orientation"
             android:label=""
             android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name="com.mobilevue.vod.PlanActivity"
-            android:configChanges="keyboardHidden|orientation"
             android:label=""
             android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name="com.mobilevue.vod.IPTVActivity"
-            android:configChanges="keyboardHidden|orientation"
             android:label=""
             android:launchMode="singleTask"
             android:parentActivityName=".MainActivity"
@@ -72,7 +67,6 @@
         </activity>
         <activity
             android:name="com.mobilevue.vod.VodActivity"
-            android:configChanges="keyboardHidden|orientation"
             android:label=""
             android:launchMode="singleTask"
             android:parentActivityName=".MainActivity"
@@ -83,7 +77,6 @@
         </activity>
         <activity
             android:name="com.mobilevue.vod.VodMovieDetailsActivity"
-            android:configChanges="keyboardHidden|orientation"
             android:label=""
             android:parentActivityName=".VodActivity"
             android:screenOrientation="landscape" >
@@ -93,12 +86,22 @@
         </activity>
         <activity
             android:name="com.mobilevue.vod.VideoPlayerActivity"
-            android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="landscape" >
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </activity>
+
+        <service android:name="com.mobilevue.service.ScheduleService" />
+        <service android:name="com.mobilevue.service.NotifyService" />
+
+        <receiver android:name="com.mobilevue.receiver.BootReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name="com.mobilevue.service.ScheduleAfterBootService" />
     </application>
 
 </manifest>

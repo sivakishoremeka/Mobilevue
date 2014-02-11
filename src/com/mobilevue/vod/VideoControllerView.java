@@ -17,10 +17,24 @@
 package com.mobilevue.vod;
 
 import java.lang.ref.WeakReference;
+
 import java.util.Formatter;
+import java.util.List;
 import java.util.Locale;
 
+import org.codehaus.jackson.annotate.JsonMethod;
+import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -33,11 +47,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
+import com.mobilevue.data.IptvData;
+import com.mobilevue.utils.EPGFragmentPagerAdapter;
+import com.mobilevue.utils.ImageLoader;
 import com.mobilevue.vod.R;
 
 /**
@@ -161,11 +179,114 @@ public class VideoControllerView extends FrameLayout {
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		if (mUseFastForward)
 			mRoot = inflate.inflate(R.layout.media_controller, null);
-		else
-			mRoot = inflate.inflate(R.layout.media_controller_live_tv, null);
+		else {
+			mRoot = inflate
+					.inflate(R.layout.media_controller_live_tv_new, null);
+			GetChannelsList(mRoot);
+
+		}
 		initControllerView(mRoot);
 
 		return mRoot;
+	}
+
+	private void GetChannelsList(View v) {
+
+		SharedPreferences mPrefs = mContext.getSharedPreferences(
+				IPTVActivity.PREFS_FILE, Activity.MODE_PRIVATE);
+		String sChannelDtls = mPrefs.getString(
+				IPTVActivity.IPTV_CHANNELS_DETAILS, "");
+		if (sChannelDtls.length() != 0) {
+			JSONObject json_ch_dtls = null;
+			String channel_details = null;
+			try {
+				json_ch_dtls = new JSONObject(mPrefs.getString(
+						IPTVActivity.IPTV_CHANNELS_DETAILS, ""));
+				channel_details = json_ch_dtls.getString("Response");
+				// channel_details =
+				// "[{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https:/,/spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"}]";
+			} catch (JSONException e1) {
+				e1.printStackTrace();
+			}
+			if (channel_details.length() != 0) {
+
+				updateChannels(v, readJsonUserforIPTV(channel_details));
+			}
+		}
+	}
+
+	private void updateChannels(View v, List<IptvData> result) {
+		int imgno = 0;
+		LinearLayout channels = (LinearLayout) v
+				.findViewById(R.id.a_video_ll_channels);
+		SharedPreferences mPrefs = mContext.getSharedPreferences(
+				IPTVActivity.PREFS_FILE, 0);
+		final Editor editor = mPrefs.edit();
+		for (final IptvData data : result) {
+
+			editor.putString(data.getChannelName(), data.getUrl());
+			editor.commit();
+			imgno += 1;
+			ChannelInfo chInfo = new ChannelInfo(data.getChannelName(),
+					data.getUrl());
+			final ImageButton button = new ImageButton(mContext);
+			LayoutParams params = new LayoutParams(Gravity.CENTER,
+					Gravity.CENTER);
+			params.height = 96;
+			params.width = 96;
+			params.setMargins(1, 1, 1, 1);
+			button.setLayoutParams(params);// new LinearLayout.LayoutParams(66,
+											// 66));
+			button.setId(1000 + imgno);
+			button.setTag(chInfo);
+			button.setFocusable(false);
+			button.setFocusableInTouchMode(false);
+
+			final ImageLoader imgLoader = new ImageLoader(mContext);
+			imgLoader.DisplayImage(data.getImage(), button);
+
+			button.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					ChannelInfo info = (ChannelInfo) v.getTag();
+					mPlayer.changeChannel(Uri.parse(info.channelURL));
+					// updatePausePlay();
+					// show(sDefaultTimeout);
+				}
+			});
+			channels.addView(button);
+		}
+	}
+
+	private class ChannelInfo {
+		private String channelName;
+		private String channelURL;
+
+		public ChannelInfo(String channelName, String channelURL) {
+			this.channelName = channelName;
+			this.channelURL = channelURL;
+		}
+	}
+
+	private List<IptvData> readJsonUserforIPTV(String jsonText) {
+		Log.d("readJsonUser", "result is \r\n" + jsonText);
+		List<IptvData> response = null;
+		try {
+			ObjectMapper mapper = new ObjectMapper().setVisibility(
+					JsonMethod.FIELD, Visibility.ANY);
+			mapper.configure(
+					DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES,
+					false);
+
+			response = mapper.readValue(jsonText,
+					new TypeReference<List<IptvData>>() {
+					});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return response;
+
 	}
 
 	private void initControllerView(View v) {
@@ -225,6 +346,7 @@ public class VideoControllerView extends FrameLayout {
 		mFormatter = new Formatter(mFormatBuilder, Locale.getDefault());
 
 		installPrevNextListeners();
+
 	}
 
 	/**
@@ -273,6 +395,7 @@ public class VideoControllerView extends FrameLayout {
 	 */
 	public void show(int timeout) {
 		if (!mShowing && mAnchor != null) {
+
 			setProgress();
 			if (mPauseButton != null) {
 				mPauseButton.requestFocus();
@@ -298,6 +421,7 @@ public class VideoControllerView extends FrameLayout {
 			mHandler.removeMessages(FADE_OUT);
 			mHandler.sendMessageDelayed(msg, timeout);
 		}
+
 	}
 
 	public boolean isShowing() {
@@ -338,7 +462,7 @@ public class VideoControllerView extends FrameLayout {
 	}
 
 	private int setProgress() {
-		if (mPlayer == null || mDragging) {
+		if (mPlayer == null || mDragging || !mPlayer.isPlaying()) {
 			return 0;
 		}
 
@@ -440,28 +564,31 @@ public class VideoControllerView extends FrameLayout {
 	 */
 
 	public void updatePausePlay() {
-		if (mRoot == null || mPauseButton == null || mPlayer == null) {
+		if (mRoot == null || mPauseButton == null)
 			return;
-		}
 
-		if (mUseFastForward) {
-
-			if (mPlayer.isPlaying()) {
-				mPauseButton.setImageResource(R.drawable.ic_media_pause);
-			} else {
-				mPauseButton.setImageResource(R.drawable.ic_media_play);
-			}
+		if (mPlayer.isPlaying()) {
+			mPauseButton.setImageResource(R.drawable.ic_media_pause);
 		} else {
-			if (mPlayer.isPlaying()) {
-				// mPauseButton.setImageResource(R.drawable.ic_media_pause);
-				mPauseButton.setImageResource(R.drawable.ic_av_play_over_video);
-			} else {
-				// mPauseButton.setImageResource(R.drawable.ic_media_play);
-				mPauseButton
-						.setImageResource(R.drawable.ic_av_pause_over_video);
-			}
+			mPauseButton.setImageResource(R.drawable.ic_media_play);
 		}
 	}
+
+	/*
+	 * public void updatePausePlay() { if (mRoot == null || mPauseButton == null
+	 * || mPlayer == null) { return; }
+	 * 
+	 * if (mUseFastForward) {
+	 * 
+	 * if (mPlayer.isPlaying()) {
+	 * mPauseButton.setImageResource(R.drawable.ic_media_pause); } else {
+	 * mPauseButton.setImageResource(R.drawable.ic_media_play); } } else { if
+	 * (mPlayer.isPlaying()) { //
+	 * mPauseButton.setImageResource(R.drawable.ic_media_pause);
+	 * mPauseButton.setImageResource(R.drawable.ic_av_play_over_video); } else {
+	 * // mPauseButton.setImageResource(R.drawable.ic_media_play); mPauseButton
+	 * .setImageResource(R.drawable.ic_av_pause_over_video); } } }
+	 */
 
 	/*
 	 * public void updateFullScreen() { if (mRoot == null || mFullscreenButton
@@ -661,7 +788,9 @@ public class VideoControllerView extends FrameLayout {
 		boolean canSeekForward();
 
 		boolean isFullScreen();
+
 		// void toggleFullScreen();
+		void changeChannel(Uri url);
 	}
 
 	private static class MessageHandler extends Handler {

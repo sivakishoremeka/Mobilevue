@@ -5,12 +5,17 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.mobilevue.data.EpgData;
 import com.mobilevue.data.ProgramGuideData;
 import com.mobilevue.data.ResponseObj;
@@ -21,6 +26,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -43,6 +49,7 @@ public class EpgFragment extends Fragment {
 	private final static String NETWORK_ERROR = "NETWORK_ERROR";
 	private ProgressDialog mProgressDialog;
 	private SharedPreferences mPrefs;
+	private Editor mPrefsEditor;
 	public static final String ARG_SECTION_DATE = "section_date";
 	List<ProgramGuideData> progGuideList;
 	ListView list;
@@ -67,6 +74,17 @@ public class EpgFragment extends Fragment {
 		getActivity().findViewById(R.id.a_iptv_rl_root_layout).setVisibility(
 				View.VISIBLE);
 		// String result =
+		// "{ \"epgData\": [ { \"channelName\": \"ch1\", \"channelIcon\": \"NoIcon\", \"programDate\": \"2013-10-09\", \"startTime\": \"17: 30: 00\", \"stopTime\": \"17: 32: 00\", \"programTitle\": \"SpiderMan\", \"programDescription\": \"Awelcomeintroductiontothemoviechanneltagged'Movistar'\", \"type\": \"Infotainment\", \"genre\": \"\" }, { \"channelName\": \"ch1\", \"channelIcon\": \"NoIcon\", \"programDate\": \"2013-10-09\", "
+		// +
+		// "\"startTime\": \"17: 32: 00\", \"stopTime\": \"17: 34: 00\", \"programTitle\": \"Ironman\", \"programDescription\": \"Awelcomeintroductiontothemoviechanneltagged'Movistar'\", \"type\": \"Infotainment\", \"genre\": \"\" }, { \"channelName\": \"ch1\", \"channelIcon\": \"NoIcon\", \"programDate\": \"2013-10-09\", "
+		// +
+		// "\"startTime\": \"17: 34: 00\", \"stopTime\": \"17: 36: 00\", \"programTitle\": \"SpringMan\", \"programDescription\": \"Awelcomeintroductiontothemoviechanneltagged'Movistar'\", \"type\": \"Infotainment\", \"genre\": \"\" }, { \"channelName\": \"ch1\", \"channelIcon\": \"NoIcon\", \"programDate\": \"2013-10-09\","
+		// +
+		// "\"startTime\": \"17: 36: 00\", \"stopTime\": \"17: 38: 00\", \"programTitle\": \"SuperMan\", \"programDescription\": \"Awelcomeintroductiontothemoviechanneltagged'Movistar'\", \"type\": \"Infotainment\", \"genre\": \"\" }, { \"channelName\": \"ch1\", \"channelIcon\": \"NoIcon\", \"programDate\": \"2013-10-09\","
+		// +
+		// "\"startTime\": \"17: 38: 00\", \"stopTime\": \"17: 40: 00\", \"programTitle\": \"WelcomeToMovistar\", \"programDescription\": \"Awelcomeintroductiontothemoviechanneltagged'Movistar'\", \"type\": \"Infotainment\", \"genre\": \"\" }, { \"channelName\": \"ch1\", \"channelIcon\": \"NoIcon\", \"programDate\": \"2013-10-09\","
+		// +
+		// "\"startTime\": \"17: 40: 00\", \"stopTime\": \"17: 42: 00\", \"programTitle\": \"WelcomeToMovistar\", \"programDescription\": \"Awelcomeintroductiontothemoviechanneltagged'Movistar'\", \"type\": \"Infotainment\", \"genre\": \"\" } ]}";
 		// "{ \"epgData\": [ { \"channelName\": \"ch1\", \"channelIcon\": \"No Icon\", \"programDate\": \"2013-10-09\", \"startTime\": \"12:00:00\", \"stopTime\": \"12:30:00\", \"programTitle\": \"Welcome To Movistar\", \"programDescription\": \"A welcome introduction to the movie channel tagged 'Movistar'\", \"type\": \"Infotainment\", \"genre\": \"\" }, { \"channelName\": \"ch1\", \"channelIcon\": \"No Icon\", \"programDate\": \"2013-10-09\", \"startTime\": \"12:30:00\", \"stopTime\": \"02:00:00\", \"programTitle\": \"Welcome To Movistar\", \"programDescription\": \"A welcome introduction to the movie channel tagged 'Movistar'\", \"type\": \"Infotainment\", \"genre\": \"\" } ] }";
 		// updateDetails(result, rootView);
 		return rootView;
@@ -82,10 +100,39 @@ public class EpgFragment extends Fragment {
 	public void getEpgDetails(EpgReqDetails rd) {
 		if (D)
 			Log.d(TAG, "getDetails");
-		try {
-			new GetEpgDetailsTask().execute(rd);
-		} catch (Exception e) {
-			e.printStackTrace();
+		boolean getServerData = false;
+		String Epg_Dtls_key = rd.channelName + "_EPG_Details";
+		String Epg_Dtls_value = mPrefs.getString(Epg_Dtls_key, "");
+		if (Epg_Dtls_value.length() == 0) {
+			getServerData = true;
+		} else {
+			JSONObject json = null;
+			String req_date_Dtls = null;
+			JSONArray epgData = null;
+			try {
+				json = new JSONObject(Epg_Dtls_value);
+				req_date_Dtls = json.getString(rd.date);
+				if (req_date_Dtls.length() != 0)
+					epgData = (new JSONObject(req_date_Dtls))
+							.getJSONArray("epgData");
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				req_date_Dtls = "";
+				e.printStackTrace();
+			}
+			if (req_date_Dtls.length() == 0
+					|| (epgData != null && epgData.length() == 0)) {
+				getServerData = true;
+			} else {
+				updateDetails(req_date_Dtls, rd.rootview);
+			}
+		}
+		if (getServerData) {
+			try {
+				new GetEpgDetailsTask().execute(rd);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -123,13 +170,11 @@ public class EpgFragment extends Fragment {
 				Log.d(TAG, "doInBackground");
 			reqDetails = (EpgReqDetails) params[0];
 			ResponseObj resObj = new ResponseObj();
-
 			if (Utilities.isNetworkAvailable(getActivity()
 					.getApplicationContext())) {
 				HashMap<String, String> map = new HashMap<String, String>();
 				map.put("TagURL", "epgprogramguide/" + reqDetails.channelName
 						+ "/" + reqDetails.date);// + "/2013-12-04");
-
 				resObj = Utilities.callExternalApiGetMethod(getActivity()
 						.getApplicationContext(), map);
 			} else {
@@ -146,6 +191,46 @@ public class EpgFragment extends Fragment {
 			if (resObj.getStatusCode() == 200) {
 				if (D)
 					Log.d(TAG, resObj.getsResponse());
+				if (resObj.getsResponse().length() != 0) {
+					mPrefsEditor = mPrefs.edit();
+					String Epg_Dtls_key = reqDetails.channelName
+							+ "_EPG_Details";
+					String Epg_Dtls_value = mPrefs.getString(Epg_Dtls_key, "");
+					JSONObject json = null, jsonReq = null;
+					try {
+						if (Epg_Dtls_value.length() == 0) {
+							json = new JSONObject();
+						} else {
+							json = new JSONObject(Epg_Dtls_value);
+							jsonReq = new JSONObject();
+							SimpleDateFormat df1 = new SimpleDateFormat(
+									"yyyy-MM-dd", new Locale("en"));
+							Calendar c = Calendar.getInstance();
+							Calendar curr = Calendar.getInstance();
+							Date cDate = df1.parse(df1.format(curr.getTime()));
+							Date keyDate = null;
+							Iterator<String> i = json.keys();
+							while (i.hasNext()) {
+								String key = i.next();
+								c.setTime(df1.parse(key));
+								keyDate = c.getTime();
+								if (keyDate.compareTo(cDate) != -1) {
+									jsonReq.put(key, json.get(key));
+								}
+							}
+							json = jsonReq;
+						}
+						json.put(reqDetails.date, resObj.getsResponse());
+						Epg_Dtls_value = json.toString();
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+					mPrefsEditor.putString(Epg_Dtls_key, Epg_Dtls_value);
+					mPrefsEditor.commit();
+				}
 				updateDetails(resObj.getsResponse(), reqDetails.rootview);
 				if (mProgressDialog.isShowing()) {
 					mProgressDialog.dismiss();
@@ -157,10 +242,8 @@ public class EpgFragment extends Fragment {
 				}
 				Toast.makeText(getActivity(), resObj.getsErrorMessage(),
 						Toast.LENGTH_LONG).show();
-
 			}
 		}
-
 	}
 
 	public void updateDetails(String result, View rootview) {
@@ -209,8 +292,27 @@ public class EpgFragment extends Fragment {
 							R.id.a_iptv_btn_watch_remind);
 					if (isCurrentProgramme(data))
 						btn.setText(R.string.watch);
-					else
+					else {
+						SimpleDateFormat df1 = new SimpleDateFormat(
+								"yyyy-MM-dd", new Locale("en"));
+						Calendar c = Calendar.getInstance();
+						String progStartTime = data.getStartTime();
+						Calendar t = Calendar.getInstance();
+						try {
+							c.setTime(df1.parse(reqestedDate));
+							t.setTime(tf.parse(progStartTime));
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						c.set(Calendar.HOUR_OF_DAY, t.get(Calendar.HOUR_OF_DAY));
+						c.set(Calendar.MINUTE, t.get(Calendar.MINUTE));
+						c.set(Calendar.SECOND, 0);
+						ReqProgDetails progDtls = new ReqProgDetails(c, data
+								.getProgramTitle());
+						btn.setTag(progDtls);
 						btn.setText(R.string.remind_me);
+					}
 				}
 			});
 			if (progGuideList != null) {
@@ -249,7 +351,7 @@ public class EpgFragment extends Fragment {
 									.findViewById(R.id.a_iptv_tv_prog_desc);
 							Button btn = (Button) getActivity().findViewById(
 									R.id.a_iptv_btn_watch_remind);
-							btn.setText("  Watch  ");
+							btn.setText(R.string.watch);
 							chName.setText(data.getChannelName());
 							progName.setText(data.getProgramTitle());
 							SimpleDateFormat tf = new SimpleDateFormat("HH:mm");
@@ -325,6 +427,16 @@ public class EpgFragment extends Fragment {
 			this.rootview = v;
 			this.date = date;
 			this.channelName = channelName;
+		}
+	}
+
+	public class ReqProgDetails {
+		public Calendar c;
+		public String progName;
+
+		public ReqProgDetails(Calendar c, String progName) {
+			this.c = c;
+			this.progName = progName;
 		}
 	}
 

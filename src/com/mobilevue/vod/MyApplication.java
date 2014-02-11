@@ -8,7 +8,7 @@ import org.acra.annotation.*;
 mailTo = "kishoremekas@gmail.com", // my email here
 mode = ReportingInteractionMode.TOAST, resToastText = R.string.crash_toast_text)
 public class MyApplication extends Application {
-	public boolean D = false;
+	public boolean D = true;
 	@Override
 	public void onCreate() {
 		super.onCreate();

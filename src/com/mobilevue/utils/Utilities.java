@@ -64,6 +64,7 @@ public class Utilities {
 			HttpGet httpGet = new HttpGet(url.toString());
 			httpGet.setHeader("X-Mifos-Platform-TenantId", "default");
 			httpGet.setHeader("Authorization", "Basic "
+//					+"YmlsbGluZzpwYXNzd29yZA=="); // billing:password
 					+ "YWRtaW46b2JzQDEyMw=="); // this is for
 												// admin/obs@123(https://spark.openbillingsystem.com/mifosng-provider/api/v1/)
 			// + "YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=");// this is for
@@ -129,8 +130,9 @@ public class Utilities {
 			HttpPost httpPost = new HttpPost(url);
 			httpPost.setHeader("X-Mifos-Platform-TenantId", "default");
 			httpPost.setHeader("Authorization", "Basic "
-					+ "YWRtaW46b2JzQDEyMw=="); // this is for
-												// admin/obs@123(https://spark.openbillingsystem.com/mifosng-provider/api/v1/)
+//				+"YmlsbGluZzpwYXNzd29yZA=="); // billing:password
+						+ "YWRtaW46b2JzQDEyMw=="); // this is for
+								// admin/obs@123(https://spark.openbillingsystem.com/mifosng-provider/api/v1/)
 			// + "YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=");// this is for
 			// billing/billingadmin@13(https://41.75.85.206:8080/mifosng-provider/api/v1/)//
 			// YmlsbGluZzpiaWxsaW5nYWRtaW5AMTM=

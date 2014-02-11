@@ -1,7 +1,6 @@
 package com.mobilevue.vod;
 
 import java.io.IOException;
-import java.net.URL;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -24,9 +23,9 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 import com.mobilevue.vod.R;
 
-public class VideoPlayerActivity extends Activity implements
-		SurfaceHolder.Callback, MediaPlayer.OnPreparedListener,
-		VideoControllerView.MediaPlayerControl {
+public  class VideoPlayerActivityOld extends Activity implements
+		SurfaceHolder.Callback, MediaPlayer.OnPreparedListener
+		,VideoControllerView.MediaPlayerControl {
 
 	public static String TAG = "VideoPlayerActivity";
 	SurfaceView videoSurface;
@@ -56,7 +55,7 @@ public class VideoPlayerActivity extends Activity implements
 		String videoType = getIntent().getStringExtra("VIDEOTYPE");
 		if (videoType.equalsIgnoreCase("LIVETV")) {
 			isLiveController = true;
-			VideoControllerView.sDefaultTimeout = 3000;
+			VideoControllerView.sDefaultTimeout = 1000;
 		} else if (videoType.equalsIgnoreCase("VOD")) {
 			isLiveController = false;
 			VideoControllerView.sDefaultTimeout = 3000;
@@ -89,7 +88,7 @@ public class VideoPlayerActivity extends Activity implements
 							mProgressDialog = null;
 						}
 						mProgressDialog = new ProgressDialog(
-								VideoPlayerActivity.this,
+								VideoPlayerActivityOld.this,
 								ProgressDialog.THEME_HOLO_DARK);
 						mProgressDialog.setMessage("Buffering");
 						// mProgressDialog.setCancelable(true);
@@ -158,26 +157,30 @@ public class VideoPlayerActivity extends Activity implements
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		Log.d(TAG,"onTouchEvent"+event.getAction());
-		controller.show();
+
+		int eventaction = event.getAction();
+
+		switch (eventaction) {
+		case MotionEvent.ACTION_DOWN:
+			// finger touches the screen
+			break;
+
+		case MotionEvent.ACTION_MOVE:
+			// finger moves on the screen
+			break;
+
+		case MotionEvent.ACTION_UP:
+			// finger leaves the screen
+			if (isLiveController) {
+				controller.doPauseResume();
+				controller.show(VideoControllerView.sDefaultTimeout);
+			} else {
+				controller.show();
+			}
+			break;
+		}
 		return false;
 	}
-
-	/*
-	 * @Override public boolean onTouchEvent(MotionEvent event) {
-	 * 
-	 * int eventaction = event.getAction();
-	 * 
-	 * switch (eventaction) { case MotionEvent.ACTION_DOWN: // finger touches
-	 * the screen break;
-	 * 
-	 * case MotionEvent.ACTION_MOVE: // finger moves on the screen break;
-	 * 
-	 * case MotionEvent.ACTION_UP: // finger leaves the screen if
-	 * (isLiveController) { controller.doPauseResume();
-	 * controller.show(VideoControllerView.sDefaultTimeout); } else {
-	 * controller.show(); } break; } return false; }
-	 */
 
 	// Implement SurfaceHolder.Callback
 	@Override
@@ -196,7 +199,7 @@ public class VideoPlayerActivity extends Activity implements
 			mProgressDialog.dismiss();
 			mProgressDialog = null;
 		}
-		mProgressDialog = new ProgressDialog(VideoPlayerActivity.this,
+		mProgressDialog = new ProgressDialog(VideoPlayerActivityOld.this,
 				ProgressDialog.THEME_HOLO_DARK);
 		mProgressDialog.setMessage("Starting MediaPlayer");
 		mProgressDialog.setCanceledOnTouchOutside(false);
@@ -295,7 +298,6 @@ public class VideoPlayerActivity extends Activity implements
 	public void start() {
 		player.start();
 	}
-	
 
 	@Override
 	public boolean isFullScreen() {
@@ -339,7 +341,7 @@ public class VideoPlayerActivity extends Activity implements
 		} else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
 				|| keyCode == KeyEvent.KEYCODE_VOLUME_UP
 				|| keyCode == KeyEvent.KEYCODE_VOLUME_MUTE) {
-			AudioManager audio = (AudioManager) getSystemService(VideoPlayerActivity.this.AUDIO_SERVICE);
+			AudioManager audio = (AudioManager) getSystemService(VideoPlayerActivityOld.this.AUDIO_SERVICE);
 			switch (keyCode) {
 			case KeyEvent.KEYCODE_VOLUME_UP:
 				audio.adjustStreamVolume(AudioManager.STREAM_MUSIC,
@@ -357,29 +359,11 @@ public class VideoPlayerActivity extends Activity implements
 		return true;
 	}
 
+	//need to remove this
 	@Override
-	public void changeChannel(Uri uri) {
-		Log.d(TAG,"ChangeChannel: "+uri);
-		if(!player.isPlaying())
-	    	player.stop();
-		player.reset();
-		try {
-			player.setDataSource(this,uri);
-			player.setOnPreparedListener(this);
-			player.prepareAsync();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void changeChannel(Uri url) {
+		// TODO Auto-generated method stub
 		
 	}
+
 }

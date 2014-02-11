@@ -129,14 +129,12 @@ public class CategoryFragment extends Fragment {
 				if (mProgressDialog.isShowing()) {
 					mProgressDialog.dismiss();
 				}
-
 			} else {
 				if (mProgressDialog.isShowing()) {
 					mProgressDialog.dismiss();
 				}
 				Toast.makeText(getActivity(), resObj.getsErrorMessage(),
 						Toast.LENGTH_LONG).show();
-
 			}
 		}
 
