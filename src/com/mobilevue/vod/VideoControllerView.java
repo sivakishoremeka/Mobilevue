@@ -94,8 +94,8 @@ public class VideoControllerView extends FrameLayout {
 	private boolean mDragging;
 	// private static final int sDefaultTimeout = 3000;
 	public static int sDefaultTimeout = 3000;
-	private static final int FADE_OUT = 1;
-	private static final int SHOW_PROGRESS = 2;
+	public static final int FADE_OUT = 1;
+	public static final int SHOW_PROGRESS = 2;
 	private boolean mUseFastForward;
 	private boolean mFromXml;
 	private boolean mListenersSet;
@@ -108,7 +108,7 @@ public class VideoControllerView extends FrameLayout {
 	private ImageButton mNextButton;
 	private ImageButton mPrevButton;
 	// private ImageButton mFullscreenButton;
-	private Handler mHandler = new MessageHandler(this);
+	public Handler mHandler = new MessageHandler(this);
 
 	public VideoControllerView(Context context, AttributeSet attrs) {
 		super(context, attrs);

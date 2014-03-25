@@ -14,6 +14,7 @@ import android.media.MediaPlayer.OnInfoListener;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -137,9 +138,12 @@ public class VideoPlayerActivity extends Activity implements
 					} 
 					else {
 						Toast.makeText(getApplicationContext(),
-								"Error : " + extra + " Media player closed.",
+								"Error : " +what +":"+ extra + " Media player closed.",
 								Toast.LENGTH_LONG).show();
 					}
+					controller.mHandler.removeMessages(controller.SHOW_PROGRESS);
+					controller.mHandler.removeMessages(controller.FADE_OUT);
+					
 					if (player != null && player.isPlaying())
 						player.stop();
 					player.release();

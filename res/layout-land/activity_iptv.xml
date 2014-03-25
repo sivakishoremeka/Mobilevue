@@ -134,12 +134,13 @@
         android:id="@+id/a_iptv_hsv_channels"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/a_iptv_iv_btm_line2">
+        android:layout_above="@+id/a_iptv_iv_btm_line2"
+        android:gravity="center_horizontal" >
+
         <LinearLayout
             android:id="@+id/a_iptv_ll_channels"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:orientation="horizontal" >
         </LinearLayout>
     </HorizontalScrollView>

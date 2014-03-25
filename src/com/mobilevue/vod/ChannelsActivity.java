@@ -87,6 +87,19 @@ public class ChannelsActivity extends Activity {
 	}
 	
 	
+	@Override
+	protected void onPause() {
+		if(adapter!=null){
+			channelList.clear();
+			adapter.notifyDataSetChanged();}
+		super.onPause();
+	}
+	
+	@Override
+	protected void onResume() {
+		getData();
+		super.onResume();
+	}
 
 	private void getData() {
 		if(isBalCheckReq){
