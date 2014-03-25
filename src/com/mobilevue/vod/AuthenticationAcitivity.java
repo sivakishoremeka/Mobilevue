@@ -10,6 +10,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -26,10 +27,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+
 import com.mobilevue.data.ActivePlansData;
 import com.mobilevue.data.ResponseObj;
 import com.mobilevue.utils.Utilities;
-import com.mobilevue.vod.R;
 
 public class AuthenticationAcitivity extends Activity {
 	public static String TAG = "AuthenticationAcitivity";
@@ -69,7 +70,6 @@ public class AuthenticationAcitivity extends Activity {
 		default:
 			break;
 		}
-
 		return true;
 	}
 
@@ -80,7 +80,6 @@ public class AuthenticationAcitivity extends Activity {
 
 	private class ValidateDeviceAsyncTask extends
 			AsyncTask<Void, Void, ResponseObj> {
-
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
@@ -117,6 +116,9 @@ public class AuthenticationAcitivity extends Activity {
 							JSONObject clientJson = new JSONObject(
 									resObj.getsResponse());
 							clientId = (Integer) (clientJson.get("clientId"));
+							((MyApplication) getApplicationContext()).balance = Double
+									.valueOf(clientJson.get("balanceAmount")
+											.toString());
 							mPrefs = getSharedPreferences(
 									AuthenticationAcitivity.PREFS_FILE, 0);
 							mPrefsEditor = mPrefs.edit();
@@ -157,10 +159,6 @@ public class AuthenticationAcitivity extends Activity {
 			super.onPostExecute(resObj);
 			if (D)
 				Log.d(TAG, "onPostExecute");
-			/*
-			 * if (mProgressDialog.isShowing()) { mProgressDialog.dismiss(); }
-			 */
-
 			if (resObj.getStatusCode() == 200) {
 				if (D)
 					Log.d("AuthActivity-Planlistdata", resObj.getsResponse());
@@ -186,9 +184,12 @@ public class AuthenticationAcitivity extends Activity {
 				startActivity(intent);
 			} else {
 				mProgressBar.setVisibility(View.INVISIBLE);
+				mProgressBar = null;
 				AlertDialog.Builder builder = new AlertDialog.Builder(
 						AuthenticationAcitivity.this,
 						AlertDialog.THEME_HOLO_LIGHT);
+				builder.setIcon(R.drawable.ic_logo_confirm_dialog);
+				builder.setTitle("Configuration Info");
 				// Add the buttons
 				builder.setNegativeButton("Close",
 						new DialogInterface.OnClickListener() {
@@ -199,7 +200,7 @@ public class AuthenticationAcitivity extends Activity {
 				AlertDialog dialog = builder.create();
 				dialog.setMessage(resObj.getsErrorMessage());
 				dialog.show();
-					}
+			}
 		}
 	}
 
@@ -221,12 +222,12 @@ public class AuthenticationAcitivity extends Activity {
 		}
 		return data;
 	}
-	
-	 @Override
-	    public boolean onKeyDown(int keyCode, KeyEvent event) {
-	        if (keyCode == KeyEvent.KEYCODE_BACK) {
-	        	mValidateDeviceTask.cancel(true);
-	        }
-	        return super.onKeyDown(keyCode, event);
-	    }
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			mValidateDeviceTask.cancel(true);
+		}
+		return super.onKeyDown(keyCode, event);
+	}
 }

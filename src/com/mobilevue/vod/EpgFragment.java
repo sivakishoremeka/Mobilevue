@@ -8,24 +8,19 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import org.codehaus.jackson.annotate.JsonMethod;
+
 import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
+import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.mobilevue.data.EpgData;
-import com.mobilevue.data.ProgramGuideData;
-import com.mobilevue.data.ResponseObj;
-import com.mobilevue.utils.EPGDetailsAdapter;
-import com.mobilevue.utils.Utilities;
-import com.mobilevue.vod.R;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -36,17 +31,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Toast;
+
+import com.mobilevue.adapter.EPGDetailsAdapter;
+import com.mobilevue.data.EpgData;
+import com.mobilevue.data.ProgramGuideData;
+import com.mobilevue.data.ResponseObj;
+import com.mobilevue.utils.Utilities;
 
 public class EpgFragment extends Fragment {
 
 	private static final String TAG = "EpgFragment";
 	public final static String PREFS_FILE = "PREFS_FILE";
 	private final static String NETWORK_ERROR = "NETWORK_ERROR";
+	public final static String IS_REFRESH = "isRefresh";
 	private ProgressDialog mProgressDialog;
 	private SharedPreferences mPrefs;
 	private Editor mPrefsEditor;
@@ -56,6 +58,7 @@ public class EpgFragment extends Fragment {
 	EPGDetailsAdapter adapter;
 	String reqestedDate = null;
 	boolean D;
+	boolean isRefresh = false;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,8 +69,9 @@ public class EpgFragment extends Fragment {
 		mPrefs = getActivity().getSharedPreferences(PREFS_FILE, 0);
 		list = (ListView) rootView.findViewById(R.id.fr_epg_lv_epg_dtls);
 		list.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-		String channelName = mPrefs.getString(IPTVActivity.CHANNEL_EPG, "");
+		String channelName = mPrefs.getString(IPTVActivity.CHANNEL_NAME, "");
 		reqestedDate = getArguments().getString(EpgFragment.ARG_SECTION_DATE);
+		isRefresh = mPrefs.getBoolean(IS_REFRESH, false);
 		EpgReqDetails reqDetails = new EpgReqDetails(rootView, reqestedDate,
 				channelName);
 		getEpgDetails(reqDetails);
@@ -100,31 +104,34 @@ public class EpgFragment extends Fragment {
 	public void getEpgDetails(EpgReqDetails rd) {
 		if (D)
 			Log.d(TAG, "getDetails");
-		boolean getServerData = false;
 		String Epg_Dtls_key = rd.channelName + "_EPG_Details";
 		String Epg_Dtls_value = mPrefs.getString(Epg_Dtls_key, "");
-		if (Epg_Dtls_value.length() == 0) {
-			getServerData = true;
-		} else {
-			JSONObject json = null;
-			String req_date_Dtls = null;
-			JSONArray epgData = null;
-			try {
-				json = new JSONObject(Epg_Dtls_value);
-				req_date_Dtls = json.getString(rd.date);
-				if (req_date_Dtls.length() != 0)
-					epgData = (new JSONObject(req_date_Dtls))
-							.getJSONArray("epgData");
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				req_date_Dtls = "";
-				e.printStackTrace();
-			}
-			if (req_date_Dtls.length() == 0
-					|| (epgData != null && epgData.length() == 0)) {
+		String req_date_Dtls = null;
+		boolean getServerData = false;
+		getServerData = isRefresh;
+		if (!isRefresh) {
+			if (Epg_Dtls_value.length() == 0) {
 				getServerData = true;
 			} else {
-				updateDetails(req_date_Dtls, rd.rootview);
+				JSONObject json = null;
+				JSONArray epgData = null;
+				try {
+					json = new JSONObject(Epg_Dtls_value);
+					req_date_Dtls = json.getString(rd.date);
+					if (req_date_Dtls.length() != 0)
+						epgData = (new JSONObject(req_date_Dtls))
+								.getJSONArray("epgData");
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					req_date_Dtls = "";
+					e.printStackTrace();
+				}
+				if (req_date_Dtls.length() == 0
+						|| (epgData != null && epgData.length() == 0)) {
+					getServerData = true;
+				} else {
+					getServerData = false;
+				}
 			}
 		}
 		if (getServerData) {
@@ -133,6 +140,8 @@ public class EpgFragment extends Fragment {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+		} else {
+			updateDetails(req_date_Dtls, rd.rootview);
 		}
 	}
 

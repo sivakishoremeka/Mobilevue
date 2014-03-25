@@ -8,42 +8,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
+import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.ActionBar;
+import android.app.ActionBar.LayoutParams;
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
-
-import com.mobilevue.data.IptvData;
-import com.mobilevue.data.Reminder;
-import com.mobilevue.data.ResponseObj;
-import com.mobilevue.database.DatabaseHandler;
-import com.mobilevue.service.ScheduleClient;
-//import com.mobilevue.utils.CenterLockHorizontalScrollview;
-import com.mobilevue.utils.EPGFragmentPagerAdapter;
-import com.mobilevue.utils.ImageLoader;
-import com.mobilevue.utils.Utilities;
-import com.mobilevue.vod.EpgFragment.ReqProgDetails;
-import com.mobilevue.vod.R;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Debug;
-import android.app.ActionBar;
-import android.app.Activity;
-import android.app.ActionBar.LayoutParams;
-import android.app.ProgressDialog;
-
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.DialogInterface.OnCancelListener;
-import android.content.SharedPreferences.Editor;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -55,15 +41,29 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.mobilevue.adapter.EPGFragmentPagerAdapter;
+import com.mobilevue.data.ChannelData;
+import com.mobilevue.data.Reminder;
+import com.mobilevue.data.ResponseObj;
+import com.mobilevue.database.DatabaseHandler;
+import com.mobilevue.service.ScheduleClient;
+import com.mobilevue.utils.Utilities;
+import com.mobilevue.vod.EpgFragment.ReqProgDetails;
+import com.nostra13.universalimageloader.core.ImageLoader;
+
+//import com.mobilevue.utils.CenterLockHorizontalScrollview;
+
 public class IPTVActivity extends FragmentActivity {
 
 	/** This is live/Iptv activity */
 
-	public static String TAG = "IPTVActivity";
+	public static String TAG = IPTVActivity.class.getName();
 	private final static String NETWORK_ERROR = "Network error.";
-	public final static String CHANNEL_EPG = "Channel Epg";
+	public final static String CHANNEL_NAME = "Channel Name";
+	public final static String CHANNEL_URL = "Channel URL";
 	public final static String PREFS_FILE = "PREFS_FILE";
-	public final static String IPTV_CHANNELS_DETAILS = "IPTV Channels Details";
+	// public final static String IPTV_CHANNELS_DETAILS =
+	// "IPTV Channels Details";
 	private SharedPreferences mPrefs;
 	private Editor mPrefsEditor;
 	EPGFragmentPagerAdapter mEpgPagerAdapter;
@@ -74,8 +74,7 @@ public class IPTVActivity extends FragmentActivity {
 	ViewPager mViewPager;
 	int clientId;
 	boolean D;
-
-	// private CenterLockHorizontalScrollview centerLockHorizontalScrollview;
+	boolean requiredLiveData = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -87,12 +86,15 @@ public class IPTVActivity extends FragmentActivity {
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		SharedPreferences mPrefs = getSharedPreferences(
 				AuthenticationAcitivity.PREFS_FILE, 0);
+		// for not refresh data
+		mPrefsEditor = mPrefs.edit();
+		mPrefsEditor.putBoolean(EpgFragment.IS_REFRESH, false);
+		mPrefsEditor.commit();
+		// for not refresh data
 		clientId = mPrefs.getInt("CLIENTID", 0);
 		if (D)
 			Log.d(TAG + "-onCreate", "CLIENTID :" + clientId);
 		Button btn = (Button) findViewById(R.id.a_iptv_btn_watch_remind);
-		// centerLockHorizontalScrollview = (CenterLockHorizontalScrollview)
-		// findViewById(R.id.a_iptv_hsv_channels);
 		btn.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -101,14 +103,12 @@ public class IPTVActivity extends FragmentActivity {
 				String label = ((Button) v).getText().toString();
 				if (label.trim().equalsIgnoreCase("Watch")) {
 
-					Intent intent = new Intent(IPTVActivity.this,
-							VideoPlayerActivity.class);
-					Bundle bundle = new Bundle();
-					bundle.putInt("CLIENTID", clientId);
-					bundle.putString("VIDEOTYPE", "LIVETV");
-					bundle.putString("URL", mChannelURL);
-					intent.putExtras(bundle);
-					startActivity(intent);
+					 Intent intent = new Intent(IPTVActivity.this,
+					 VideoPlayerActivity.class); Bundle bundle = new Bundle();
+					 bundle.putInt("CLIENTID", clientId);
+					 bundle.putString("VIDEOTYPE", "LIVETV");
+					 bundle.putString("URL", mChannelURL);
+					 intent.putExtras(bundle); startActivity(intent);
 				} else {
 					/**
 					 * This is called to set a new notification
@@ -161,6 +161,8 @@ public class IPTVActivity extends FragmentActivity {
 		getMenuInflater().inflate(R.menu.nav_menu, menu);
 		MenuItem searchItem = menu.findItem(R.id.action_search);
 		searchItem.setVisible(false);
+		MenuItem refreshItem = menu.findItem(R.id.menu_btn_refresh);
+		refreshItem.setVisible(true);
 		return true;
 	}
 
@@ -172,7 +174,14 @@ public class IPTVActivity extends FragmentActivity {
 			NavUtils.navigateUpFromSameTask(this);
 			break;
 		case R.id.menu_btn_home:
-			NavUtils.navigateUpFromSameTask(this);
+			/* NavUtils.navigateUpFromSameTask(this); */
+			startActivity(new Intent(this, MainActivity.class));
+			break;
+		case R.id.menu_btn_refresh:
+			mPrefsEditor = mPrefs.edit();
+			mPrefsEditor.remove(ChannelsActivity.IPTV_CHANNELS_DETAILS);
+			mPrefsEditor.commit();
+			GetChannelsList();
 			break;
 		default:
 			break;
@@ -181,16 +190,17 @@ public class IPTVActivity extends FragmentActivity {
 	}
 
 	private void GetChannelsList() {
-		boolean requiredLiveData = false;
+
 		mPrefs = this.getSharedPreferences(PREFS_FILE, Activity.MODE_PRIVATE);
-		String sChannelDtls = mPrefs.getString(IPTV_CHANNELS_DETAILS, "");
+		String sChannelDtls = mPrefs.getString(
+				ChannelsActivity.IPTV_CHANNELS_DETAILS, "");
 		if (sChannelDtls.length() != 0) {
 			JSONObject json_ch_dtls = null;
 			String channel_details = null;
 			try {
 				json_ch_dtls = new JSONObject(mPrefs.getString(
-						IPTV_CHANNELS_DETAILS, ""));
-				channel_details = json_ch_dtls.getString("Response");
+						ChannelsActivity.IPTV_CHANNELS_DETAILS, ""));
+				channel_details = json_ch_dtls.getString("Channels");
 				// channel_details =
 				// "[{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https:/,/spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"}]";
 			} catch (JSONException e1) {
@@ -198,10 +208,10 @@ public class IPTVActivity extends FragmentActivity {
 			}
 			if (channel_details.length() != 0) {
 				String sDate = "";
-				String response = "";
 
 				try {
-					sDate = (String) json_ch_dtls.get("Date");
+					sDate = (String) json_ch_dtls
+							.get(ChannelsActivity.CHANNELS_UPDATED_AT);
 					SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd",
 							new Locale("en"));
 					Calendar c = Calendar.getInstance();
@@ -228,6 +238,9 @@ public class IPTVActivity extends FragmentActivity {
 			requiredLiveData = true;
 		}
 		if (requiredLiveData) {
+			mPrefsEditor = mPrefs.edit();
+			mPrefsEditor.putBoolean(EpgFragment.IS_REFRESH, true);
+			mPrefsEditor.commit();
 			new GetChannelsListTask().execute();
 		}
 	}
@@ -283,6 +296,11 @@ public class IPTVActivity extends FragmentActivity {
 
 			if (resObj.getStatusCode() == 200) {
 
+				/**
+				 * For the channels response data create JSON Object for
+				 * channels in package and the updated date and save it to Prefs
+				 * file with key IPTV_CHANNELS_DETAILS
+				 */
 				if (D)
 					Log.d("AuthActivity-Planlistdata", resObj.getsResponse());
 
@@ -298,12 +316,15 @@ public class IPTVActivity extends FragmentActivity {
 					JSONObject json = null;
 					try {
 						json = new JSONObject();
-						json.put("Date", formattedDate);
-						json.put("Response", resObj.getsResponse());
+						json.put(ChannelsActivity.CHANNELS_UPDATED_AT,
+								formattedDate);
+						json.put(ChannelsActivity.CHANNELS_LIST,
+								resObj.getsResponse());
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
-					mPrefsEditor.putString(IPTV_CHANNELS_DETAILS,
+					mPrefsEditor.putString(
+							ChannelsActivity.IPTV_CHANNELS_DETAILS,
 							json.toString());
 					mPrefsEditor.commit();
 				}
@@ -316,10 +337,10 @@ public class IPTVActivity extends FragmentActivity {
 
 	}
 
-	private List<IptvData> readJsonUserforIPTV(String jsonText) {
+	private List<ChannelData> readJsonUserforIPTV(String jsonText) {
 		if (D)
 			Log.d("readJsonUser", "result is \r\n" + jsonText);
-		List<IptvData> response = null;
+		List<ChannelData> response = null;
 		try {
 			ObjectMapper mapper = new ObjectMapper().setVisibility(
 					JsonMethod.FIELD, Visibility.ANY);
@@ -328,24 +349,24 @@ public class IPTVActivity extends FragmentActivity {
 					false);
 
 			response = mapper.readValue(jsonText,
-					new TypeReference<List<IptvData>>() {
+					new TypeReference<List<ChannelData>>() {
 					});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 		return response;
 
 	}
 
-	private void updateChannels(List<IptvData> result) {
+	private void updateChannels(List<ChannelData> result) {
 		int imgno = 0;
 		LinearLayout channels = (LinearLayout) findViewById(R.id.a_iptv_ll_channels);
+		channels.removeAllViews();
 
 		SharedPreferences mPrefs = getSharedPreferences(
 				IPTVActivity.PREFS_FILE, 0);
 		final Editor editor = mPrefs.edit();
-		for (final IptvData data : result) {
+		for (final ChannelData data : result) {
 
 			editor.putString(data.getChannelName(), data.getUrl());
 			editor.commit();
@@ -363,19 +384,34 @@ public class IPTVActivity extends FragmentActivity {
 			button.setTag(chInfo);
 			button.setFocusable(false);
 			button.setFocusableInTouchMode(false);
-			if (imgno == 1) {
-				editor.putString(CHANNEL_EPG, data.getChannelName());
+			button.setImageDrawable(getResources().getDrawable(
+					R.drawable.ic_default_ch));
+			if (getIntent().getStringExtra(CHANNEL_NAME) != null) {
+				editor.putString(CHANNEL_NAME,
+						getIntent().getStringExtra(CHANNEL_NAME));
 				editor.commit();
-				mChannelURL = data.getUrl();
+				mChannelURL = getIntent().getStringExtra(CHANNEL_URL);
 			}
-			final ImageLoader imgLoader = new ImageLoader(IPTVActivity.this);
-			imgLoader.DisplayImage(data.getImage(), button);
+
+			/*
+			 * if (imgno == 1) { editor.putString(CHANNEL_EPG,
+			 * data.getChannelName()); editor.commit(); mChannelURL =
+			 * data.getUrl(); }
+			 */
+			/*
+			 * final ImageLoader imgLoader = new ImageLoader(IPTVActivity.this);
+			 * imgLoader.DisplayImage(data.getImage(), button);
+			 */
+			ImageLoader.getInstance().displayImage(data.getImage(), button);
 
 			button.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					ChannelInfo info = (ChannelInfo) v.getTag();
-					editor.putString(CHANNEL_EPG, info.channelName);
+					editor.putString(CHANNEL_NAME, info.channelName);
+					// for not refresh data
+					editor.putBoolean(EpgFragment.IS_REFRESH, false);
+					// for not refresh data
 					editor.commit();
 					// centerLockHorizontalScrollview.setCenter(v.getId()-1001);
 					mChannelURL = info.channelURL;

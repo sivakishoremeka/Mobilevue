@@ -93,7 +93,7 @@
                 android:layout_marginTop="6dp"
                 android:background="@drawable/selector_vod_mov_dtls_btn_hd"
                 android:gravity="center"
-                android:text="@string/remind_me"
+                android:text="@string/watch"
                 android:textColor="#FFFFFF"
                 android:textSize="9sp"
                 android:textStyle="bold" />
@@ -132,13 +132,11 @@
         android:layout_above="@+id/a_iptv_hsv_channels"
         android:background="#FF7c00" />
 
-    <HorizontalScrollView
+   <HorizontalScrollView
         android:id="@+id/a_iptv_hsv_channels"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/a_iptv_iv_btm_line2"
-        android:scrollbars="none" >
-
+        android:layout_above="@+id/a_iptv_iv_btm_line2">
         <LinearLayout
             android:id="@+id/a_iptv_ll_channels"
             android:layout_width="wrap_content"

@@ -17,13 +17,12 @@
 package com.mobilevue.vod;
 
 import java.lang.ref.WeakReference;
-
 import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
 
-import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
+import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -53,10 +52,8 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
-import com.mobilevue.data.IptvData;
-import com.mobilevue.utils.EPGFragmentPagerAdapter;
-import com.mobilevue.utils.ImageLoader;
-import com.mobilevue.vod.R;
+import com.mobilevue.data.ChannelData;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
  * A view containing controls for a MediaPlayer. Typically contains the buttons
@@ -195,14 +192,13 @@ public class VideoControllerView extends FrameLayout {
 		SharedPreferences mPrefs = mContext.getSharedPreferences(
 				IPTVActivity.PREFS_FILE, Activity.MODE_PRIVATE);
 		String sChannelDtls = mPrefs.getString(
-				IPTVActivity.IPTV_CHANNELS_DETAILS, "");
+				ChannelsActivity.IPTV_CHANNELS_DETAILS, "");
 		if (sChannelDtls.length() != 0) {
 			JSONObject json_ch_dtls = null;
 			String channel_details = null;
 			try {
-				json_ch_dtls = new JSONObject(mPrefs.getString(
-						IPTVActivity.IPTV_CHANNELS_DETAILS, ""));
-				channel_details = json_ch_dtls.getString("Response");
+				json_ch_dtls = new JSONObject(sChannelDtls);
+				channel_details = json_ch_dtls.getString("Channels");
 				// channel_details =
 				// "[{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https:/,/spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"}]";
 			} catch (JSONException e1) {
@@ -215,14 +211,14 @@ public class VideoControllerView extends FrameLayout {
 		}
 	}
 
-	private void updateChannels(View v, List<IptvData> result) {
+	private void updateChannels(View v, List<ChannelData> result) {
 		int imgno = 0;
 		LinearLayout channels = (LinearLayout) v
 				.findViewById(R.id.a_video_ll_channels);
 		SharedPreferences mPrefs = mContext.getSharedPreferences(
 				IPTVActivity.PREFS_FILE, 0);
 		final Editor editor = mPrefs.edit();
-		for (final IptvData data : result) {
+		for (final ChannelData data : result) {
 
 			editor.putString(data.getChannelName(), data.getUrl());
 			editor.commit();
@@ -241,9 +237,8 @@ public class VideoControllerView extends FrameLayout {
 			button.setTag(chInfo);
 			button.setFocusable(false);
 			button.setFocusableInTouchMode(false);
-
-			final ImageLoader imgLoader = new ImageLoader(mContext);
-			imgLoader.DisplayImage(data.getImage(), button);
+			
+			ImageLoader.getInstance().displayImage(data.getImage(), button);
 
 			button.setOnClickListener(new OnClickListener() {
 				@Override
@@ -268,9 +263,9 @@ public class VideoControllerView extends FrameLayout {
 		}
 	}
 
-	private List<IptvData> readJsonUserforIPTV(String jsonText) {
+	private List<ChannelData> readJsonUserforIPTV(String jsonText) {
 		Log.d("readJsonUser", "result is \r\n" + jsonText);
-		List<IptvData> response = null;
+		List<ChannelData> response = null;
 		try {
 			ObjectMapper mapper = new ObjectMapper().setVisibility(
 					JsonMethod.FIELD, Visibility.ANY);
@@ -279,7 +274,7 @@ public class VideoControllerView extends FrameLayout {
 					false);
 
 			response = mapper.readValue(jsonText,
-					new TypeReference<List<IptvData>>() {
+					new TypeReference<List<ChannelData>>() {
 					});
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -435,7 +430,6 @@ public class VideoControllerView extends FrameLayout {
 		if (mAnchor == null) {
 			return;
 		}
-
 		try {
 			mAnchor.removeView(this);
 			mHandler.removeMessages(SHOW_PROGRESS);

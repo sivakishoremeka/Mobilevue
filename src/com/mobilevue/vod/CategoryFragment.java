@@ -2,11 +2,11 @@ package com.mobilevue.vod;
 
 import java.util.HashMap;
 
+import com.mobilevue.adapter.VODGridViewAdapter;
 import com.mobilevue.data.GridViewData;
 import com.mobilevue.data.MovieEngine;
 import com.mobilevue.data.MovieObj;
 import com.mobilevue.data.ResponseObj;
-import com.mobilevue.utils.CustomGridViewAdapter;
 import com.mobilevue.utils.Utilities;
 import com.mobilevue.vod.R;
 
@@ -147,7 +147,7 @@ public class CategoryFragment extends Fragment {
 				searchDtls.pageNumber = gvDataObj.getPageNumber();
 				final GridView gridView = (GridView) (rootview
 						.findViewById(R.id.f_category_gv_movies));
-				gridView.setAdapter(new CustomGridViewAdapter(gvDataObj
+				gridView.setAdapter(new VODGridViewAdapter(gvDataObj
 						.getMovieListObj(), getActivity()));
 				gridView.setDrawSelectorOnTop(true);
 				gridView.setOnItemClickListener(new OnItemClickListener() {

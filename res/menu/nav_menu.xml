@@ -9,7 +9,7 @@
         android:orderInCategory="1"
         android:showAsAction="ifRoom"
         android:title="@string/action_home"/>
-    <item
+    <!-- <item
         android:id="@+id/menu_btn_guide"
         android:layout_width="50dp"
         android:layout_height="120dp"
@@ -40,18 +40,18 @@
         android:icon="@drawable/ic_action_wish_list_icon"
         android:orderInCategory="5"
         android:showAsAction="ifRoom"
-        android:title="@string/action_wish_list"/>
+        android:title="@string/action_wish_list"/> -->
     <item
         android:id="@+id/action_search"
         android:actionViewClass="android.widget.SearchView"
         android:icon="@android:drawable/ic_menu_search"
-        android:orderInCategory="6"
+        android:orderInCategory="2"
         android:showAsAction="always"
         android:title="@string/action_bar_search"/>
     <item
         android:id="@+id/menu_btn_refresh"
         android:icon="@drawable/ic_stat_navigation_refresh"
-        android:orderInCategory="7"
+        android:orderInCategory="3"
         android:showAsAction="always"
         android:title="@string/action_refresh"
         android:visible="false"/>

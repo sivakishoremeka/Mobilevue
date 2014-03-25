@@ -48,8 +48,8 @@
             android:onClick="btnSubmit_onClick" />
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/a_plan_listview"
+    <ExpandableListView
+        android:id="@+id/a_exlv_plans_services"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/a_plan_linlayout"
@@ -58,7 +58,6 @@
         android:background="#DAD8D9"
         android:divider="#FF7C00"
         android:dividerHeight="2dp"
-        android:scrollbars="vertical" >
-    </ListView>
+        android:scrollbars="vertical" />
 
 </RelativeLayout>

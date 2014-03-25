@@ -1,7 +1,6 @@
 package com.mobilevue.vod;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -17,38 +16,34 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.DialogInterface.OnCancelListener;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.ExpandableListView;
 import android.widget.Toast;
 
+import com.mobilevue.adapter.CustomExpandableListAdapter;
 import com.mobilevue.data.PlansData;
 import com.mobilevue.data.ResponseObj;
 import com.mobilevue.utils.Utilities;
-import com.mobilevue.vod.R;
 
 public class PlanActivity extends Activity {
 
 	public static String TAG = "PlanActivity";
 	private final static String NETWORK_ERROR = "Network error.";
 	private ProgressDialog mProgressDialog;
-	ListView listView;
-	ArrayAdapter<String> adapter;
-	ArrayList<HashMap<String, String>> viewList;
-	String jsonPlansResult;
-	boolean isListHasPlans = false;
 	int clientId;
 	boolean D;
+
+	List<PlansData> plans;
+	CustomExpandableListAdapter listAdapter;
+	ExpandableListView expListView;
+	public static int selectedGroupItem = -1;
 
 	// @Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -61,57 +56,26 @@ public class PlanActivity extends Activity {
 		clientId = mPrefs.getInt("CLIENTID", 0);
 		if (D)
 			Log.d(TAG + "-onCreate", "CLIENTID :" + clientId);
-		listView = (ListView) findViewById(R.id.a_plan_listview);
-		listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-		/** We retrive the plans and bind the plans to listview */
-		if (savedInstanceState != null) {
-			isListHasPlans = savedInstanceState.getBoolean("isListHasPlans");
-			jsonPlansResult = savedInstanceState.getString("jsonPlansResult");
-		}
-		if (!isListHasPlans) {
-
-			fetchPlans();
-		} else {
-			List<PlansData> activePlansList = getPlansFromJson(jsonPlansResult);
-			buildPlansList(activePlansList);
-		}
+		fetchAndBuildPlanList();
 	}
 
-	private void buildPlansList(List<PlansData> result) {
-		viewList = new ArrayList<HashMap<String, String>>();
-
-		String[] codeArr = new String[result.size()];
-		for (int i = 0; i < result.size(); i++) {
-			HashMap<String, String> dataMap = new HashMap<String, String>();
-			PlansData data = result.get(i);
-			codeArr[i] = data.getPlanCode().toUpperCase();
-			dataMap.put("id", (data.getId()) + "");
-			dataMap.put("code", data.getPlanCode());
-			dataMap.put("status", data.getPlanstatus().getValue());
-			dataMap.put("description", data.getPlanDescription());
-			viewList.add(dataMap);
-		}
-		adapter = new ArrayAdapter<String>(this,
-				android.R.layout.simple_list_item_single_choice, codeArr) {
-
-			@Override
-			public View getView(int position, View convertView, ViewGroup parent) {
-				View view = super.getView(position, convertView, parent);
-				TextView textview = (TextView) view
-						.findViewById(android.R.id.text1);
-				textview.setTextColor(Color.rgb(255, 124, 0));
-				return view;
-			}
-		};
-		listView.setAdapter(adapter);
+	private void buildPlansList() {
+		expListView = (ExpandableListView) findViewById(R.id.a_exlv_plans_services);
+		listAdapter = new CustomExpandableListAdapter(this, plans);
+		expListView.setAdapter(listAdapter);
 	}
+
+	/*
+	 * public void radioBtn_OnClick(View v) { ((RadioButton)
+	 * PlanActivity.this.findViewById(R.id.plan_list_plan_rb))
+	 * .setChecked(false); ((RadioButton) v).setChecked(true); selectedGroupItem
+	 * = (Integer) v.getTag(); }
+	 */
 
 	public void btnSubmit_onClick(View v) {
-		int count = listView.getCheckedItemCount();
-		if (count > 0) {
+		if (selectedGroupItem >= 0) {
 
-			orderPlans(viewList.get(listView.getCheckedItemPosition())
-					.get("id"));
+			orderPlans(plans.get(selectedGroupItem).getId());
 		} else {
 			Toast.makeText(getApplicationContext(), "Select a Plan",
 					Toast.LENGTH_SHORT).show();
@@ -124,7 +88,7 @@ public class PlanActivity extends Activity {
 
 	private void closeApp() {
 		AlertDialog dialog = new AlertDialog.Builder(PlanActivity.this,
-				AlertDialog.THEME_HOLO_DARK).create();
+				AlertDialog.THEME_HOLO_LIGHT).create();
 		dialog.setIcon(R.drawable.ic_logo_confirm_dialog);
 		dialog.setTitle("Confirmation");
 		dialog.setMessage("Do you want to close the app?");
@@ -154,13 +118,11 @@ public class PlanActivity extends Activity {
 	}
 
 	public void orderPlans(String planid) {
-		new OrderPlansAsyncTask().execute(planid);
+		new OrderPlansAsyncTask().execute();
 	}
 
 	private class OrderPlansAsyncTask extends
-			AsyncTask<String, Void, ResponseObj> {
-
-		private String planId;
+			AsyncTask<Void, Void, ResponseObj> {
 
 		@Override
 		protected void onPreExecute() {
@@ -187,10 +149,10 @@ public class PlanActivity extends Activity {
 		}
 
 		@Override
-		protected ResponseObj doInBackground(String... params) {
+		protected ResponseObj doInBackground(Void... params) {
 			if (D)
 				Log.d(TAG, "doInBackground");
-			planId = params[0];
+			PlansData plan = plans.get(selectedGroupItem);
 			ResponseObj resObj = new ResponseObj();
 			if (Utilities.isNetworkAvailable(getApplicationContext())) {
 				HashMap<String, String> map = new HashMap<String, String>();
@@ -200,14 +162,17 @@ public class PlanActivity extends Activity {
 				String formattedDate = df.format(date);
 
 				map.put("TagURL", "orders/" + clientId);
-				map.put("planCode", planId);
+				map.put("planCode", plan.getId());
 				map.put("dateFormat", "dd MMMM yyyy");
 				map.put("locale", "en");
-				map.put("contractPeriod", "1");
+				map.put("contractPeriod", plan.getContractId());
+				map.put("isNewplan", "true");
 				map.put("start_date", formattedDate);
 				map.put("billAlign", "true");
-				map.put("paytermCode", "monthly");
 
+				// Service no.r is hardcoded.
+				map.put("paytermCode", plan.getServiceData().get(0)
+						.getchargeCode());
 				resObj = Utilities.callExternalApiPostMethod(
 						getApplicationContext(), map);
 			} else {
@@ -238,7 +203,7 @@ public class PlanActivity extends Activity {
 		}
 	}
 
-	public void fetchPlans() {
+	public void fetchAndBuildPlanList() {
 		new FetchPlansAsyncTask().execute();
 	}
 
@@ -291,25 +256,14 @@ public class PlanActivity extends Activity {
 			if (resObj.getStatusCode() == 200) {
 				if (D)
 					Log.d("PlanAct-FetchPlans", resObj.getsResponse());
-				jsonPlansResult = resObj.getsResponse();
-				isListHasPlans = true;
-				List<PlansData> activePlansList = getPlansFromJson(resObj
-						.getsResponse());
-				buildPlansList(activePlansList);
-
+				plans = getPlansFromJson(resObj.getsResponse());
+				if (plans != null)
+					buildPlansList();
 			} else {
 				Toast.makeText(PlanActivity.this, resObj.getsErrorMessage(),
 						Toast.LENGTH_LONG).show();
-
 			}
 		}
-	}
-
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		outState.putBoolean("isListHasPlans", isListHasPlans);
-		outState.putString("jsonPlansResult", jsonPlansResult);
 	}
 
 	private List<PlansData> getPlansFromJson(String jsonText) {
@@ -322,15 +276,12 @@ public class PlanActivity extends Activity {
 			mapper.configure(
 					DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES,
 					false);
-			;
 			data = mapper.readValue(jsonText,
 					new TypeReference<List<PlansData>>() {
 					});
-			System.out.println(data.get(0).getId());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return data;
 	}
-
 }

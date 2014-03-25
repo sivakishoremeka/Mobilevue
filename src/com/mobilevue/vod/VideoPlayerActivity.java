@@ -12,12 +12,14 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnInfoListener;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
@@ -39,12 +41,7 @@ public class VideoPlayerActivity extends Activity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (D)
-			Log.d("VideoPlayerActivity", "OnCreate");
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
 		setContentView(R.layout.activity_video_player);
 		D = ((MyApplication) getApplicationContext()).D;
 		videoSurface = (SurfaceView) findViewById(R.id.videoSurface);
@@ -131,16 +128,27 @@ public class VideoPlayerActivity extends Activity implements
 								getApplicationContext(),
 								"Incorrect URL or Unsupported Media Format.Media player closed.",
 								Toast.LENGTH_LONG).show();
-						if (player != null && player.isPlaying())
-							player.stop();
-						player.release();
-						player = null;
-						if (mProgressDialog.isShowing()) {
-							mProgressDialog.dismiss();
-						}
-						finish();
+					}else if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN
+							&& extra == -1004) {
+						Toast.makeText(
+								getApplicationContext(),
+								"Invalid Stream for this channel... Please try other channel",
+								Toast.LENGTH_LONG).show();
+					} 
+					else {
+						Toast.makeText(getApplicationContext(),
+								"Error : " + extra + " Media player closed.",
+								Toast.LENGTH_LONG).show();
 					}
-					return false;
+					if (player != null && player.isPlaying())
+						player.stop();
+					player.release();
+					player = null;
+					if (mProgressDialog.isShowing()) {
+						mProgressDialog.dismiss();
+					}
+					finish();
+					return true;
 				}
 			});
 		} catch (IllegalArgumentException e) {
@@ -158,32 +166,15 @@ public class VideoPlayerActivity extends Activity implements
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		Log.d(TAG,"onTouchEvent"+event.getAction());
+		Log.d(TAG, "onTouchEvent" + event.getAction());
 		controller.show();
 		return false;
 	}
-
-	/*
-	 * @Override public boolean onTouchEvent(MotionEvent event) {
-	 * 
-	 * int eventaction = event.getAction();
-	 * 
-	 * switch (eventaction) { case MotionEvent.ACTION_DOWN: // finger touches
-	 * the screen break;
-	 * 
-	 * case MotionEvent.ACTION_MOVE: // finger moves on the screen break;
-	 * 
-	 * case MotionEvent.ACTION_UP: // finger leaves the screen if
-	 * (isLiveController) { controller.doPauseResume();
-	 * controller.show(VideoControllerView.sDefaultTimeout); } else {
-	 * controller.show(); } break; } return false; }
-	 */
 
 	// Implement SurfaceHolder.Callback
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
-
 	}
 
 	@Override
@@ -224,6 +215,9 @@ public class VideoPlayerActivity extends Activity implements
 		if (D)
 			Log.d("onPrepared", "onPrepared");
 		controller.setMediaPlayer(this);
+		RelativeLayout rlayout = (RelativeLayout) findViewById(R.id.video_container);
+		rlayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+		controller.setAnchorView(rlayout);
 		controller
 				.setAnchorView((RelativeLayout) findViewById(R.id.video_container));
 		if (mProgressDialog.isShowing()) {
@@ -295,7 +289,6 @@ public class VideoPlayerActivity extends Activity implements
 	public void start() {
 		player.start();
 	}
-	
 
 	@Override
 	public boolean isFullScreen() {
@@ -352,6 +345,10 @@ public class VideoPlayerActivity extends Activity implements
 			default:
 				return super.dispatchKeyEvent(event);
 			}
+		} else if (keyCode == KeyEvent.KEYCODE_MENU) {
+			Log.d(TAG, "onMenuKeyDownEvent" + event.getAction());
+			controller.show();
+			return true;
 		} else
 			super.onKeyDown(keyCode, event);
 		return true;
@@ -359,12 +356,12 @@ public class VideoPlayerActivity extends Activity implements
 
 	@Override
 	public void changeChannel(Uri uri) {
-		Log.d(TAG,"ChangeChannel: "+uri);
-		if(!player.isPlaying())
-	    	player.stop();
+		Log.d(TAG, "ChangeChannel: " + uri);
+		if (!player.isPlaying())
+			player.stop();
 		player.reset();
 		try {
-			player.setDataSource(this,uri);
+			player.setDataSource(this, uri);
 			player.setOnPreparedListener(this);
 			player.prepareAsync();
 		} catch (IllegalArgumentException e) {
@@ -380,6 +377,7 @@ public class VideoPlayerActivity extends Activity implements
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		RelativeLayout rlayout = (RelativeLayout) findViewById(R.id.video_container);
+		rlayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
 	}
 }

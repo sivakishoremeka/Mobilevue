@@ -2,18 +2,11 @@ package com.mobilevue.vod;
 
 import java.util.HashMap;
 
-import com.mobilevue.data.GridViewData;
-import com.mobilevue.data.MovieEngine;
-import com.mobilevue.data.ResponseObj;
-import com.mobilevue.utils.MyFragmentPagerAdapter;
-import com.mobilevue.utils.Utilities;
-import com.mobilevue.utils.VodCategoryAdapter;
-
 import android.app.ActionBar;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -34,6 +27,13 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
+
+import com.mobilevue.adapter.MyFragmentPagerAdapter;
+import com.mobilevue.adapter.VodCategoryAdapter;
+import com.mobilevue.data.GridViewData;
+import com.mobilevue.data.MovieEngine;
+import com.mobilevue.data.ResponseObj;
+import com.mobilevue.utils.Utilities;
 
 public class VodActivity extends FragmentActivity implements
 		SearchView.OnQueryTextListener {
@@ -215,6 +215,8 @@ public class VodActivity extends FragmentActivity implements
 		MenuItem searchItem = menu.findItem(R.id.action_search);
 		mSearchView = (SearchView) searchItem.getActionView();
 		setupSearchView(searchItem);
+		MenuItem refreshItem = menu.findItem(R.id.menu_btn_refresh);
+		refreshItem.setVisible(true);
 		return true;
 	}
 

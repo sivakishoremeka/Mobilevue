@@ -1,7 +1,8 @@
 package com.mobilevue.vod;
 
-import com.mobilevue.utils.MainMenuAdapter;
-import com.mobilevue.utils.MyFragmentPagerAdapter;
+import com.mobilevue.adapter.MainMenuAdapter;
+import com.mobilevue.adapter.MyFragmentPagerAdapter;
+
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -40,9 +41,10 @@ public class MainActivity extends Activity {
 					long arg3) {
 				switch (arg2) {
 				case 0:
-					Intent intent = new Intent();
+					startActivity(new Intent(MainActivity.this,ChannelsActivity.class));
+					/*Intent intent = new Intent();
 					intent.setClass(MainActivity.this, IPTVActivity.class);
-					startActivity(intent);
+					startActivity(intent);*/
 					break;
 				case 1:
 					Intent intent1 = new Intent(MainActivity.this,
@@ -50,7 +52,6 @@ public class MainActivity extends Activity {
 					startActivity(intent1);
 					break;
 				}
-
 			}
 		});
 

@@ -9,19 +9,17 @@ import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import com.mobilevue.data.ClientData;
-import com.mobilevue.data.ClientResponseData;
-import com.mobilevue.data.ResponseObj;
-import com.mobilevue.utils.Utilities;
-import com.mobilevue.vod.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -34,17 +32,26 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.mobilevue.data.ClientData;
+import com.mobilevue.data.ClientResponseData;
+import com.mobilevue.data.ResponseObj;
+import com.mobilevue.utils.Utilities;
+
 public class RegisterActivity extends Activity {
 
 	public static String TAG = "RegisterActivity";
 	private final static String NETWORK_ERROR = "Network error.";
 	public final static String PREFS_FILE = "PREFS_FILE";
+	private final static String CREATE_CLIENT = "Create Client";
+	private final static String GET_COUNTRIES = "Get Countries";
 	private ProgressDialog mProgressDialog;
 	Handler handler = null;
 	EditText et_MobileNumber;
 	EditText et_FirstName;
 	EditText et_LastName;
 	EditText et_EmailId;
+	String mCountry;
+
 	boolean D;
 
 	@Override
@@ -57,18 +64,33 @@ public class RegisterActivity extends Activity {
 		et_LastName = (EditText) findViewById(R.id.a_reg_et_last_name);
 		et_EmailId = (EditText) findViewById(R.id.a_reg_et_email_id);
 
+		DoOnBackgroundAsyncTask task = new DoOnBackgroundAsyncTask();
+		task.execute(new TodoTask(GET_COUNTRIES, null));
+
 	}
 
 	public void btnSubmit_onClick(View v) {
+
 		String email = et_EmailId.getText().toString().trim();
 		String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
-		if (email.matches(emailPattern)) {
+		if (et_MobileNumber.getText().toString().length() <= 0) {
+			Toast.makeText(RegisterActivity.this, "Please enter Mobile Number",
+					Toast.LENGTH_LONG).show();
+		} else if (et_FirstName.getText().toString().length() <= 0) {
+			Toast.makeText(RegisterActivity.this, "Please enter First Name",
+					Toast.LENGTH_LONG).show();
+		} else if (et_LastName.getText().toString().length() <= 0) {
+			Toast.makeText(RegisterActivity.this, "Please enter Last Name",
+					Toast.LENGTH_LONG).show();
+		} else if (email.matches(emailPattern)) {
 			ClientData client = new ClientData();
 			client.setPhone(et_MobileNumber.getText().toString());
 			client.setFirstname(et_FirstName.getText().toString());
 			client.setLastname(et_LastName.getText().toString());
+			client.setCountry(mCountry);
 			client.setEmail(et_EmailId.getText().toString());
-			CreateClient(client);
+			DoOnBackgroundAsyncTask task = new DoOnBackgroundAsyncTask();
+			task.execute(new TodoTask(CREATE_CLIENT, client));
 		} else {
 			Toast.makeText(RegisterActivity.this,
 					"Please enter valid Email Id", Toast.LENGTH_LONG).show();
@@ -81,7 +103,7 @@ public class RegisterActivity extends Activity {
 
 	private void closeApp() {
 		AlertDialog dialog = new AlertDialog.Builder(RegisterActivity.this,
-				AlertDialog.THEME_HOLO_DARK).create();
+				AlertDialog.THEME_HOLO_LIGHT).create();
 		dialog.setIcon(R.drawable.ic_logo_confirm_dialog);
 		dialog.setTitle("Confirmation");
 		dialog.setMessage("Do you want to close the app?");
@@ -110,12 +132,9 @@ public class RegisterActivity extends Activity {
 		return super.onKeyDown(keyCode, event);
 	}
 
-	private void CreateClient(ClientData client) {
-		new CreateClientAsyncTask().execute(client);
-	}
-
-	private class CreateClientAsyncTask extends
-			AsyncTask<ClientData, Void, ResponseObj> {
+	private class DoOnBackgroundAsyncTask extends
+			AsyncTask<TodoTask, Void, ResponseObj> {
+		TodoTask toDoTask;
 		ClientData clientData;
 
 		@Override
@@ -143,74 +162,92 @@ public class RegisterActivity extends Activity {
 		}
 
 		@Override
-		protected ResponseObj doInBackground(ClientData... arg0) {
+		protected ResponseObj doInBackground(TodoTask... arg0) {
 			if (D)
 				Log.d(TAG, "doInBackground");
-			clientData = (ClientData) arg0[0];
 			ResponseObj resObj = new ResponseObj();
-			{
-				if (Utilities.isNetworkAvailable(getApplicationContext())) {
-					HashMap<String, String> map = new HashMap<String, String>();
-					map.put("TagURL", "clients");
-					map.put("officeId", "1");
-					map.put("dateFormat", "dd MMMM yyyy");
-					map.put("lastname", clientData.getLastname());
-					map.put("firstname", clientData.getFirstname());
-					map.put("middlename", "");
-					map.put("locale", "en");
-					map.put("fullname", "");
-					map.put("externalId", "");
-					map.put("clientCategory", "20");
-					map.put("active", "false");
-					map.put("flag", "false");
-					map.put("activationDate", "");
-					map.put("addressNo", "ghcv");
-					map.put("street", "Hyderabad");
-					map.put("city", "Hyderabad");
-					map.put("state", "ANDHRA PRADESH");
-					map.put("country", "India");
-					map.put("zipCode", "436346");
-					map.put("phone", clientData.getPhone());
-					map.put("email", clientData.getEmail());
-					resObj = Utilities.callExternalApiPostMethod(
-							getApplicationContext(), map);
-					// if(D) Log.d("RegAct-CreateClient",
-					// resObj.getsResponse());
-				} else {
-					resObj.setFailResponse(100, NETWORK_ERROR);
-					// return resObj;
-				}
-				if (resObj.getStatusCode() == 200) {
-					ClientResponseData clientResData = readJsonUser(resObj
-							.getsResponse());
-					int clientId = clientResData.getClientId();
-					SharedPreferences mPrefs = getSharedPreferences(
-							AuthenticationAcitivity.PREFS_FILE, 0);
-					Editor mPrefsEditor = mPrefs.edit();
-					mPrefsEditor.putInt("CLIENTID", clientId);
-					mPrefsEditor.commit();
+			toDoTask = (TodoTask) arg0[0];
+			if (toDoTask.task.equalsIgnoreCase(RegisterActivity.CREATE_CLIENT)) {
+				clientData = ((TodoTask) arg0[0]).clientData;
+
+				{
 					if (Utilities.isNetworkAvailable(getApplicationContext())) {
 						HashMap<String, String> map = new HashMap<String, String>();
-						map.put("TagURL", "ownedhardware/" + clientId);
-						map.put("itemType", "1");// paymentInfo.getClientId());
+						map.put("TagURL", "clients");
+						map.put("officeId", "1");
 						map.put("dateFormat", "dd MMMM yyyy");
-						String androidId = Settings.Secure.getString(
-								getApplicationContext().getContentResolver(),
-								Settings.Secure.ANDROID_ID);
-						map.put("serialNumber", androidId);// paymentInfo.getPaymentDate());
-						map.put("provisioningSerialNumber", "PROVISIONINGDATA");// paymentInfo.getPaymentCode());
-						Date date = new Date();
-						SimpleDateFormat df = new SimpleDateFormat(
-								"dd MMMM yyyy", new Locale("en"));
-						String formattedDate = df.format(date);
-						map.put("allocationDate", formattedDate);
+						map.put("lastname", clientData.getLastname());
+						map.put("firstname", clientData.getFirstname());
+						map.put("middlename", "");
 						map.put("locale", "en");
-						map.put("status", "");
+						map.put("fullname", "");
+						map.put("externalId", "");
+						map.put("clientCategory", "20");
+						map.put("active", "false");
+						map.put("flag", "false");
+						map.put("activationDate", "");
+						map.put("addressNo", "ghcv");
+						map.put("street", "Hyderabad");
+						map.put("city", "Hyderabad");
+						map.put("state", "ANDHRA PRADESH");//"Akershus");//"Drenth");//
+						map.put("country", clientData.getCountry());
+						map.put("zipCode", "436346");
+						map.put("phone", clientData.getPhone());
+						map.put("email", clientData.getEmail());
 						resObj = Utilities.callExternalApiPostMethod(
 								getApplicationContext(), map);
+						// if(D) Log.d("RegAct-CreateClient",
+						// resObj.getsResponse());
 					} else {
 						resObj.setFailResponse(100, NETWORK_ERROR);
+						// return resObj;
 					}
+					if (resObj.getStatusCode() == 200) {
+						ClientResponseData clientResData = readJsonUser(resObj
+								.getsResponse());
+						int clientId = clientResData.getClientId();
+						SharedPreferences mPrefs = getSharedPreferences(
+								AuthenticationAcitivity.PREFS_FILE, 0);
+						Editor mPrefsEditor = mPrefs.edit();
+						mPrefsEditor.putInt("CLIENTID", clientId);
+						mPrefsEditor.commit();
+						if (Utilities
+								.isNetworkAvailable(getApplicationContext())) {
+							HashMap<String, String> map = new HashMap<String, String>();
+							map.put("TagURL", "ownedhardware/" + clientId);
+							map.put("itemType", "1");// paymentInfo.getClientId());
+							map.put("dateFormat", "dd MMMM yyyy");
+							String androidId = Settings.Secure.getString(
+									getApplicationContext()
+											.getContentResolver(),
+									Settings.Secure.ANDROID_ID);
+							map.put("serialNumber", androidId);// paymentInfo.getPaymentDate());
+							map.put("provisioningSerialNumber",
+									"PROVISIONINGDATA");// paymentInfo.getPaymentCode());
+							Date date = new Date();
+							SimpleDateFormat df = new SimpleDateFormat(
+									"dd MMMM yyyy", new Locale("en"));
+							String formattedDate = df.format(date);
+							map.put("allocationDate", formattedDate);
+							map.put("locale", "en");
+							map.put("status", "");
+							resObj = Utilities.callExternalApiPostMethod(
+									getApplicationContext(), map);
+						} else {
+							resObj.setFailResponse(100, NETWORK_ERROR);
+						}
+					}
+				}
+			} else if (toDoTask.task
+					.equalsIgnoreCase(RegisterActivity.GET_COUNTRIES)) {
+				if (Utilities.isNetworkAvailable(getApplicationContext())) {
+					HashMap<String, String> map = new HashMap<String, String>();
+					map.put("TagURL", "clients/template");
+					resObj = Utilities.callExternalApiGetMethod(
+							getApplicationContext(), map);
+
+				} else {
+					resObj.setFailResponse(100, NETWORK_ERROR);
 				}
 			}
 			return resObj;
@@ -227,12 +264,34 @@ public class RegisterActivity extends Activity {
 			}
 
 			if (resObj.getStatusCode() == 200) {
-				if (D)
-					Log.d("RegAct-H/w Allocan", resObj.getsResponse());
-				Intent intent = new Intent(RegisterActivity.this,
-						PlanActivity.class);
-				RegisterActivity.this.finish();
-				startActivity(intent);
+				if (toDoTask.task
+						.equalsIgnoreCase(RegisterActivity.CREATE_CLIENT)) {
+					if (D)
+						Log.d("RegAct-Client Registration",
+								resObj.getsResponse());
+					Intent intent = new Intent(RegisterActivity.this,
+							PlanActivity.class);
+					RegisterActivity.this.finish();
+					startActivity(intent);
+				} else if (toDoTask.task
+						.equalsIgnoreCase(RegisterActivity.GET_COUNTRIES)) {
+					if (D)
+						Log.d("RegAct-CountyCodes", resObj.getsResponse());
+
+					try {
+						JSONObject jsonObj = new JSONObject(
+								resObj.getsResponse());
+						JSONArray countryArray = (jsonObj
+								.getJSONObject("addressTemplateData"))
+								.getJSONArray("countryData");
+						mCountry = countryArray.getString(0);
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					// updateSpinner(resObj.getsResponse());
+
+				}
 			} else
 				Toast.makeText(RegisterActivity.this,
 						resObj.getsErrorMessage(), Toast.LENGTH_LONG).show();
@@ -260,5 +319,15 @@ public class RegisterActivity extends Activity {
 			e.printStackTrace();
 		}
 		return response;
+	}
+
+	public class TodoTask {
+		public String task;
+		public ClientData clientData;
+
+		public TodoTask(String task, ClientData clientData) {
+			this.task = task;
+			this.clientData = clientData;
+		}
 	}
 }

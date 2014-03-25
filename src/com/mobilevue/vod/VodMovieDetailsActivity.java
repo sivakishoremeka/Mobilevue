@@ -1,28 +1,26 @@
 package com.mobilevue.vod;
 
-import android.app.Activity;
-import android.os.AsyncTask;
-import android.os.Bundle;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import org.codehaus.jackson.annotate.JsonMethod;
+
 import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
+import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.mobilevue.data.MovieDetailsObj;
-import com.mobilevue.data.ResponseObj;
-import com.mobilevue.utils.Utilities;
-import com.mobilevue.imagehandler.SmartImageView;
+
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
+import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
@@ -30,10 +28,16 @@ import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
+import android.widget.ImageView;
 import android.widget.RatingBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.mobilevue.data.MovieDetailsObj;
+import com.mobilevue.data.ResponseObj;
+import com.mobilevue.utils.Utilities;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class VodMovieDetailsActivity extends Activity
 // implements
@@ -288,8 +292,9 @@ public class VodMovieDetailsActivity extends Activity
 							"JSON Parsing Error", Toast.LENGTH_LONG).show();
 					Log.i("UpdateUI Json Exception:", e.getMessage());
 				}
-				((SmartImageView) findViewById(R.id.a_vod_mov_dtls_iv_mov_img))
-						.setImageUrl(mvDtlsObj.getImage());
+				
+				ImageLoader.getInstance()
+				.displayImage(mvDtlsObj.getImage(), ((ImageView) findViewById(R.id.a_vod_mov_dtls_iv_mov_img)));
 
 				((RatingBar) findViewById(R.id.a_vod_mov_dtls_rating_bar))
 						.setRating(Float.parseFloat(mvDtlsObj.getRating()));

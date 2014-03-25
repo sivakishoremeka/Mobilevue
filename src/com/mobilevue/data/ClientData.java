@@ -15,6 +15,7 @@ public class ClientData {
 	String activationDate;
 	String email;
 	String phone;
+	String country;
 
 	public String getPhone() {
 		return phone;
@@ -118,6 +119,13 @@ public class ClientData {
 
 	public void setActivationDate(String activationDate) {
 		this.activationDate = activationDate;
+	}
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
 	}
 
 }

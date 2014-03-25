@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mobilevue.vod"
-    android:versionCode="6"
-    android:versionName="1.0.5" >
-
+    android:versionCode="9"
+    android:versionName="1.0.8" >
     <uses-sdk
         android:minSdkVersion="11"
         android:targetSdkVersion="11" />
@@ -11,7 +10,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-
     <application
         android:name="MyApplication"
         android:allowBackup="true"
@@ -56,10 +54,19 @@
             android:screenOrientation="landscape" >
         </activity>
         <activity
-            android:name="com.mobilevue.vod.IPTVActivity"
+            android:name="com.mobilevue.vod.ChannelsActivity"
             android:label=""
             android:launchMode="singleTask"
             android:parentActivityName=".MainActivity"
+            android:screenOrientation="landscape" >
+              <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mobilevue.vod.MainActivity" />
+        </activity>
+        <activity
+            android:name="com.mobilevue.vod.IPTVActivity"
+            android:label=""
+            android:parentActivityName=".ChannelsActivity"
             android:screenOrientation="landscape" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

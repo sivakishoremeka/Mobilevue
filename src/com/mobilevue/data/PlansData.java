@@ -1,8 +1,9 @@
 package com.mobilevue.data;
 
+import java.util.ArrayList;
+
 public class PlansData {
-	int id;
-	int statusName;
+	String id;
 	String planCode;
 	String planDescription;
 	String[] startDate;
@@ -11,6 +12,32 @@ public class PlansData {
 	PlanStatusData planstatus;
 	String statusname;
 	String contractPeriod;
+	String contractId;
+	ArrayList<ServiceData> services;
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public String getStatusname() {
+		return statusname;
+	}
+
+	public void setStatusname(String statusname) {
+		this.statusname = statusname;
+	}
+
+	public ArrayList<ServiceData> getServiceData() {
+		return services;
+	}
+
+	public void setServiceData(ArrayList<ServiceData> services) {
+		this.services = services;
+	}
 
 	public String getContractPeriod() {
 		return contractPeriod;
@@ -19,21 +46,21 @@ public class PlansData {
 	public void setContractPeriod(String contractPeriod) {
 		this.contractPeriod = contractPeriod;
 	}
+	
+	public String getContractId() {
+		return contractId;
+	}
 
-	public int getId() {
+	public void setcontractId(String contractId) {
+		this.contractId = contractId;
+	}
+
+	public String getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
-	}
-
-	public int getStatusName() {
-		return statusName;
-	}
-
-	public void setStatusName(int statusName) {
-		this.statusName = statusName;
 	}
 
 	public String getPlanCode() {
