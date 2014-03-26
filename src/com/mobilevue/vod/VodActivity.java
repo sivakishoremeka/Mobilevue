@@ -58,6 +58,10 @@ public class VodActivity extends FragmentActivity implements
 		D = ((MyApplication) getApplicationContext()).D;
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
+		mPrefs = getSharedPreferences(PREFS_FILE, 0);
+		mPrefsEditor = mPrefs.edit();
+		mPrefsEditor.putString(CATEGORY,"RELEASE");
+		mPrefsEditor.commit();
 		listView = (ListView) findViewById(R.id.a_vod_lv_category);
 		String[] arrMovCategNames = getResources().getStringArray(
 				R.array.arrMovCategNames);
@@ -71,8 +75,6 @@ public class VodActivity extends FragmentActivity implements
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
 				((AbsListView) arg0).setItemChecked(arg2, true);
-				mPrefs = getSharedPreferences(PREFS_FILE, 0);
-				mPrefsEditor = mPrefs.edit();
 				String[] arrMovCategValues = getResources().getStringArray(
 						R.array.arrMovCategValues);
 				mPrefsEditor.putString(CATEGORY, arrMovCategValues[arg2]);

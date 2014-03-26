@@ -4,9 +4,8 @@
     android:layout_height="wrap_content"
     android:background="@drawable/shape_gv_item_bg"
     android:gravity="center"
-    android:orientation="vertical" >
-
-    <com.mobilevue.imagehandler.SqareImageView
+    android:orientation="vertical" >              
+    <com.mobilevue.imagehandler.SquareImageView
         android:id="@+id/vod_gv_item_img"
         android:layout_width="90dp"
         android:layout_height="105dp"

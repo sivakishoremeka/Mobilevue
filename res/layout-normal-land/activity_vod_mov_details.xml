@@ -38,18 +38,33 @@
             android:background="@drawable/shape_mov_details_layout_bg"
             android:orientation="vertical" >
 
-            <com.mobilevue.imagehandler.SqareImageView
+            <com.mobilevue.imagehandler.SquareImageView
                 android:id="@+id/a_vod_mov_dtls_iv_mov_img"
                 android:layout_width="120dp"
                 android:layout_height="160dp"
+                android:layout_above="@+id/a_vod_mov_dtls_tv_mov_title"
+                android:layout_alignParentTop="true"
                 android:scaleType="fitXY"
                 android:src="@drawable/default_img" />
+
+            <RatingBar
+                android:id="@+id/a_vod_mov_dtls_rating_bar"
+                style="@style/RatingBarSmallAppTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="10dp"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:isIndicator="true"
+                android:numStars="5" />
 
             <TextView
                 android:id="@+id/a_vod_mov_dtls_tv_mov_title"
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/a_vod_mov_dtls_iv_mov_img"
+                android:layout_above="@+id/a_vod_mov_dtls_rating_bar"
                 android:layout_centerHorizontal="true"
                 android:layout_margin="2dp"
                 android:ellipsize="marquee"
@@ -58,17 +73,6 @@
                 android:textColor="#FFFFFF"
                 android:textSize="10sp" />
 
-            <RatingBar
-                android:id="@+id/a_vod_mov_dtls_rating_bar"
-                style="@style/RatingBarSmallAppTheme"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/a_vod_mov_dtls_tv_mov_title"
-                android:layout_centerHorizontal="true"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:isIndicator="true"
-                android:numStars="5" />
         </RelativeLayout>
 
         <RelativeLayout

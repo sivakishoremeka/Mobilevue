@@ -249,7 +249,7 @@ public class VodMovieDetailsActivity extends Activity
 				}
 				AlertDialog.Builder builder = new AlertDialog.Builder(
 						VodMovieDetailsActivity.this,
-						AlertDialog.THEME_HOLO_DARK);
+						AlertDialog.THEME_HOLO_LIGHT);
 				// Add the buttons
 				builder.setPositiveButton("OK",
 						new DialogInterface.OnClickListener() {

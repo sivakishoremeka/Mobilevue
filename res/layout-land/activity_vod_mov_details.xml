@@ -37,7 +37,7 @@
             android:background="@drawable/shape_mov_details_layout_bg"
             android:orientation="vertical" >
 
-            <com.mobilevue.imagehandler.SqareImageView
+            <com.mobilevue.imagehandler.SquareImageView
                 android:id="@+id/a_vod_mov_dtls_iv_mov_img"
                 android:layout_width="210dp"
                 android:layout_height="280dp"

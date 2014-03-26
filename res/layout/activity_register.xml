@@ -48,7 +48,7 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginBottom="5dp"
                     android:background="@drawable/img_et_reg"
-                    android:ems="10"
+                    android:maxLength="16"
                     android:hint="@string/mobile_no"
                     android:inputType="phone"
                     android:paddingLeft="10dp"
