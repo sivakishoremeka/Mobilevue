@@ -103,12 +103,12 @@ public class IPTVActivity extends FragmentActivity {
 				String label = ((Button) v).getText().toString();
 				if (label.trim().equalsIgnoreCase("Watch")) {
 
-					 Intent intent = new Intent(IPTVActivity.this,
-					 VideoPlayerActivity.class); Bundle bundle = new Bundle();
-					 bundle.putInt("CLIENTID", clientId);
-					 bundle.putString("VIDEOTYPE", "LIVETV");
-					 bundle.putString("URL", mChannelURL);
-					 intent.putExtras(bundle); startActivity(intent);
+					
+					
+					 Intent intent = new Intent(); 
+					 intent.putExtra("VIDEOTYPE", "LIVETV");
+					 intent.putExtra("URL", mChannelURL);
+					((MyApplication)(IPTVActivity.this.getApplicationContext())).startPlayer(intent,IPTVActivity.this);		 
 				} else {
 					/**
 					 * This is called to set a new notification

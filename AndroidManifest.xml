@@ -94,9 +94,10 @@
         <activity
             android:name="com.mobilevue.vod.VideoPlayerActivity"
             android:screenOrientation="landscape" >
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-            </intent-filter>
+        </activity>
+         <activity
+            android:name="com.mobilevue.vod.MXPlayerActivity"
+            android:screenOrientation="landscape" >
         </activity>
 
         <service android:name="com.mobilevue.service.ScheduleService" />
