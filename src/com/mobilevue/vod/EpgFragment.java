@@ -4,25 +4,23 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
-import org.codehaus.jackson.annotate.JsonMethod;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -37,73 +35,65 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.mobilevue.adapter.EPGDetailsAdapter;
-import com.mobilevue.data.EpgData;
-import com.mobilevue.data.ProgramGuideData;
-import com.mobilevue.data.ResponseObj;
-import com.mobilevue.utils.Utilities;
+import com.mobilevue.data.EPGData;
+import com.mobilevue.data.EpgDatum;
+import com.mobilevue.retrofit.OBSClient;
 
 public class EpgFragment extends Fragment {
 
 	private static final String TAG = "EpgFragment";
 	public final static String PREFS_FILE = "PREFS_FILE";
-	private final static String NETWORK_ERROR = "NETWORK_ERROR";
 	public final static String IS_REFRESH = "isRefresh";
 	private ProgressDialog mProgressDialog;
 	private SharedPreferences mPrefs;
 	private Editor mPrefsEditor;
 	public static final String ARG_SECTION_DATE = "section_date";
-	List<ProgramGuideData> progGuideList;
 	ListView list;
-	EPGDetailsAdapter adapter;
 	String reqestedDate = null;
-	boolean D;
 	boolean isRefresh = false;
+
+	MyApplication mApplication = null;
+	OBSClient mOBSClient;
+	ExecutorService mExecutorService;
+	boolean mIsReqCanceled = false;
+	EpgReqDetails mReqDetails = null;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		final View rootView = inflater.inflate(R.layout.fragment_epg,
 				container, false);
-		D = ((MyApplication) getActivity().getApplicationContext()).D;
+
+		mApplication = ((MyApplication) getActivity().getApplicationContext());
+		mExecutorService = Executors.newCachedThreadPool();
+		mOBSClient = mApplication.getOBSClient(getActivity(), mExecutorService);
+
 		mPrefs = getActivity().getSharedPreferences(PREFS_FILE, 0);
 		list = (ListView) rootView.findViewById(R.id.fr_epg_lv_epg_dtls);
 		list.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		String channelName = mPrefs.getString(IPTVActivity.CHANNEL_NAME, "");
 		reqestedDate = getArguments().getString(EpgFragment.ARG_SECTION_DATE);
 		isRefresh = mPrefs.getBoolean(IS_REFRESH, false);
-		EpgReqDetails reqDetails = new EpgReqDetails(rootView, reqestedDate,
-				channelName);
-		getEpgDetails(reqDetails);
+		mReqDetails = new EpgReqDetails(rootView, reqestedDate, channelName);
+		CheckCacheForEpgDetails(mReqDetails);
 		getActivity().findViewById(R.id.a_iptv_rl_root_layout).setVisibility(
 				View.VISIBLE);
-		// String result =
-		// "{ \"epgData\": [ { \"channelName\": \"ch1\", \"channelIcon\": \"NoIcon\", \"programDate\": \"2013-10-09\", \"startTime\": \"17: 30: 00\", \"stopTime\": \"17: 32: 00\", \"programTitle\": \"SpiderMan\", \"programDescription\": \"Awelcomeintroductiontothemoviechanneltagged'Movistar'\", \"type\": \"Infotainment\", \"genre\": \"\" }, { \"channelName\": \"ch1\", \"channelIcon\": \"NoIcon\", \"programDate\": \"2013-10-09\", "
-		// +
-		// "\"startTime\": \"17: 32: 00\", \"stopTime\": \"17: 34: 00\", \"programTitle\": \"Ironman\", \"programDescription\": \"Awelcomeintroductiontothemoviechanneltagged'Movistar'\", \"type\": \"Infotainment\", \"genre\": \"\" }, { \"channelName\": \"ch1\", \"channelIcon\": \"NoIcon\", \"programDate\": \"2013-10-09\", "
-		// +
-		// "\"startTime\": \"17: 34: 00\", \"stopTime\": \"17: 36: 00\", \"programTitle\": \"SpringMan\", \"programDescription\": \"Awelcomeintroductiontothemoviechanneltagged'Movistar'\", \"type\": \"Infotainment\", \"genre\": \"\" }, { \"channelName\": \"ch1\", \"channelIcon\": \"NoIcon\", \"programDate\": \"2013-10-09\","
-		// +
-		// "\"startTime\": \"17: 36: 00\", \"stopTime\": \"17: 38: 00\", \"programTitle\": \"SuperMan\", \"programDescription\": \"Awelcomeintroductiontothemoviechanneltagged'Movistar'\", \"type\": \"Infotainment\", \"genre\": \"\" }, { \"channelName\": \"ch1\", \"channelIcon\": \"NoIcon\", \"programDate\": \"2013-10-09\","
-		// +
-		// "\"startTime\": \"17: 38: 00\", \"stopTime\": \"17: 40: 00\", \"programTitle\": \"WelcomeToMovistar\", \"programDescription\": \"Awelcomeintroductiontothemoviechanneltagged'Movistar'\", \"type\": \"Infotainment\", \"genre\": \"\" }, { \"channelName\": \"ch1\", \"channelIcon\": \"NoIcon\", \"programDate\": \"2013-10-09\","
-		// +
-		// "\"startTime\": \"17: 40: 00\", \"stopTime\": \"17: 42: 00\", \"programTitle\": \"WelcomeToMovistar\", \"programDescription\": \"Awelcomeintroductiontothemoviechanneltagged'Movistar'\", \"type\": \"Infotainment\", \"genre\": \"\" } ]}";
-		// "{ \"epgData\": [ { \"channelName\": \"ch1\", \"channelIcon\": \"No Icon\", \"programDate\": \"2013-10-09\", \"startTime\": \"12:00:00\", \"stopTime\": \"12:30:00\", \"programTitle\": \"Welcome To Movistar\", \"programDescription\": \"A welcome introduction to the movie channel tagged 'Movistar'\", \"type\": \"Infotainment\", \"genre\": \"\" }, { \"channelName\": \"ch1\", \"channelIcon\": \"No Icon\", \"programDate\": \"2013-10-09\", \"startTime\": \"12:30:00\", \"stopTime\": \"02:00:00\", \"programTitle\": \"Welcome To Movistar\", \"programDescription\": \"A welcome introduction to the movie channel tagged 'Movistar'\", \"type\": \"Infotainment\", \"genre\": \"\" } ] }";
-		// updateDetails(result, rootView);
 		return rootView;
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setRetainInstance(true);
 	}
 
-	public void getEpgDetails(EpgReqDetails rd) {
-		if (D)
-			Log.d(TAG, "getDetails");
+	public void CheckCacheForEpgDetails(EpgReqDetails rd) {
+
+		Log.d(TAG, "frag-getDetails");
+
 		String Epg_Dtls_key = rd.channelName + "_EPG_Details";
 		String Epg_Dtls_value = mPrefs.getString(Epg_Dtls_key, "");
 		String req_date_Dtls = null;
@@ -114,20 +104,14 @@ public class EpgFragment extends Fragment {
 				getServerData = true;
 			} else {
 				JSONObject json = null;
-				JSONArray epgData = null;
 				try {
 					json = new JSONObject(Epg_Dtls_value);
 					req_date_Dtls = json.getString(rd.date);
-					if (req_date_Dtls.length() != 0)
-						epgData = (new JSONObject(req_date_Dtls))
-								.getJSONArray("epgData");
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					req_date_Dtls = "";
 					e.printStackTrace();
 				}
-				if (req_date_Dtls.length() == 0
-						|| (epgData != null && epgData.length() == 0)) {
+				if (req_date_Dtls == null || req_date_Dtls.length() == 0) {
 					getServerData = true;
 				} else {
 					getServerData = false;
@@ -136,73 +120,91 @@ public class EpgFragment extends Fragment {
 		}
 		if (getServerData) {
 			try {
-				new GetEpgDetailsTask().execute(rd);
+				getEpgDetailsFromServer(rd);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		} else {
-			updateDetails(req_date_Dtls, rd.rootview);
+			updateDetails(getEPGListFromJSON(req_date_Dtls), rd.rootview);
 		}
 	}
 
-	private class GetEpgDetailsTask extends
-			AsyncTask<EpgReqDetails, Void, ResponseObj> {
-		EpgReqDetails reqDetails;
+	private List<EpgDatum> getEPGListFromJSON(String json) {
+		java.lang.reflect.Type t = new TypeToken<List<EpgDatum>>() {
+		}.getType();
+		List<EpgDatum> EPGList = new Gson().fromJson(json, t);
+		return EPGList;
+	}
 
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			if (D)
-				Log.d(TAG, "onPreExecute");
-			if (mProgressDialog != null) {
-				mProgressDialog.dismiss();
-				mProgressDialog = null;
+	private void getEpgDetailsFromServer(EpgReqDetails rd) {
+
+		Log.d(TAG, "GetChannelsFromServer");
+
+		if (mProgressDialog != null) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+		}
+		mProgressDialog = new ProgressDialog(getActivity(),
+				ProgressDialog.THEME_HOLO_DARK);
+		mProgressDialog.setMessage("Retriving Detials");
+		mProgressDialog.setCanceledOnTouchOutside(false);
+		mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+			public void onCancel(DialogInterface arg0) {
+				if (mProgressDialog.isShowing())
+					mProgressDialog.dismiss();
+				mIsReqCanceled = true;
+				if (null != mExecutorService)
+					if (!mExecutorService.isShutdown())
+						mExecutorService.shutdownNow();
 			}
-			mProgressDialog = new ProgressDialog(getActivity(),
-					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Retrieving Details...");
-			mProgressDialog.setCanceledOnTouchOutside(false);
-			mProgressDialog.setOnCancelListener(new OnCancelListener() {
+		});
+		mProgressDialog.show();
+		mOBSClient
+				.getEPGDetails(rd.channelName, rd.date, getEPGDetailsCallBack);
 
-				public void onCancel(DialogInterface arg0) {
-					if (mProgressDialog.isShowing())
-						mProgressDialog.dismiss();
-					cancel(true);
+	}
+
+	final Callback<EPGData> getEPGDetailsCallBack = new Callback<EPGData>() {
+		@Override
+		public void failure(RetrofitError retrofitError) {
+			if (!mIsReqCanceled) {
+				if (mProgressDialog != null) {
+					mProgressDialog.dismiss();
+					mProgressDialog = null;
 				}
-			});
-			mProgressDialog.show();
-		}
-
-		@Override
-		protected ResponseObj doInBackground(EpgReqDetails... params) {
-			if (D)
-				Log.d(TAG, "doInBackground");
-			reqDetails = (EpgReqDetails) params[0];
-			ResponseObj resObj = new ResponseObj();
-			if (Utilities.isNetworkAvailable(getActivity()
-					.getApplicationContext())) {
-				HashMap<String, String> map = new HashMap<String, String>();
-				map.put("TagURL", "epgprogramguide/" + reqDetails.channelName
-						+ "/" + reqDetails.date);// + "/2013-12-04");
-				resObj = Utilities.callExternalApiGetMethod(getActivity()
-						.getApplicationContext(), map);
-			} else {
-				resObj.setFailResponse(100, NETWORK_ERROR);
+				if (retrofitError.isNetworkError()) {
+					Toast.makeText(
+							getActivity(),
+							getActivity().getApplicationContext().getString(
+									R.string.error_network), Toast.LENGTH_LONG)
+							.show();
+				} else {
+					Toast.makeText(
+							getActivity(),
+							"Server Error : "
+									+ retrofitError.getResponse().getStatus(),
+							Toast.LENGTH_LONG).show();
+				}
 			}
-			return resObj;
 		}
 
 		@Override
-		protected void onPostExecute(ResponseObj resObj) {
-			super.onPostExecute(resObj);
-			if (D)
-				Log.d(TAG, "onPostExecute");
-			if (resObj.getStatusCode() == 200) {
-				if (D)
-					Log.d(TAG, resObj.getsResponse());
-				if (resObj.getsResponse().length() != 0) {
+		public void success(EPGData data, Response response) {
+			List<EpgDatum> ProgGuideList = null;
+			if (!mIsReqCanceled) {
+				if (mProgressDialog != null) {
+					mProgressDialog.dismiss();
+					mProgressDialog = null;
+				}
+
+				if (data != null)
+					ProgGuideList = data.getEpgData();
+				if (ProgGuideList != null && ProgGuideList.size() > 0) {
+
+					/** saving epg details to preferences */
 					mPrefsEditor = mPrefs.edit();
-					String Epg_Dtls_key = reqDetails.channelName
+					String Epg_Dtls_key = mReqDetails.channelName
 							+ "_EPG_Details";
 					String Epg_Dtls_value = mPrefs.getString(Epg_Dtls_key, "");
 					JSONObject json = null, jsonReq = null;
@@ -212,16 +214,16 @@ public class EpgFragment extends Fragment {
 						} else {
 							json = new JSONObject(Epg_Dtls_value);
 							jsonReq = new JSONObject();
-							SimpleDateFormat df1 = new SimpleDateFormat(
-									"yyyy-MM-dd", new Locale("en"));
 							Calendar c = Calendar.getInstance();
 							Calendar curr = Calendar.getInstance();
-							Date cDate = df1.parse(df1.format(curr.getTime()));
+							Date cDate = MyApplication.df
+									.parse(MyApplication.df.format(curr
+											.getTime()));
 							Date keyDate = null;
 							Iterator<String> i = json.keys();
 							while (i.hasNext()) {
 								String key = i.next();
-								c.setTime(df1.parse(key));
+								c.setTime(MyApplication.df.parse(key));
 								keyDate = c.getTime();
 								if (keyDate.compareTo(cDate) != -1) {
 									jsonReq.put(key, json.get(key));
@@ -229,49 +231,41 @@ public class EpgFragment extends Fragment {
 							}
 							json = jsonReq;
 						}
-						json.put(reqDetails.date, resObj.getsResponse());
+						json.put(mReqDetails.date,
+								new Gson().toJson(ProgGuideList));
 						Epg_Dtls_value = json.toString();
 					} catch (JSONException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
 					mPrefsEditor.putString(Epg_Dtls_key, Epg_Dtls_value);
 					mPrefsEditor.commit();
-				}
-				updateDetails(resObj.getsResponse(), reqDetails.rootview);
-				if (mProgressDialog.isShowing()) {
-					mProgressDialog.dismiss();
-				}
 
-			} else {
-				if (mProgressDialog.isShowing()) {
-					mProgressDialog.dismiss();
-				}
-				Toast.makeText(getActivity(), resObj.getsErrorMessage(),
-						Toast.LENGTH_LONG).show();
+					/** updating fragment **/
+					updateDetails(ProgGuideList, mReqDetails.rootview);
+				}/*
+				 * else { mErrDialog.setMessage("EPG Data is not Available");
+				 * mErrDialog.show(); }
+				 */
 			}
 		}
-	}
+	};
 
-	public void updateDetails(String result, View rootview) {
-		if (D)
-			Log.d(TAG, "updateDetails" + result);
+	public void updateDetails(final List<EpgDatum> mProgGuideList, View rootview) {
+		Log.d(TAG, "frag-updateDetails :");
 
-		if (result != null) {
-			progGuideList = getEPGDetailsFromJson(result);
-			adapter = new EPGDetailsAdapter(getActivity(), progGuideList);
+		if (mProgGuideList != null && mProgGuideList.size() > 0) {
+			EPGDetailsAdapter adapter = new EPGDetailsAdapter(getActivity(),
+					mProgGuideList);
 			list.setAdapter(adapter);
-
 			list.setOnItemClickListener(new OnItemClickListener() {
-
 				@Override
 				public void onItemClick(AdapterView<?> arg0, View arg1,
 						int arg2, long arg3) {
 					((AbsListView) arg0).setItemChecked(arg2, true);
 					((AbsListView) arg0).smoothScrollToPosition(arg2);
-					ProgramGuideData data = progGuideList.get(arg2);
+					EpgDatum data = mProgGuideList.get(arg2);
 					TextView chName = (TextView) getActivity().findViewById(
 							R.id.a_iptv_tv_ch_name);
 					TextView progName = (TextView) getActivity().findViewById(
@@ -290,7 +284,6 @@ public class EpgFragment extends Fragment {
 						sTime = tf.parse(data.getStartTime());
 						eTime = tf.parse(data.getStopTime());
 					} catch (ParseException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					stTime.setText("Start Time: " + tf.format(sTime));
@@ -311,7 +304,6 @@ public class EpgFragment extends Fragment {
 							c.setTime(df1.parse(reqestedDate));
 							t.setTime(tf.parse(progStartTime));
 						} catch (ParseException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 						c.set(Calendar.HOUR_OF_DAY, t.get(Calendar.HOUR_OF_DAY));
@@ -324,26 +316,23 @@ public class EpgFragment extends Fragment {
 					}
 				}
 			});
-			if (progGuideList != null) {
-				SimpleDateFormat df1 = new SimpleDateFormat("yyyy-MM-dd",
-						new Locale("en"));
+			if (mProgGuideList != null) {
 				Calendar c = Calendar.getInstance();
-				String date = df1.format(c.getTime());
+				String date = MyApplication.df.format(c.getTime());
 				Date d1 = null, d2 = null;
 				try {
-					d1 = df1.parse(reqestedDate);
-					d2 = df1.parse(date);
+					d1 = MyApplication.df.parse(reqestedDate);
+					d2 = MyApplication.df.parse(date);
 
 				} catch (ParseException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
 				if (d1.compareTo(d2) == 0) {
 
-					for (int i = 0; i < progGuideList.size(); i++) {
+					for (int i = 0; i < mProgGuideList.size(); i++) {
 
-						ProgramGuideData data = progGuideList.get(i);
+						EpgDatum data = mProgGuideList.get(i);
 						if (isCurrentProgramme(data)) {
 							list.setItemChecked(i, true);
 							list.smoothScrollToPosition(i);
@@ -369,7 +358,6 @@ public class EpgFragment extends Fragment {
 								sTime = tf.parse(data.getStartTime());
 								eTime = tf.parse(data.getStopTime());
 							} catch (ParseException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 							stTime.setText("Start Time: " + tf.format(sTime));
@@ -378,13 +366,12 @@ public class EpgFragment extends Fragment {
 						}
 					}
 				}
-
 			}
 		}
 
 	}
 
-	private boolean isCurrentProgramme(ProgramGuideData data) {
+	private boolean isCurrentProgramme(EpgDatum data) {
 
 		String progStartTime = data.getStartTime();
 		String progStopTime = data.getStopTime();
@@ -408,23 +395,6 @@ public class EpgFragment extends Fragment {
 			return true;
 		}
 		return false;
-	}
-
-	private List<ProgramGuideData> getEPGDetailsFromJson(String jsonText) {
-		if (D)
-			Log.d("getEPGDetailsFromJson", "result is " + jsonText);
-		EpgData response = null;
-		try {
-			ObjectMapper mapper = new ObjectMapper().setVisibility(
-					JsonMethod.FIELD, Visibility.ANY);
-			mapper.configure(
-					DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES,
-					false);
-			response = mapper.readValue(jsonText, EpgData.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return response.getEpgData();
 	}
 
 	public class EpgReqDetails {

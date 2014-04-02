@@ -1,57 +1,54 @@
 package com.mobilevue.vod;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
-import org.codehaus.jackson.annotate.JsonMethod;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
-import com.mobilevue.data.ActivePlansData;
-import com.mobilevue.data.ResponseObj;
-import com.mobilevue.utils.Utilities;
+import com.mobilevue.data.ActivePlanDatum;
+import com.mobilevue.data.DeviceDatum;
+import com.mobilevue.retrofit.OBSClient;
 
 public class AuthenticationAcitivity extends Activity {
-	public static String TAG = "AuthenticationAcitivity";
-	private final static String NETWORK_ERROR = "Network error.";
+	public static String TAG = AuthenticationAcitivity.class.getName();
 	public final static String PREFS_FILE = "PREFS_FILE";
 	private SharedPreferences mPrefs;
 	private Editor mPrefsEditor;
 	private ProgressBar mProgressBar;
-	ValidateDeviceAsyncTask mValidateDeviceTask;
-	Button button;
 	int clientId;
-	boolean D;
+	MyApplication mApplication = null;
+	OBSClient mOBSClient;
+	ExecutorService mExecutorService;
+	boolean mIsReqCanceled = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_authentication);
 		setTitle("");
-		D = ((MyApplication) getApplicationContext()).D;
+		mApplication = ((MyApplication) getApplicationContext());
+		mExecutorService = Executors.newCachedThreadPool();
+		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
 		mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 		mProgressBar.setVisibility(View.INVISIBLE);
+
 		validateDevice();
 	}
 
@@ -74,100 +71,23 @@ public class AuthenticationAcitivity extends Activity {
 	}
 
 	private void validateDevice() {
-		mValidateDeviceTask = new ValidateDeviceAsyncTask();
-		mValidateDeviceTask.execute();
+		if (!mProgressBar.isShown()) {
+			mProgressBar.setVisibility(View.VISIBLE);
+		}
+		String androidId = Settings.Secure.getString(getApplicationContext()
+				.getContentResolver(), Settings.Secure.ANDROID_ID);
+		mOBSClient.getMediaDevice(androidId, deviceCallBack);
 	}
 
-	private class ValidateDeviceAsyncTask extends
-			AsyncTask<Void, Void, ResponseObj> {
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			if (D)
-				if (D)
-					Log.d(TAG, "onPreExecute");
-			if (!mProgressBar.isShown()) {
-				mProgressBar.setVisibility(View.VISIBLE);
-			}
-		}
+	final Callback<List<ActivePlanDatum>> activePlansCallBack = new Callback<List<ActivePlanDatum>>() {
 
 		@Override
-		protected ResponseObj doInBackground(Void... arg0) {
-			if (D)
-				Log.d(TAG, "doInBackground");
-			ResponseObj resObj = new ResponseObj();
-			/** authentication deviceid */
-			{
-				if (Utilities.isNetworkAvailable(getApplicationContext())) {
-					HashMap<String, String> map = new HashMap<String, String>();
-					// String androidId = "efa4c6299";
-					String androidId = Settings.Secure.getString(
-							getApplicationContext().getContentResolver(),
-							Settings.Secure.ANDROID_ID);
-					map.put("TagURL", "mediadevices/" + androidId);
-					resObj = Utilities.callExternalApiGetMethod(
-							getApplicationContext(), map);
-
-					if (resObj.getStatusCode() == 200) {
-						try {
-
-							if (D)
-								Log.d(TAG, resObj.getsResponse());
-							JSONObject clientJson = new JSONObject(
-									resObj.getsResponse());
-							clientId = (Integer) (clientJson.get("clientId"));
-							((MyApplication) getApplicationContext()).balance = Double
-									.valueOf(clientJson.get("balanceAmount")
-											.toString());
-							mPrefs = getSharedPreferences(
-									AuthenticationAcitivity.PREFS_FILE, 0);
-							mPrefsEditor = mPrefs.edit();
-							mPrefsEditor.putInt("CLIENTID", clientId);
-							mPrefsEditor.commit();
-
-							/** Calling client's plans data */
-							{
-								if (Utilities
-										.isNetworkAvailable(getApplicationContext())) {
-									map = new HashMap<String, String>();
-									// String androidId = "efa4c6299";
-									map.put("TagURL", "orders/" + clientId
-											+ "/activeplans");
-									resObj = Utilities
-											.callExternalApiGetMethod(
-													getApplicationContext(),
-													map);
-								} else {
-									resObj.setFailResponse(100, NETWORK_ERROR);
-									return resObj;
-								}
-							}
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}
-					}
-					return resObj;
-				} else {
-					resObj.setFailResponse(100, NETWORK_ERROR);
-					return resObj;
-				}
-			}
-		}
-
-		@Override
-		protected void onPostExecute(ResponseObj resObj) {
-			super.onPostExecute(resObj);
-			if (D)
-				Log.d(TAG, "onPostExecute");
-			if (resObj.getStatusCode() == 200) {
-				if (D)
-					Log.d("AuthActivity-Planlistdata", resObj.getsResponse());
-				List<ActivePlansData> activePlansList = readJsonUser(resObj
-						.getsResponse());
-				if (!activePlansList.isEmpty()) {
+		public void success(List<ActivePlanDatum> list, Response arg1) {
+			if (!mIsReqCanceled) {
+				/** on success if client has active plans redirect to home page */
+				if (list != null && list.size() > 0) {
 					Intent intent = new Intent(AuthenticationAcitivity.this,
-							MainActivity.class);// IPTVActivity.class);
-
+							MainActivity.class);
 					AuthenticationAcitivity.this.finish();
 					startActivity(intent);
 				} else {
@@ -176,57 +96,87 @@ public class AuthenticationAcitivity extends Activity {
 					AuthenticationAcitivity.this.finish();
 					startActivity(intent);
 				}
-
-			} else if (resObj.getStatusCode() == 403) {
-				Intent intent = new Intent(AuthenticationAcitivity.this,
-						RegisterActivity.class);
 				AuthenticationAcitivity.this.finish();
-				startActivity(intent);
-			} else {
-				mProgressBar.setVisibility(View.INVISIBLE);
-				mProgressBar = null;
-				AlertDialog.Builder builder = new AlertDialog.Builder(
-						AuthenticationAcitivity.this,
-						AlertDialog.THEME_HOLO_LIGHT);
-				builder.setIcon(R.drawable.ic_logo_confirm_dialog);
-				builder.setTitle("Configuration Info");
-				// Add the buttons
-				builder.setNegativeButton("Close",
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								AuthenticationAcitivity.this.finish();
-							}
-						});
-				AlertDialog dialog = builder.create();
-				dialog.setMessage(resObj.getsErrorMessage());
-				dialog.show();
 			}
 		}
-	}
 
-	private List<ActivePlansData> readJsonUser(String jsonText) {
-		if (D)
-			Log.d("readJsonUser", "result is \r\n" + jsonText);
-		List<ActivePlansData> data = null;
-		try {
-			ObjectMapper mapper = new ObjectMapper().setVisibility(
-					JsonMethod.FIELD, Visibility.ANY);
-			mapper.configure(
-					DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES,
-					false);
-			data = mapper.readValue(jsonText,
-					new TypeReference<List<ActivePlansData>>() {
-					});
-		} catch (Exception e) {
-			e.printStackTrace();
+		@Override
+		public void failure(RetrofitError retrofitError) {
+			if (!mIsReqCanceled) {
+				Toast.makeText(
+						AuthenticationAcitivity.this,
+						"Server Error : "
+								+ retrofitError.getResponse().getStatus(),
+						Toast.LENGTH_LONG).show();
+			}
 		}
-		return data;
-	}
+	};
+
+	final Callback<DeviceDatum> deviceCallBack = new Callback<DeviceDatum>() {
+
+		@Override
+		public void success(DeviceDatum device, Response arg1) {
+			if (!mIsReqCanceled) {
+				/** on success save client id and check for active plans */
+				clientId = (int) device.getClientId();
+				mPrefs = getSharedPreferences(
+						AuthenticationAcitivity.PREFS_FILE, 0);
+				mPrefsEditor = mPrefs.edit();
+				mPrefsEditor.putInt("CLIENTID", clientId);
+				mPrefsEditor.commit();
+				mOBSClient.getActivePlans(clientId + "", activePlansCallBack);
+			}
+		}
+
+		@Override
+		public void failure(RetrofitError retrofitError) {
+			if (!mIsReqCanceled) {
+				if (mProgressBar.isShown()) {
+					mProgressBar.setVisibility(View.INVISIBLE);
+				}
+				if (retrofitError.isNetworkError()) {
+					Toast.makeText(
+							AuthenticationAcitivity.this,
+							getApplicationContext().getString(
+									R.string.error_network), Toast.LENGTH_LONG)
+							.show();
+				} else if (retrofitError.getResponse().getStatus() == 403) {
+					Intent intent = new Intent(AuthenticationAcitivity.this,
+							RegisterActivity.class);
+					AuthenticationAcitivity.this.finish();
+					startActivity(intent);
+				} else if (retrofitError.getResponse().getStatus() == 401) {
+					Toast.makeText(AuthenticationAcitivity.this,
+							"Authorization Failed", Toast.LENGTH_LONG).show();
+				} else {
+					Toast.makeText(
+							AuthenticationAcitivity.this,
+							"Server Error : "
+									+ retrofitError.getResponse().getStatus(),
+							Toast.LENGTH_LONG).show();
+				}
+			}
+		}
+	};
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
+
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			mValidateDeviceTask.cancel(true);
+			AlertDialog mConfirmDialog = mApplication.getConfirmDialog(this);
+			mConfirmDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							if (mProgressBar.isShown()) {
+								mProgressBar.setVisibility(View.INVISIBLE);
+							}
+							mIsReqCanceled = true;
+							mExecutorService.shutdownNow();
+							AuthenticationAcitivity.this.finish();
+						}
+					});
+			mConfirmDialog.show();
 		}
 		return super.onKeyDown(keyCode, event);
 	}

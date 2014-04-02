@@ -1,8 +1,7 @@
 package com.mobilevue.vod;
 
-import com.mobilevue.adapter.MainMenuAdapter;
-import com.mobilevue.adapter.MyFragmentPagerAdapter;
-
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,24 +13,24 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
-import android.app.Activity;
-import android.app.AlertDialog;
+
+import com.mobilevue.adapter.MainMenuAdapter;
+import com.mobilevue.adapter.MyFragmentPagerAdapter;
 
 public class MainActivity extends Activity {
 
 	public final static String PREFS_FILE = "PREFS_FILE";
-	private static final String TAG = "MainActivity";
+	private static final String TAG = MainActivity.class.getName();
 	MyFragmentPagerAdapter mAdapter;
 	ListView listView;
-	boolean D;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (D)
-			Log.d(TAG, "onCreate");
+
+		Log.d(TAG, "onCreate");
+
 		setContentView(R.layout.activity_main);
-		D = ((MyApplication) getApplicationContext()).D;
 		listView = (ListView) findViewById(R.id.a_main_lv_menu);
 		MainMenuAdapter menuAdapter = new MainMenuAdapter(this);
 		listView.setAdapter(menuAdapter);
@@ -41,10 +40,8 @@ public class MainActivity extends Activity {
 					long arg3) {
 				switch (arg2) {
 				case 0:
-					startActivity(new Intent(MainActivity.this,ChannelsActivity.class));
-					/*Intent intent = new Intent();
-					intent.setClass(MainActivity.this, IPTVActivity.class);
-					startActivity(intent);*/
+					startActivity(new Intent(MainActivity.this,
+							ChannelsActivity.class));
 					break;
 				case 1:
 					Intent intent1 = new Intent(MainActivity.this,
@@ -54,7 +51,6 @@ public class MainActivity extends Activity {
 				}
 			}
 		});
-
 	}
 
 	@Override
@@ -69,7 +65,6 @@ public class MainActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 
 		switch (item.getItemId()) {
-
 		default:
 			break;
 		}
@@ -79,26 +74,16 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if ((keyCode == KeyEvent.KEYCODE_BACK)) {
-			AlertDialog dialog = new AlertDialog.Builder(MainActivity.this,
-					AlertDialog.THEME_HOLO_LIGHT).create();
-			dialog.setIcon(R.drawable.ic_logo_confirm_dialog);
-			dialog.setTitle("Confirmation");
-			dialog.setMessage("Do you want to close the app?");
-			dialog.setCancelable(false);
-
-			dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes",
+			AlertDialog mConfirmDialog = ((MyApplication) getApplicationContext())
+					.getConfirmDialog(this);
+			mConfirmDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
 					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int buttonId) {
-							MainActivity.this.finish();
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							finish();
 						}
 					});
-			dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No",
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int buttonId) {
-
-						}
-					});
-			dialog.show();
+			mConfirmDialog.show();
 		}
 		return super.onKeyDown(keyCode, event);
 	}

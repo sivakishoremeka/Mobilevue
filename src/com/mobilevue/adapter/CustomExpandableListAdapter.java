@@ -13,18 +13,18 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import com.mobilevue.data.PlansData;
+import com.mobilevue.data.PlanDatum;
 import com.mobilevue.vod.PlanActivity;
 import com.mobilevue.vod.R;
 
 public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 
 	private Context _context;
-	private List<PlansData> _planData;
+	private List<PlanDatum> _planData;
 	private ArrayList<RadioButton> _arrRadioButton;
-	private int rb_seed =9001;
+	private int rb_seed = 9001;
 
-	public CustomExpandableListAdapter(Context context, List<PlansData> planData) {
+	public CustomExpandableListAdapter(Context context, List<PlanDatum> planData) {
 		this._context = context;
 		this._planData = planData;
 		this._arrRadioButton = new ArrayList<RadioButton>();
@@ -32,8 +32,8 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public Object getChild(int groupPosition, int childPosititon) {
-		return this._planData.get(groupPosition).getServiceData()
-				.get(childPosititon).getserviceDescription();
+		return this._planData.get(groupPosition).getServices()
+				.get(childPosititon).getServiceDescription();
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public int getChildrenCount(int groupPosition) {
-		return this._planData.get(groupPosition).getServiceData().size();
+		return this._planData.get(groupPosition).getServices().size();
 	}
 
 	@Override
@@ -96,17 +96,17 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 
 		RadioButton rb1 = (RadioButton) convertView
 				.findViewById(R.id.plan_list_plan_rb);
-		rb1.setTag(rb_seed+groupPosition);
+		rb1.setTag(rb_seed + groupPosition);
 		_arrRadioButton.add(rb1);
 		rb1.setFocusable(false);
-		
+
 		rb1.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				for(RadioButton rb: _arrRadioButton){
-					if(rb.getTag()!= v.getTag()){
+				for (RadioButton rb : _arrRadioButton) {
+					if (rb.getTag() != v.getTag()) {
 						rb.setChecked(false);
-		         }
+					}
 				}
 				PlanActivity.selectedGroupItem = groupPosition;
 			}

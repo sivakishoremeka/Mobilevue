@@ -30,10 +30,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		String CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABLE_PROGRAM_REMINDER
+		String CREATE_REMINDER_TABLE = "CREATE TABLE " + TABLE_PROGRAM_REMINDER
 				+ "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
 				+ KEY_PROG_NAME + " TEXT," + KEY_TIME + " INTEGER" + ")";
-		db.execSQL(CREATE_CONTACTS_TABLE);
+		db.execSQL(CREATE_REMINDER_TABLE);
 	}
 
 	@Override

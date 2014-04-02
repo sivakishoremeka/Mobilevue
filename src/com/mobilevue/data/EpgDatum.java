@@ -1,16 +1,24 @@
 package com.mobilevue.data;
 
-public class ProgramGuideData {
+public class EpgDatum {
 
-	String channelName;
-	String channelIcon;
-	String programDate;
-	String startTime;
-	String stopTime;
-	String programTitle;
-	String programDescription;
-	String type;
-	String genre;
+	private String channelName;
+
+	private String channelIcon;
+
+	private String programDate;
+
+	private String startTime;
+
+	private String stopTime;
+
+	private String programTitle;
+
+	private String programDescription;
+
+	private String type;
+
+	private String genre;
 
 	public String getChannelName() {
 		return channelName;

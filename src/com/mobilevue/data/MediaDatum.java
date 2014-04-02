@@ -1,20 +1,24 @@
 package com.mobilevue.data;
 
+public class MediaDatum {
 
-public class VodData {
+	private Integer mediaId;
 
-	String mediaId;
-	String mediaTitle;
-	String mediaImage;
-	String mediaRating;
-	int eventId;
-	String assetTag;
+	private String mediaTitle;
 
-	public String getMediaId() {
+	private String mediaImage;
+
+	private Float mediaRating;
+
+	private Integer eventId;
+
+	private String assetTag;
+
+	public Integer getMediaId() {
 		return mediaId;
 	}
 
-	public void setMediaId(String mediaId) {
+	public void setMediaId(Integer mediaId) {
 		this.mediaId = mediaId;
 	}
 
@@ -34,19 +38,19 @@ public class VodData {
 		this.mediaImage = mediaImage;
 	}
 
-	public String getMediaRating() {
+	public Float getMediaRating() {
 		return mediaRating;
 	}
 
-	public void setMediaRating(String mediaRating) {
+	public void setMediaRating(Float mediaRating) {
 		this.mediaRating = mediaRating;
 	}
 
-	public int getEventId() {
+	public Integer getEventId() {
 		return eventId;
 	}
 
-	public void setEventId(int eventId) {
+	public void setEventId(Integer eventId) {
 		this.eventId = eventId;
 	}
 

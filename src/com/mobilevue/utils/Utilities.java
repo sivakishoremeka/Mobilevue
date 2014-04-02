@@ -19,15 +19,13 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
-import org.codehaus.jackson.annotate.JsonMethod;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
@@ -38,6 +36,10 @@ import com.mobilevue.vod.R;
 public class Utilities {
 
 	private static final String TAG = "Utilities";
+	public static String tenentId;
+	public static String basicAuth;
+	public static String contentType;
+	public static String API_URL;
 	static boolean D;
 
 	// private static ResponseObj resObj;
@@ -70,9 +72,8 @@ public class Utilities {
 			httpGet.setHeader("X-Mifos-Platform-TenantId", "default");
 			httpGet.setHeader(
 					"Authorization",
-					"Basic "
-							+ context
-									.getString(R.string.server_Authorization_base64));
+					context
+									.getString(R.string.basic_auth));
 			httpGet.setHeader("Content-Type", "application/json");
 			if (D)
 				Log.d("callExternalApiGetMethod", " " + httpGet.getURI());
@@ -143,9 +144,8 @@ public class Utilities {
 			httpPost.setHeader("X-Mifos-Platform-TenantId", "default");
 			httpPost.setHeader(
 					"Authorization",
-					"Basic "
-							+ context
-									.getString(R.string.server_Authorization_base64));
+					context
+					.getString(R.string.basic_auth));
 			httpPost.setHeader("Content-Type", "application/json");
 			for (int i = 0; i < param.size(); i++) {
 				json.put((String) param.keySet().toArray()[i], (String) param
@@ -236,22 +236,20 @@ public class Utilities {
 		return false;
 	}
 
-	public static <T> T parseJSON(String jsonText) {
-		if (D)
-			Log.d("readJsonUser", "result is \r\n" + jsonText);
-		T result = null;
-		try {
-			ObjectMapper mapper = new ObjectMapper().setVisibility(
-					JsonMethod.FIELD, Visibility.ANY);
-			mapper.configure(
-					DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES,
-					false);
-			result = mapper.readValue(jsonText, new TypeReference<T>() {
-			});
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return result;
-	}
 
+	public static AlertDialog getAlertDialog(final Context context) {
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(
+				((Activity) context), AlertDialog.THEME_HOLO_LIGHT);
+		builder.setIcon(R.drawable.ic_logo_confirm_dialog);
+		builder.setTitle("Error Info");
+		// Add the buttons
+		builder.setNegativeButton("Close",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						((Activity) context).finish();
+					}
+				});
+		return builder.create();
+	}
 }

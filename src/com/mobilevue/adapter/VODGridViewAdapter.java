@@ -11,28 +11,28 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 
-import com.mobilevue.data.MovieObj;
+import com.mobilevue.data.MediaDatum;
 import com.mobilevue.vod.R;
 
 public class VODGridViewAdapter extends BaseAdapter {
-	private List<MovieObj> movieList;
+	private List<MediaDatum> mediaList;
 	private LayoutInflater inflater;
 
-	public VODGridViewAdapter(List<MovieObj> listMovies, Activity context) {
-		this.movieList = listMovies;
+	public VODGridViewAdapter(List<MediaDatum> mediaList, Activity context) {
+		this.mediaList = mediaList;
 		inflater = LayoutInflater.from(context);
 	}
 
 	@Override
 	public int getCount() {
 
-		return movieList.size();
+		return mediaList.size();
 	}
 
 	@Override
 	public Object getItem(int position) {
 
-		return movieList.get(position);
+		return mediaList.get(position);
 	}
 
 	@Override
@@ -42,17 +42,33 @@ public class VODGridViewAdapter extends BaseAdapter {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		LinearLayout layout = (LinearLayout) inflater.inflate(
-				R.layout.vod_gridview_item, null);
-		MovieObj movBean = movieList.get(position);
-		ImageView siv = ((ImageView) layout
-				.findViewById(R.id.vod_gv_item_img));
-		/*siv.setImageUrl(movBean.getImage());*/
+
+		ViewHolder holder;
+		if (convertView == null) {
+			holder = new ViewHolder();
+			convertView = (LinearLayout) inflater.inflate(
+					R.layout.vod_gridview_item, null);
+			holder.image = ((ImageView) convertView
+					.findViewById(R.id.vod_gv_item_img));
+			holder.rating = (RatingBar) convertView
+					.findViewById(R.id.vod_gv_item_rating_bar);
+			convertView.setTag(holder);
+		} else {
+			holder = (ViewHolder) convertView.getTag();
+		}
+
+		MediaDatum media = mediaList.get(position);
+
 		com.nostra13.universalimageloader.core.ImageLoader.getInstance()
-		.displayImage(movBean.getImage(), siv);
-		RatingBar ratingBar = (RatingBar) layout
-				.findViewById(R.id.vod_gv_item_rating_bar);
-		ratingBar.setRating(Float.parseFloat(movBean.getRating()));
-		return layout;
+				.displayImage(media.getMediaImage(), holder.image);
+		holder.rating.setRating(media.getMediaRating());
+
+		return convertView;
 	}
+
+	class ViewHolder {
+		ImageView image;
+		RatingBar rating;
+	}
+
 }

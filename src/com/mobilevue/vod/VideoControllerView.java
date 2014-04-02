@@ -21,11 +21,6 @@ import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
 
-import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
-import org.codehaus.jackson.annotate.JsonMethod;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -52,7 +47,9 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
-import com.mobilevue.data.ChannelData;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.mobilevue.data.ServiceDatum;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
@@ -124,6 +121,7 @@ public class VideoControllerView extends FrameLayout {
 		super(context);
 		mContext = context;
 		mUseFastForward = useFastForward;
+
 		Log.i(TAG, TAG);
 	}
 
@@ -206,24 +204,24 @@ public class VideoControllerView extends FrameLayout {
 			}
 			if (channel_details.length() != 0) {
 
-				updateChannels(v, readJsonUserforIPTV(channel_details));
+				updateChannels(v, getServiceListFromJSON(channel_details));
 			}
 		}
 	}
 
-	private void updateChannels(View v, List<ChannelData> result) {
+	private void updateChannels(View v, List<ServiceDatum> result) {
 		int imgno = 0;
 		LinearLayout channels = (LinearLayout) v
 				.findViewById(R.id.a_video_ll_channels);
 		SharedPreferences mPrefs = mContext.getSharedPreferences(
 				IPTVActivity.PREFS_FILE, 0);
 		final Editor editor = mPrefs.edit();
-		for (final ChannelData data : result) {
+		for (final ServiceDatum data : result) {
 
 			editor.putString(data.getChannelName(), data.getUrl());
 			editor.commit();
 			imgno += 1;
-			ChannelInfo chInfo = new ChannelInfo(data.getChannelName(),
+			ChannelInfo Info = new ChannelInfo(data.getChannelName(),
 					data.getUrl());
 			final ImageButton button = new ImageButton(mContext);
 			LayoutParams params = new LayoutParams(Gravity.CENTER,
@@ -231,13 +229,12 @@ public class VideoControllerView extends FrameLayout {
 			params.height = 96;
 			params.width = 96;
 			params.setMargins(1, 1, 1, 1);
-			button.setLayoutParams(params);// new LinearLayout.LayoutParams(66,
-											// 66));
+			button.setLayoutParams(params);
 			button.setId(1000 + imgno);
-			button.setTag(chInfo);
+			button.setTag(Info);
 			button.setFocusable(false);
 			button.setFocusableInTouchMode(false);
-			
+
 			ImageLoader.getInstance().displayImage(data.getImage(), button);
 
 			button.setOnClickListener(new OnClickListener() {
@@ -245,12 +242,17 @@ public class VideoControllerView extends FrameLayout {
 				public void onClick(View v) {
 					ChannelInfo info = (ChannelInfo) v.getTag();
 					mPlayer.changeChannel(Uri.parse(info.channelURL));
-					// updatePausePlay();
-					// show(sDefaultTimeout);
 				}
 			});
 			channels.addView(button);
 		}
+	}
+
+	private List<ServiceDatum> getServiceListFromJSON(String json) {
+		java.lang.reflect.Type t = new TypeToken<List<ServiceDatum>>() {
+		}.getType();
+		List<ServiceDatum> serviceList = new Gson().fromJson(json, t);
+		return serviceList;
 	}
 
 	private class ChannelInfo {
@@ -261,27 +263,6 @@ public class VideoControllerView extends FrameLayout {
 			this.channelName = channelName;
 			this.channelURL = channelURL;
 		}
-	}
-
-	private List<ChannelData> readJsonUserforIPTV(String jsonText) {
-		Log.d("readJsonUser", "result is \r\n" + jsonText);
-		List<ChannelData> response = null;
-		try {
-			ObjectMapper mapper = new ObjectMapper().setVisibility(
-					JsonMethod.FIELD, Visibility.ANY);
-			mapper.configure(
-					DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES,
-					false);
-
-			response = mapper.readValue(jsonText,
-					new TypeReference<List<ChannelData>>() {
-					});
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return response;
-
 	}
 
 	private void initControllerView(View v) {

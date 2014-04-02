@@ -1,16 +1,16 @@
 package com.mobilevue.data;
 
-public class PlanStatusData {
+public class AddressOptionsDatum {
 
-	int id;
-	String code;
-	String value;
+	private long id;
+	private String code;
+	private String value;
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

@@ -1,14 +1,15 @@
 package com.mobilevue.vod;
 
-import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 import android.app.ActionBar;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
@@ -30,17 +31,14 @@ import android.widget.Toast;
 
 import com.mobilevue.adapter.MyFragmentPagerAdapter;
 import com.mobilevue.adapter.VodCategoryAdapter;
-import com.mobilevue.data.GridViewData;
-import com.mobilevue.data.MovieEngine;
-import com.mobilevue.data.ResponseObj;
-import com.mobilevue.utils.Utilities;
+import com.mobilevue.data.MediaDetailRes;
+import com.mobilevue.retrofit.OBSClient;
 
 public class VodActivity extends FragmentActivity implements
 		SearchView.OnQueryTextListener {
-	private static final String TAG = "VodActivity";
+	private static final String TAG = VodActivity.class.getName();
 	public static int ITEMS;
 	private final static String PREFS_FILE = "PREFS_FILE";
-	private final static String NETWORK_ERROR = "NETWORK_ERROR";
 	private final static String CATEGORY = "CATEGORY";
 	MyFragmentPagerAdapter mAdapter;
 	ViewPager mPager;
@@ -49,18 +47,27 @@ public class VodActivity extends FragmentActivity implements
 	private SearchView mSearchView;
 	ListView listView;
 	private ProgressDialog mProgressDialog;
-	boolean D;
+
+	MyApplication mApplication = null;
+	OBSClient mOBSClient;
+	ExecutorService mExecutorService;
+	boolean mIsReqCanceled = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_vod);
-		D = ((MyApplication) getApplicationContext()).D;
+
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
+
+		mApplication = ((MyApplication) getApplicationContext());
+		mExecutorService = Executors.newCachedThreadPool();
+		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
+
 		mPrefs = getSharedPreferences(PREFS_FILE, 0);
 		mPrefsEditor = mPrefs.edit();
-		mPrefsEditor.putString(CATEGORY,"RELEASE");
+		mPrefsEditor.putString(CATEGORY, "RELEASE");
 		mPrefsEditor.commit();
 		listView = (ListView) findViewById(R.id.a_vod_lv_category);
 		String[] arrMovCategNames = getResources().getStringArray(
@@ -115,100 +122,59 @@ public class VodActivity extends FragmentActivity implements
 	}
 
 	protected void setPageCountAndGetDetails() {
-		if (D)
-			Log.d(TAG, "setPageCountAndGetDetails");
+
+		Log.d(TAG, "setPageCountAndGetDetails");
+
 		mPrefs = getSharedPreferences(PREFS_FILE, 0);
 		String category = mPrefs.getString(CATEGORY, "");
-		new GetPageCountAndGetDetailsAsynTask()
-				.execute(category.equals("") ? "RELEASE" : category);
+
+		String deviceId = Settings.Secure.getString(getApplicationContext()
+				.getContentResolver(), Settings.Secure.ANDROID_ID);
+
+		mOBSClient.getPageCountAndMediaDetails(category.equals("") ? "RELEASE"
+				: category, "0", deviceId, getPageCountAndDetailsCallBack);
 	}
 
-	private class GetPageCountAndGetDetailsAsynTask extends
-			AsyncTask<String, Void, ResponseObj> {
-		String TAG = "GetPageCountAsynTask";
-
+	final Callback<MediaDetailRes> getPageCountAndDetailsCallBack = new Callback<MediaDetailRes>() {
 		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			if (D)
-				Log.d(TAG, "onPreExecute");
-
-			if (mProgressDialog != null) {
-				mProgressDialog.dismiss();
-				mProgressDialog = null;
-			}
-			mProgressDialog = new ProgressDialog(VodActivity.this,
-					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Retrieving Details...");
-			mProgressDialog.setCanceledOnTouchOutside(false);
-			mProgressDialog.setOnCancelListener(new OnCancelListener() {
-
-				public void onCancel(DialogInterface arg0) {
-					if (mProgressDialog.isShowing())
-						mProgressDialog.dismiss();
-					cancel(true);
-				}
-			});
-			mProgressDialog.show();
-
-		}
-
-		@Override
-		protected ResponseObj doInBackground(String... params) {
-			if (D)
-				Log.d(TAG, "doInBackground");
-			String category = params[0];
-			ResponseObj resObj = new ResponseObj();
-
-			if (Utilities.isNetworkAvailable(getApplicationContext())) {
-				HashMap<String, String> map = new HashMap<String, String>();
-				String androidId = Settings.Secure.getString(
-						getApplicationContext().getContentResolver(),
-						Settings.Secure.ANDROID_ID);
-				map.put("TagURL", "assets?&filterType=" + category + "&pageNo="
-						+ 0 + "&deviceId=" + androidId);
-				resObj = Utilities.callExternalApiGetMethod(
-						getApplicationContext(), map);
-			} else {
-				resObj.setFailResponse(100, NETWORK_ERROR);
-			}
-			return resObj;
-		}
-
-		@Override
-		protected void onPostExecute(ResponseObj resObj) {
-			super.onPostExecute(resObj);
-			if (D)
-				Log.d(TAG, "onPostExecute");
-			if (resObj.getStatusCode() == 200) {
-				if (D)
-					Log.d(TAG, resObj.getsResponse());
-				updatePageCountAndDetails(resObj.getsResponse());
-				if (mProgressDialog.isShowing()) {
+		public void failure(RetrofitError retrofitError) {
+			if (!mIsReqCanceled) {
+				if (mProgressDialog != null) {
 					mProgressDialog.dismiss();
+					mProgressDialog = null;
 				}
+				if (retrofitError.isNetworkError()) {
+					Toast.makeText(
+							VodActivity.this,
+							getApplicationContext().getString(
+									R.string.error_network), Toast.LENGTH_LONG)
+							.show();
+				} else {
+					Toast.makeText(
+							VodActivity.this,
+							"Server Error : "
+									+ retrofitError.getResponse().getStatus(),
+							Toast.LENGTH_LONG).show();
+				}
+			}
+		}
 
-			} else {
-				if (mProgressDialog.isShowing()) {
+		@Override
+		public void success(MediaDetailRes objDetails, Response response) {
+			if (!mIsReqCanceled) {
+				if (mProgressDialog != null) {
 					mProgressDialog.dismiss();
+					mProgressDialog = null;
 				}
-				Toast.makeText(VodActivity.this, resObj.getsErrorMessage(),
-						Toast.LENGTH_LONG).show();
+				if (objDetails != null) {
+					ITEMS = objDetails.getNoOfPages();
+					mAdapter = new MyFragmentPagerAdapter(
+							getSupportFragmentManager());
+					mPager.setAdapter(mAdapter);
+				}
 			}
 		}
-
-		public void updatePageCountAndDetails(String result) {
-			if (D)
-				Log.d(TAG, "updateDetails" + result);
-			if (result != null) {
-				GridViewData gvDataObj = MovieEngine.parseMovieDetails(result);
-				ITEMS = gvDataObj.getPageCount();
-				mAdapter = new MyFragmentPagerAdapter(
-						getSupportFragmentManager());
-				mPager.setAdapter(mAdapter);
-			}
-		}
-	}
+	};
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -232,6 +198,9 @@ public class VodActivity extends FragmentActivity implements
 		case R.id.menu_btn_home:
 			NavUtils.navigateUpFromSameTask(this);
 			break;
+		case R.id.menu_btn_refresh:
+			setPageCountAndGetDetails();
+			break;	
 		default:
 			break;
 		}

@@ -1,17 +1,11 @@
 package com.mobilevue.vod;
 
-import com.mobilevue.utils.Utilities;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.view.WindowManager;
-import android.view.View.OnClickListener;
 import android.view.Window;
-import android.widget.Button;
 
 public class NetworkCheckActivity extends Activity {
 
@@ -19,8 +13,8 @@ public class NetworkCheckActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		super.onCreate(savedInstanceState);
-		boolean isConnected = Utilities
-				.isNetworkAvailable(getApplicationContext());
+		boolean isConnected = ((MyApplication) getApplicationContext())
+				.isNetworkAvailable();
 		if (isConnected) {
 			Intent intent = new Intent(getApplicationContext(),
 					AuthenticationAcitivity.class);

@@ -1,7 +1,6 @@
 package com.mobilevue.vod;
 
 import java.io.IOException;
-import java.net.URL;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -12,9 +11,7 @@ import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnErrorListener;
 import android.media.MediaPlayer.OnInfoListener;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -22,7 +19,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 import com.mobilevue.vod.R;
@@ -31,24 +27,21 @@ public class VideoPlayerActivity extends Activity implements
 		SurfaceHolder.Callback, MediaPlayer.OnPreparedListener,
 		VideoControllerView.MediaPlayerControl {
 
-	public static String TAG = "VideoPlayerActivity";
+	public static String TAG = VideoPlayerActivity.class.getName();
 	SurfaceView videoSurface;
 	MediaPlayer player;
 	VideoControllerView controller;
 	private ProgressDialog mProgressDialog;
 	private boolean isLiveController;
-	boolean D;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_video_player);
-		D = ((MyApplication) getApplicationContext()).D;
 		videoSurface = (SurfaceView) findViewById(R.id.videoSurface);
 		SurfaceHolder videoHolder = videoSurface.getHolder();
 		videoHolder.addCallback(this);
-		// if(player!=null && !player.isPlaying()){
 		player = new MediaPlayer();
 
 		String videoType = getIntent().getStringExtra("VIDEOTYPE");
@@ -66,9 +59,10 @@ public class VideoPlayerActivity extends Activity implements
 			// For the Data to take from previous activity
 			player.setDataSource(this,
 					Uri.parse(getIntent().getStringExtra("URL")));
-			if (D)
-				Log.d("VideoPlayerActivity", "VideoURL:"
-						+ getIntent().getStringExtra("URL"));
+
+			Log.d("VideoPlayerActivity", "VideoURL:"
+					+ getIntent().getStringExtra("URL"));
+
 			/*
 			 * player.setDataSource(this, Uri.parse("android.resource://" +
 			 * getPackageName() +"/"+R.raw.qwe));
@@ -120,30 +114,32 @@ public class VideoPlayerActivity extends Activity implements
 				@Override
 				public boolean onError(MediaPlayer arg0, int what, int extra) {
 
-					if (D)
-						Log.d(TAG, "Media player Error is...what:" + what
-								+ " Extra:" + extra);
+					Log.d(TAG, "Media player Error is...what:" + what
+							+ " Extra:" + extra);
+
 					if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN
 							&& extra == -2147483648) {
 						Toast.makeText(
 								getApplicationContext(),
 								"Incorrect URL or Unsupported Media Format.Media player closed.",
 								Toast.LENGTH_LONG).show();
-					}else if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN
+					} else if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN
 							&& extra == -1004) {
 						Toast.makeText(
 								getApplicationContext(),
 								"Invalid Stream for this channel... Please try other channel",
 								Toast.LENGTH_LONG).show();
-					} 
-					else {
-						Toast.makeText(getApplicationContext(),
-								"Error : " +what +":"+ extra + " Media player closed.",
+					} else {
+						Toast.makeText(
+								getApplicationContext(),
+								"Error : " + what + ":" + extra
+										+ " Media player closed.",
 								Toast.LENGTH_LONG).show();
 					}
-					controller.mHandler.removeMessages(controller.SHOW_PROGRESS);
+					controller.mHandler
+							.removeMessages(controller.SHOW_PROGRESS);
 					controller.mHandler.removeMessages(controller.FADE_OUT);
-					
+
 					if (player != null && player.isPlaying())
 						player.stop();
 					player.release();
@@ -183,8 +179,9 @@ public class VideoPlayerActivity extends Activity implements
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		if (D)
-			Log.d("surfaceCreated", "surfaceCreated");
+
+		Log.d("surfaceCreated", "surfaceCreated");
+
 		player.setDisplay(holder);
 		player.prepareAsync();
 		if (mProgressDialog != null) {
@@ -216,8 +213,9 @@ public class VideoPlayerActivity extends Activity implements
 	// Implement MediaPlayer.OnPreparedListener
 	@Override
 	public void onPrepared(MediaPlayer mp) {
-		if (D)
-			Log.d("onPrepared", "onPrepared");
+
+		Log.d("onPrepared", "onPrepared");
+
 		controller.setMediaPlayer(this);
 		RelativeLayout rlayout = (RelativeLayout) findViewById(R.id.video_container);
 		rlayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
@@ -232,8 +230,9 @@ public class VideoPlayerActivity extends Activity implements
 
 	@Override
 	public void onBackPressed() {
-		if (D)
-			Log.d("onBackPressed", "onBackPressed");
+
+		Log.d("onBackPressed", "onBackPressed");
+
 		if (player != null && player.isPlaying())
 			player.stop();
 		player.release();
@@ -309,8 +308,9 @@ public class VideoPlayerActivity extends Activity implements
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		// TODO Auto-generated method stub
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			if (D)
-				Log.d("onKeyDown", "KeyCodeback");
+
+			Log.d("onKeyDown", "KeyCodeback");
+
 			if (player != null && player.isPlaying()) {
 				controller.hide();
 				player.stop();

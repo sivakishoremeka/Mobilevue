@@ -4,15 +4,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
-import org.codehaus.jackson.annotate.JsonMethod;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -23,7 +20,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -32,42 +28,116 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.mobilevue.data.ClientData;
-import com.mobilevue.data.ClientResponseData;
+import com.google.gson.Gson;
+import com.mobilevue.data.RegClientDatum;
+import com.mobilevue.data.RegClientRespDatum;
 import com.mobilevue.data.ResponseObj;
+import com.mobilevue.data.TemplateDatum;
+import com.mobilevue.retrofit.OBSClient;
 import com.mobilevue.utils.Utilities;
 
 public class RegisterActivity extends Activity {
 
-	public static String TAG = "RegisterActivity";
+	public static String TAG = RegisterActivity.class.getName();
 	private final static String NETWORK_ERROR = "Network error.";
 	public final static String PREFS_FILE = "PREFS_FILE";
-	private final static String CREATE_CLIENT = "Create Client";
-	private final static String GET_COUNTRIES = "Get Countries";
 	private ProgressDialog mProgressDialog;
-	Handler handler = null;
 	EditText et_MobileNumber;
 	EditText et_FirstName;
 	EditText et_LastName;
 	EditText et_EmailId;
 	String mCountry;
 
-	boolean D;
+	/** Boolean check for which request is processing */
+	boolean mIsClientRegistered = false;
+	boolean mIsHWAlocated = false;
+	MyApplication mApplication = null;
+	OBSClient mOBSClient;
+	ExecutorService mExecutorService;
+	boolean mIsReqCanceled = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_register);
-		D = ((MyApplication) getApplicationContext()).D;
+
+		mApplication = ((MyApplication) getApplicationContext());
+		mExecutorService = Executors.newCachedThreadPool();
+		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
+
 		et_MobileNumber = (EditText) findViewById(R.id.a_reg_et_mobile_no);
 		et_FirstName = (EditText) findViewById(R.id.a_reg_et_first_name);
 		et_LastName = (EditText) findViewById(R.id.a_reg_et_last_name);
 		et_EmailId = (EditText) findViewById(R.id.a_reg_et_email_id);
 
-		DoOnBackgroundAsyncTask task = new DoOnBackgroundAsyncTask();
-		task.execute(new TodoTask(GET_COUNTRIES, null));
-
+		getCountries();
 	}
+
+	private void getCountries() {
+
+		Log.d(TAG, "getCountries");
+
+		if (mProgressDialog != null) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+		}
+		mProgressDialog = new ProgressDialog(RegisterActivity.this,
+				ProgressDialog.THEME_HOLO_DARK);
+		mProgressDialog.setMessage("Connecting Server");
+		mProgressDialog.setCanceledOnTouchOutside(false);
+		mProgressDialog.setOnCancelListener(new OnCancelListener() {
+			public void onCancel(DialogInterface arg0) {
+				Log.d(TAG, "onCancel");
+
+				if (mProgressDialog.isShowing())
+					mProgressDialog.dismiss();
+				mExecutorService.shutdownNow();
+			}
+		});
+		mProgressDialog.show();
+		mOBSClient.getTemplate(templateCallBack);
+	}
+
+	final Callback<TemplateDatum> templateCallBack = new Callback<TemplateDatum>() {
+		@Override
+		public void failure(RetrofitError retrofitError) {
+
+			Log.d(TAG, "templateCallBack-failure");
+			if (mProgressDialog != null) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			if (retrofitError.isNetworkError()) {
+				Toast.makeText(
+						RegisterActivity.this,
+						getApplicationContext().getString(
+								R.string.error_network), Toast.LENGTH_LONG)
+						.show();
+			} else {
+				Toast.makeText(
+						RegisterActivity.this,
+						"Server Error : "
+								+ retrofitError.getResponse().getStatus(),
+						Toast.LENGTH_LONG).show();
+			}
+		}
+
+		@Override
+		public void success(TemplateDatum template, Response response) {
+
+			Log.d(TAG, "templateCallBack-success");
+			if (mProgressDialog != null) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			try {
+				mCountry = template.getAddressTemplateData().getCountryData()
+						.get(0);
+			} catch (NullPointerException e) {
+				Log.d("templateCallBack-success", e.getMessage());
+			}
+		}
+	};
 
 	public void btnSubmit_onClick(View v) {
 
@@ -83,14 +153,14 @@ public class RegisterActivity extends Activity {
 			Toast.makeText(RegisterActivity.this, "Please enter Last Name",
 					Toast.LENGTH_LONG).show();
 		} else if (email.matches(emailPattern)) {
-			ClientData client = new ClientData();
+			RegClientDatum client = new RegClientDatum();
 			client.setPhone(et_MobileNumber.getText().toString());
 			client.setFirstname(et_FirstName.getText().toString());
 			client.setLastname(et_LastName.getText().toString());
 			client.setCountry(mCountry);
 			client.setEmail(et_EmailId.getText().toString());
 			DoOnBackgroundAsyncTask task = new DoOnBackgroundAsyncTask();
-			task.execute(new TodoTask(CREATE_CLIENT, client));
+			task.execute(client);
 		} else {
 			Toast.makeText(RegisterActivity.this,
 					"Please enter valid Email Id", Toast.LENGTH_LONG).show();
@@ -102,26 +172,25 @@ public class RegisterActivity extends Activity {
 	}
 
 	private void closeApp() {
-		AlertDialog dialog = new AlertDialog.Builder(RegisterActivity.this,
-				AlertDialog.THEME_HOLO_LIGHT).create();
-		dialog.setIcon(R.drawable.ic_logo_confirm_dialog);
-		dialog.setTitle("Confirmation");
-		dialog.setMessage("Do you want to close the app?");
-		dialog.setCancelable(false);
-
-		dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes",
+		AlertDialog mConfirmDialog = mApplication.getConfirmDialog(this);
+		mConfirmDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
 				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int buttonId) {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (mProgressDialog != null) {
+							mProgressDialog.dismiss();
+							mProgressDialog = null;
+						}
+						if (null != mExecutorService)
+							if (!mExecutorService.isShutdown()) {
+								mExecutorService.shutdownNow();
+								mExecutorService = null;
+							}
+						mIsReqCanceled = true;
 						RegisterActivity.this.finish();
 					}
 				});
-		dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int buttonId) {
-
-					}
-				});
-		dialog.show();
+		mConfirmDialog.show();
 	}
 
 	@Override
@@ -133,15 +202,12 @@ public class RegisterActivity extends Activity {
 	}
 
 	private class DoOnBackgroundAsyncTask extends
-			AsyncTask<TodoTask, Void, ResponseObj> {
-		TodoTask toDoTask;
-		ClientData clientData;
+			AsyncTask<RegClientDatum, Void, ResponseObj> {
+		RegClientDatum clientData;
 
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			if (D)
-				Log.d(TAG, "onPreExecute");
 			if (mProgressDialog != null) {
 				mProgressDialog.dismiss();
 				mProgressDialog = null;
@@ -155,6 +221,17 @@ public class RegisterActivity extends Activity {
 				public void onCancel(DialogInterface arg0) {
 					if (mProgressDialog.isShowing())
 						mProgressDialog.dismiss();
+					String msg = "";
+					if (mIsClientRegistered && !mIsHWAlocated) {
+						msg = "Client Registration Success.Hardware not Allocated.";
+						Toast.makeText(RegisterActivity.this, msg,
+								Toast.LENGTH_LONG).show();
+					}
+					if (!mIsClientRegistered) {
+						msg = "Client Registration Failed.";
+						Toast.makeText(RegisterActivity.this, msg,
+								Toast.LENGTH_LONG).show();
+					}
 					cancel(true);
 				}
 			});
@@ -162,90 +239,68 @@ public class RegisterActivity extends Activity {
 		}
 
 		@Override
-		protected ResponseObj doInBackground(TodoTask... arg0) {
-			if (D)
-				Log.d(TAG, "doInBackground");
+		protected ResponseObj doInBackground(RegClientDatum... arg0) {
 			ResponseObj resObj = new ResponseObj();
-			toDoTask = (TodoTask) arg0[0];
-			if (toDoTask.task.equalsIgnoreCase(RegisterActivity.CREATE_CLIENT)) {
-				clientData = ((TodoTask) arg0[0]).clientData;
-
-				{
-					if (Utilities.isNetworkAvailable(getApplicationContext())) {
-						HashMap<String, String> map = new HashMap<String, String>();
-						map.put("TagURL", "clients");
-						map.put("officeId", "1");
-						map.put("dateFormat", "dd MMMM yyyy");
-						map.put("lastname", clientData.getLastname());
-						map.put("firstname", clientData.getFirstname());
-						map.put("middlename", "");
-						map.put("locale", "en");
-						map.put("fullname", "");
-						map.put("externalId", "");
-						map.put("clientCategory", "20");
-						map.put("active", "false");
-						map.put("flag", "false");
-						map.put("activationDate", "");
-						map.put("addressNo", "ghcv");
-						map.put("street", "Hyderabad");
-						map.put("city", "Hyderabad");
-						map.put("state", "ANDHRA PRADESH");//"Akershus");//"Drenth");//
-						map.put("country", clientData.getCountry());
-						map.put("zipCode", "436346");
-						map.put("phone", clientData.getPhone());
-						map.put("email", clientData.getEmail());
-						resObj = Utilities.callExternalApiPostMethod(
-								getApplicationContext(), map);
-						// if(D) Log.d("RegAct-CreateClient",
-						// resObj.getsResponse());
-					} else {
-						resObj.setFailResponse(100, NETWORK_ERROR);
-						// return resObj;
-					}
-					if (resObj.getStatusCode() == 200) {
-						ClientResponseData clientResData = readJsonUser(resObj
-								.getsResponse());
-						int clientId = clientResData.getClientId();
-						SharedPreferences mPrefs = getSharedPreferences(
-								AuthenticationAcitivity.PREFS_FILE, 0);
-						Editor mPrefsEditor = mPrefs.edit();
-						mPrefsEditor.putInt("CLIENTID", clientId);
-						mPrefsEditor.commit();
-						if (Utilities
-								.isNetworkAvailable(getApplicationContext())) {
-							HashMap<String, String> map = new HashMap<String, String>();
-							map.put("TagURL", "ownedhardware/" + clientId);
-							map.put("itemType", "1");// paymentInfo.getClientId());
-							map.put("dateFormat", "dd MMMM yyyy");
-							String androidId = Settings.Secure.getString(
-									getApplicationContext()
-											.getContentResolver(),
-									Settings.Secure.ANDROID_ID);
-							map.put("serialNumber", androidId);// paymentInfo.getPaymentDate());
-							map.put("provisioningSerialNumber",
-									"PROVISIONINGDATA");// paymentInfo.getPaymentCode());
-							Date date = new Date();
-							SimpleDateFormat df = new SimpleDateFormat(
-									"dd MMMM yyyy", new Locale("en"));
-							String formattedDate = df.format(date);
-							map.put("allocationDate", formattedDate);
-							map.put("locale", "en");
-							map.put("status", "");
-							resObj = Utilities.callExternalApiPostMethod(
-									getApplicationContext(), map);
-						} else {
-							resObj.setFailResponse(100, NETWORK_ERROR);
-						}
-					}
-				}
-			} else if (toDoTask.task
-					.equalsIgnoreCase(RegisterActivity.GET_COUNTRIES)) {
-				if (Utilities.isNetworkAvailable(getApplicationContext())) {
+			clientData = (RegClientDatum) arg0[0];
+			if (mApplication.isNetworkAvailable()) {
+				HashMap<String, String> map = new HashMap<String, String>();
+				map.put("TagURL", "/clients");
+				map.put("officeId", "1");
+				map.put("dateFormat", "dd MMMM yyyy");
+				map.put("lastname", clientData.getLastname());
+				map.put("firstname", clientData.getFirstname());
+				map.put("middlename", "");
+				map.put("locale", "en");
+				map.put("fullname", "");
+				map.put("externalId", "");
+				map.put("clientCategory", "20");
+				map.put("active", "false");
+				map.put("flag", "false");
+				map.put("activationDate", "");
+				map.put("addressNo", "ghcv");
+				map.put("street", "Hyderabad");
+				map.put("city", "Hyderabad");
+				map.put("state", "ANDHRA PRADESH");// "Akershus");//"Drenth");//
+				map.put("country", clientData.getCountry());
+				map.put("zipCode", "436346");
+				map.put("phone", clientData.getPhone());
+				map.put("email", clientData.getEmail());
+				resObj = Utilities.callExternalApiPostMethod(
+						getApplicationContext(), map);
+			} else {
+				resObj.setFailResponse(100, NETWORK_ERROR);
+			}
+			if (resObj.getStatusCode() == 200) {
+				mIsClientRegistered = true;
+				RegClientRespDatum clientResData = readJsonUser(resObj
+						.getsResponse());
+				int clientId = (int) clientResData.getClientId();
+				SharedPreferences mPrefs = getSharedPreferences(
+						AuthenticationAcitivity.PREFS_FILE, 0);
+				Editor mPrefsEditor = mPrefs.edit();
+				mPrefsEditor.putInt("CLIENTID", clientId);
+				mPrefsEditor.commit();
+				if (mApplication.isNetworkAvailable()) {
 					HashMap<String, String> map = new HashMap<String, String>();
-					map.put("TagURL", "clients/template");
-					resObj = Utilities.callExternalApiGetMethod(
+					map.put("TagURL", "/ownedhardware/" + clientId);
+					map.put("itemType", "1");
+					map.put("dateFormat", "dd MMMM yyyy");
+					String androidId = Settings.Secure.getString(
+							getApplicationContext().getContentResolver(),
+							Settings.Secure.ANDROID_ID);
+					map.put("serialNumber", androidId);
+					map.put("provisioningSerialNumber", "PROVISIONINGDATA");
+					Date date = new Date();
+					SimpleDateFormat df = new SimpleDateFormat("dd MMMM yyyy",
+							new Locale("en"));
+					String formattedDate = df.format(date);
+					map.put("allocationDate", formattedDate);
+					map.put("locale", "en");
+					map.put("status", "");
+					resObj = Utilities.callExternalApiPostMethod(
 							getApplicationContext(), map);
-
+					if (resObj.getStatusCode() == 200)
+						mIsHWAlocated = true;
 				} else {
 					resObj.setFailResponse(100, NETWORK_ERROR);
 				}
@@ -257,44 +312,20 @@ public class RegisterActivity extends Activity {
 		protected void onPostExecute(ResponseObj resObj) {
 
 			super.onPostExecute(resObj);
-			if (D)
-				Log.d(TAG, "onPostExecute");
 			if (mProgressDialog.isShowing()) {
 				mProgressDialog.dismiss();
 			}
 
 			if (resObj.getStatusCode() == 200) {
-				if (toDoTask.task
-						.equalsIgnoreCase(RegisterActivity.CREATE_CLIENT)) {
-					if (D)
-						Log.d("RegAct-Client Registration",
-								resObj.getsResponse());
-					Intent intent = new Intent(RegisterActivity.this,
-							PlanActivity.class);
-					RegisterActivity.this.finish();
-					startActivity(intent);
-				} else if (toDoTask.task
-						.equalsIgnoreCase(RegisterActivity.GET_COUNTRIES)) {
-					if (D)
-						Log.d("RegAct-CountyCodes", resObj.getsResponse());
-
-					try {
-						JSONObject jsonObj = new JSONObject(
-								resObj.getsResponse());
-						JSONArray countryArray = (jsonObj
-								.getJSONObject("addressTemplateData"))
-								.getJSONArray("countryData");
-						mCountry = countryArray.getString(0);
-					} catch (JSONException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					// updateSpinner(resObj.getsResponse());
-
-				}
-			} else
+				Intent intent = new Intent(RegisterActivity.this,
+						PlanActivity.class);
+				RegisterActivity.this.finish();
+				startActivity(intent);
+			} else {
 				Toast.makeText(RegisterActivity.this,
-						resObj.getsErrorMessage(), Toast.LENGTH_LONG).show();
+						"Server Error : " + resObj.getsErrorMessage(),
+						Toast.LENGTH_LONG).show();
+			}
 		}
 	}
 
@@ -303,31 +334,13 @@ public class RegisterActivity extends Activity {
 		return true;
 	}
 
-	private ClientResponseData readJsonUser(String jsonText) {
-		if (D)
-			Log.d("readJsonUser", "result is " + jsonText);
-		ClientResponseData response = new ClientResponseData();
-		try {
-			ObjectMapper mapper = new ObjectMapper().setVisibility(
-					JsonMethod.FIELD, Visibility.ANY);
-			mapper.configure(
-					DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES,
-					false);
-			response = mapper.readValue(jsonText, ClientResponseData.class);
+	private RegClientRespDatum readJsonUser(String jsonText) {
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		Log.d("readJsonUser", "result is " + jsonText);
+
+		Gson gson = new Gson();
+		RegClientRespDatum response = gson.fromJson(jsonText,
+				RegClientRespDatum.class);
 		return response;
-	}
-
-	public class TodoTask {
-		public String task;
-		public ClientData clientData;
-
-		public TodoTask(String task, ClientData clientData) {
-			this.task = task;
-			this.clientData = clientData;
-		}
 	}
 }

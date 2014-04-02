@@ -8,16 +8,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
-import com.mobilevue.data.ChannelData;
+import com.mobilevue.data.ServiceDatum;
 import com.mobilevue.vod.R;
 
 public class ChannelGridViewAdapter extends BaseAdapter {
-	private List<ChannelData> channelList;
+	private List<ServiceDatum> channelList;
 	private LayoutInflater inflater;
 
-	public ChannelGridViewAdapter(List<ChannelData> channelList,
+	public ChannelGridViewAdapter(List<ServiceDatum> channelList,
 			Activity context) {
 		this.channelList = channelList;
 		inflater = LayoutInflater.from(context);
@@ -39,20 +38,28 @@ public class ChannelGridViewAdapter extends BaseAdapter {
 	public long getItemId(int position) {
 		return position;
 	}
-
+	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		LinearLayout layout = (LinearLayout) inflater.inflate(
+		ViewHolder holder;
+		if(convertView==null){
+			holder = new ViewHolder();
+			convertView =  inflater.inflate(
 				R.layout.ch_gridview_item, null);
-		ChannelData chObj = channelList.get(position);
-		ImageView siv = ((ImageView) layout.findViewById(R.id.ch_gv_item_img));
-		siv.setPadding(2, 2, 2, 2);
-		com.nostra13.universalimageloader.core.ImageLoader.getInstance()
-				.displayImage(chObj.getImage(), siv);
-		/*
-		 * TextView chName = (TextView) layout.findViewById(R.id.ch_gv_tv_name);
-		 * chName.setText(chObj.getChannelName());
-		 */
-		return layout;
+		   holder.image = ((ImageView) convertView.findViewById(R.id.ch_gv_item_img));
+		   convertView.setTag(holder);
+		}
+	else{
+		holder = (ViewHolder) convertView.getTag();
 	}
+		ServiceDatum data = channelList.get(position);
+		 holder.image.setPadding(2, 2, 2, 2);
+		com.nostra13.universalimageloader.core.ImageLoader.getInstance()
+				.displayImage(data.getImage(), holder.image);
+		return convertView;
+	}
+	
+	class ViewHolder{
+		ImageView image;
+	} 
 }

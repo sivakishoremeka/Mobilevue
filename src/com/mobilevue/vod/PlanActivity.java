@@ -5,13 +5,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
-import org.codehaus.jackson.annotate.JsonMethod;
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
-
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -28,54 +27,119 @@ import android.widget.ExpandableListView;
 import android.widget.Toast;
 
 import com.mobilevue.adapter.CustomExpandableListAdapter;
-import com.mobilevue.data.PlansData;
+import com.mobilevue.data.PlanDatum;
 import com.mobilevue.data.ResponseObj;
+import com.mobilevue.retrofit.OBSClient;
 import com.mobilevue.utils.Utilities;
 
 public class PlanActivity extends Activity {
 
-	public static String TAG = "PlanActivity";
+	public static String TAG = PlanActivity.class.getName();
 	private final static String NETWORK_ERROR = "Network error.";
 	private ProgressDialog mProgressDialog;
 	int clientId;
-	boolean D;
 
-	List<PlansData> plans;
+	MyApplication mApplication = null;
+	OBSClient mOBSClient;
+	ExecutorService mExecutorService;
+	boolean mIsReqCanceled = false;
+
+	List<PlanDatum> mPlans;
 	CustomExpandableListAdapter listAdapter;
 	ExpandableListView expListView;
 	public static int selectedGroupItem = -1;
 
-	// @Override
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_plan);
-		D = ((MyApplication) getApplicationContext()).D;
+
+		mApplication = ((MyApplication) getApplicationContext());
+		mExecutorService = Executors.newCachedThreadPool();
+		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
+
 		SharedPreferences mPrefs = getSharedPreferences(
 				AuthenticationAcitivity.PREFS_FILE, 0);
 		clientId = mPrefs.getInt("CLIENTID", 0);
-		if (D)
-			Log.d(TAG + "-onCreate", "CLIENTID :" + clientId);
+
+		Log.d(TAG + "-onCreate", "CLIENTID :" + clientId);
+
 		fetchAndBuildPlanList();
 	}
 
+	public void fetchAndBuildPlanList() {
+		if (mProgressDialog != null) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+		}
+		mProgressDialog = new ProgressDialog(PlanActivity.this,
+				ProgressDialog.THEME_HOLO_DARK);
+		mProgressDialog.setMessage("Connecting Server");
+		mProgressDialog.setCanceledOnTouchOutside(false);
+		mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+			public void onCancel(DialogInterface arg0) {
+				if (mProgressDialog.isShowing())
+					mProgressDialog.dismiss();
+				mIsReqCanceled = true;
+				if (null != mExecutorService)
+					if (!mExecutorService.isShutdown())
+						mExecutorService.shutdownNow();
+			}
+		});
+		mProgressDialog.show();
+		mOBSClient.getPrepaidPlans(getPlansCallBack);
+	}
+
+	final Callback<List<PlanDatum>> getPlansCallBack = new Callback<List<PlanDatum>>() {
+		@Override
+		public void failure(RetrofitError retrofitError) {
+			if (!mIsReqCanceled) {
+				if (mProgressDialog != null) {
+					mProgressDialog.dismiss();
+					mProgressDialog = null;
+				}
+				if (retrofitError.isNetworkError()) {
+					Toast.makeText(
+							PlanActivity.this,
+							getApplicationContext().getString(
+									R.string.error_network), Toast.LENGTH_LONG)
+							.show();
+				} else {
+					Toast.makeText(
+							PlanActivity.this,
+							"Server Error : "
+									+ retrofitError.getResponse().getStatus(),
+							Toast.LENGTH_LONG).show();
+				}
+			}
+		}
+
+		@Override
+		public void success(List<PlanDatum> planList, Response response) {
+			if (!mIsReqCanceled) {
+				if (mProgressDialog != null) {
+					mProgressDialog.dismiss();
+					mProgressDialog = null;
+				}
+				if (planList != null) {
+					mPlans = planList;
+					buildPlansList();
+				}
+			}
+		}
+	};
+
 	private void buildPlansList() {
 		expListView = (ExpandableListView) findViewById(R.id.a_exlv_plans_services);
-		listAdapter = new CustomExpandableListAdapter(this, plans);
+		listAdapter = new CustomExpandableListAdapter(this, mPlans);
 		expListView.setAdapter(listAdapter);
 	}
 
-	/*
-	 * public void radioBtn_OnClick(View v) { ((RadioButton)
-	 * PlanActivity.this.findViewById(R.id.plan_list_plan_rb))
-	 * .setChecked(false); ((RadioButton) v).setChecked(true); selectedGroupItem
-	 * = (Integer) v.getTag(); }
-	 */
-
 	public void btnSubmit_onClick(View v) {
 		if (selectedGroupItem >= 0) {
-
-			orderPlans(plans.get(selectedGroupItem).getId());
+			orderPlans(mPlans.get(selectedGroupItem).toString());
 		} else {
 			Toast.makeText(getApplicationContext(), "Select a Plan",
 					Toast.LENGTH_SHORT).show();
@@ -87,26 +151,25 @@ public class PlanActivity extends Activity {
 	}
 
 	private void closeApp() {
-		AlertDialog dialog = new AlertDialog.Builder(PlanActivity.this,
-				AlertDialog.THEME_HOLO_LIGHT).create();
-		dialog.setIcon(R.drawable.ic_logo_confirm_dialog);
-		dialog.setTitle("Confirmation");
-		dialog.setMessage("Do you want to close the app?");
-		dialog.setCancelable(false);
-
-		dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes",
+		AlertDialog mConfirmDialog = mApplication.getConfirmDialog(this);
+		mConfirmDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
 				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int buttonId) {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						if (mProgressDialog != null) {
+							mProgressDialog.dismiss();
+							mProgressDialog = null;
+						}
+						if (null != mExecutorService)
+							if (!mExecutorService.isShutdown()) {
+								mExecutorService.shutdownNow();
+								mExecutorService = null;
+							}
+						mIsReqCanceled = true;
 						PlanActivity.this.finish();
 					}
 				});
-		dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int buttonId) {
-
-					}
-				});
-		dialog.show();
+		mConfirmDialog.show();
 	}
 
 	@Override
@@ -127,8 +190,9 @@ public class PlanActivity extends Activity {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			if (D)
-				Log.d(TAG, "onPreExecute");
+
+			Log.d(TAG, "onPreExecute");
+
 			if (mProgressDialog != null) {
 				mProgressDialog.dismiss();
 				mProgressDialog = null;
@@ -150,9 +214,10 @@ public class PlanActivity extends Activity {
 
 		@Override
 		protected ResponseObj doInBackground(Void... params) {
-			if (D)
-				Log.d(TAG, "doInBackground");
-			PlansData plan = plans.get(selectedGroupItem);
+
+			Log.d(TAG, "doInBackground");
+
+			PlanDatum plan = mPlans.get(selectedGroupItem);
 			ResponseObj resObj = new ResponseObj();
 			if (Utilities.isNetworkAvailable(getApplicationContext())) {
 				HashMap<String, String> map = new HashMap<String, String>();
@@ -161,18 +226,17 @@ public class PlanActivity extends Activity {
 						new Locale("en"));
 				String formattedDate = df.format(date);
 
-				map.put("TagURL", "orders/" + clientId);
-				map.put("planCode", plan.getId());
+				map.put("TagURL", "/orders/" + clientId);
+				map.put("planCode", plan.getId().toString());
 				map.put("dateFormat", "dd MMMM yyyy");
 				map.put("locale", "en");
-				map.put("contractPeriod", plan.getContractId());
+				map.put("contractPeriod", plan.getContractId().toString());
 				map.put("isNewplan", "true");
 				map.put("start_date", formattedDate);
 				map.put("billAlign", "true");
+				map.put("paytermCode", plan.getServices().get(0)
+						.getChargeCode());
 
-				// Service no.r is hardcoded.
-				map.put("paytermCode", plan.getServiceData().get(0)
-						.getchargeCode());
 				resObj = Utilities.callExternalApiPostMethod(
 						getApplicationContext(), map);
 			} else {
@@ -185,15 +249,15 @@ public class PlanActivity extends Activity {
 		@Override
 		protected void onPostExecute(ResponseObj resObj) {
 			super.onPostExecute(resObj);
-			if (D)
-				Log.d(TAG, "onPostExecute");
+
+			Log.d(TAG, "onPostExecute");
+
 			if (mProgressDialog.isShowing()) {
 				mProgressDialog.dismiss();
 			}
-
 			if (resObj.getStatusCode() == 200) {
 				Intent intent = new Intent(PlanActivity.this,
-						MainActivity.class);// IPTVActivity.class);
+						MainActivity.class);
 				PlanActivity.this.finish();
 				startActivity(intent);
 			} else {
@@ -201,87 +265,5 @@ public class PlanActivity extends Activity {
 						Toast.LENGTH_LONG).show();
 			}
 		}
-	}
-
-	public void fetchAndBuildPlanList() {
-		new FetchPlansAsyncTask().execute();
-	}
-
-	private class FetchPlansAsyncTask extends
-			AsyncTask<Void, Void, ResponseObj> {
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			if (D)
-				Log.d(TAG, "onPreExecute");
-			if (mProgressDialog != null) {
-				mProgressDialog.dismiss();
-				mProgressDialog = null;
-			}
-			mProgressDialog = new ProgressDialog(PlanActivity.this,
-					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Retrieving Plans");
-			mProgressDialog.setCanceledOnTouchOutside(false);
-			mProgressDialog.setOnCancelListener(new OnCancelListener() {
-
-				public void onCancel(DialogInterface arg0) {
-					if (mProgressDialog.isShowing())
-						mProgressDialog.dismiss();
-					cancel(true);
-				}
-			});
-			mProgressDialog.show();
-		}
-
-		@Override
-		protected ResponseObj doInBackground(Void... arg0) {
-			ResponseObj resObj = new ResponseObj();
-			if (Utilities.isNetworkAvailable(getApplicationContext())) {
-				HashMap<String, String> map = new HashMap<String, String>();
-				map.put("TagURL", "plans?planType=prepaid");
-				resObj = Utilities.callExternalApiGetMethod(
-						getApplicationContext(), map);
-			} else {
-				resObj.setFailResponse(100, NETWORK_ERROR);
-			}
-			return resObj;
-		}
-
-		@Override
-		protected void onPostExecute(ResponseObj resObj) {
-			if (mProgressDialog.isShowing()) {
-				mProgressDialog.dismiss();
-			}
-			if (resObj.getStatusCode() == 200) {
-				if (D)
-					Log.d("PlanAct-FetchPlans", resObj.getsResponse());
-				plans = getPlansFromJson(resObj.getsResponse());
-				if (plans != null)
-					buildPlansList();
-			} else {
-				Toast.makeText(PlanActivity.this, resObj.getsErrorMessage(),
-						Toast.LENGTH_LONG).show();
-			}
-		}
-	}
-
-	private List<PlansData> getPlansFromJson(String jsonText) {
-		if (D)
-			Log.d("getPlansFromJson", "result is \r\n" + jsonText);
-		List<PlansData> data = null;
-		try {
-			ObjectMapper mapper = new ObjectMapper().setVisibility(
-					JsonMethod.FIELD, Visibility.ANY);
-			mapper.configure(
-					DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES,
-					false);
-			data = mapper.readValue(jsonText,
-					new TypeReference<List<PlansData>>() {
-					});
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return data;
 	}
 }

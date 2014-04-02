@@ -1,6 +1,6 @@
 package com.mobilevue.data;
 
-public class ActivePlansData {
+public class ActivePlanDatum {
 
 	String id;
 	String planCode;

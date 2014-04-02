@@ -1,16 +1,17 @@
 package com.mobilevue.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class EpgData {
+public class EPGData {
 
-	private List<ProgramGuideData> epgData;
+	private List<EpgDatum> epgData = new ArrayList<EpgDatum>();
 
-	public List<ProgramGuideData> getEpgData() {
+	public List<EpgDatum> getEpgData() {
 		return epgData;
 	}
 
-	public void setEpgData(List<ProgramGuideData> epgData) {
+	public void setEpgData(List<EpgDatum> epgData) {
 		this.epgData = epgData;
 	}
 
