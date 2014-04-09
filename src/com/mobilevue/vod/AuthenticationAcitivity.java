@@ -11,14 +11,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -28,15 +27,13 @@ import com.mobilevue.retrofit.OBSClient;
 
 public class AuthenticationAcitivity extends Activity {
 	public static String TAG = AuthenticationAcitivity.class.getName();
-	public final static String PREFS_FILE = "PREFS_FILE";
-	private SharedPreferences mPrefs;
-	private Editor mPrefsEditor;
 	private ProgressBar mProgressBar;
-	int clientId;
+	private Button mBtnRefresh;
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
 	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
+	boolean mIsFailed = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +44,7 @@ public class AuthenticationAcitivity extends Activity {
 		mExecutorService = Executors.newCachedThreadPool();
 		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
 		mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-		mProgressBar.setVisibility(View.INVISIBLE);
-
+		mBtnRefresh = (Button) findViewById(R.id.btn_refresh);
 		validateDevice();
 	}
 
@@ -61,7 +57,7 @@ public class AuthenticationAcitivity extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.menu_btn_refresh:
+		case R.id.action_refresh:
 			validateDevice();
 			break;
 		default:
@@ -103,6 +99,8 @@ public class AuthenticationAcitivity extends Activity {
 		@Override
 		public void failure(RetrofitError retrofitError) {
 			if (!mIsReqCanceled) {
+				mIsFailed = true;
+				mBtnRefresh.setVisibility(View.VISIBLE);
 				Toast.makeText(
 						AuthenticationAcitivity.this,
 						"Server Error : "
@@ -117,23 +115,27 @@ public class AuthenticationAcitivity extends Activity {
 		@Override
 		public void success(DeviceDatum device, Response arg1) {
 			if (!mIsReqCanceled) {
-				/** on success save client id and check for active plans */
-				clientId = (int) device.getClientId();
-				mPrefs = getSharedPreferences(
-						AuthenticationAcitivity.PREFS_FILE, 0);
-				mPrefsEditor = mPrefs.edit();
-				mPrefsEditor.putInt("CLIENTID", clientId);
-				mPrefsEditor.commit();
-				mOBSClient.getActivePlans(clientId + "", activePlansCallBack);
+				if (device != null) {
+					/** on success save client id and check for active plans */
+					mApplication.setClientId(Long.toString(device.getClientId()));
+					mOBSClient.getActivePlans(mApplication.getClientId(),
+							activePlansCallBack);
+				} else {
+					Toast.makeText(AuthenticationAcitivity.this,
+							"Server Error  :Device details not exists",
+							Toast.LENGTH_LONG).show();
+				}
 			}
 		}
 
 		@Override
 		public void failure(RetrofitError retrofitError) {
 			if (!mIsReqCanceled) {
+				mIsFailed =true;
 				if (mProgressBar.isShown()) {
 					mProgressBar.setVisibility(View.INVISIBLE);
 				}
+				mBtnRefresh.setVisibility(View.VISIBLE);
 				if (retrofitError.isNetworkError()) {
 					Toast.makeText(
 							AuthenticationAcitivity.this,
@@ -159,10 +161,16 @@ public class AuthenticationAcitivity extends Activity {
 		}
 	};
 
+	public void  Refresh_OnClick(View v){
+		validateDevice();
+	}
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			if(mIsFailed){
+				AuthenticationAcitivity.this.finish();
+			}else{
 			AlertDialog mConfirmDialog = mApplication.getConfirmDialog(this);
 			mConfirmDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
 					new DialogInterface.OnClickListener() {
@@ -177,6 +185,7 @@ public class AuthenticationAcitivity extends Activity {
 						}
 					});
 			mConfirmDialog.show();
+			}
 		}
 		return super.onKeyDown(keyCode, event);
 	}

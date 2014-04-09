@@ -7,8 +7,10 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.DialogInterface.OnCancelListener;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
@@ -31,7 +33,6 @@ import com.mobilevue.retrofit.OBSClient;
 public class CategoryFragment extends Fragment {
 
 	private static final String TAG = CategoryFragment.class.getName();
-	public final static String PREFS_FILE = "PREFS_FILE";
 	private ProgressDialog mProgressDialog;
 	private SearchDetails searchDtls;
 	private SharedPreferences mPrefs;
@@ -52,7 +53,7 @@ public class CategoryFragment extends Fragment {
 		mExecutorService = Executors.newCachedThreadPool();
 		mOBSClient = mApplication.getOBSClient(getActivity(), mExecutorService);
 
-		mPrefs = getActivity().getSharedPreferences(PREFS_FILE, 0);
+		mPrefs = getActivity().getSharedPreferences(mApplication.PREFS_FILE, 0);
 		String category = mPrefs.getString("CATEGORY", "RELEASE");
 		searchDtls = new SearchDetails(rootView, getArguments()
 				.getInt("pageno"), category);
@@ -64,6 +65,27 @@ public class CategoryFragment extends Fragment {
 
 		Log.d(TAG, "getDetails");
 
+		if (mProgressDialog != null) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+		}
+		mProgressDialog = new ProgressDialog(getActivity(),
+				ProgressDialog.THEME_HOLO_DARK);
+		mProgressDialog.setMessage("Retriving Detials");
+		mProgressDialog.setCanceledOnTouchOutside(false);
+		mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+			public void onCancel(DialogInterface arg0) {
+				if (mProgressDialog.isShowing())
+					mProgressDialog.dismiss();
+				mIsReqCanceled = true;
+				if (null != mExecutorService)
+					if (!mExecutorService.isShutdown())
+						mExecutorService.shutdownNow();
+			}
+		});
+		mProgressDialog.show();
+		
 		String deviceId = Settings.Secure.getString(getActivity()
 				.getApplicationContext().getContentResolver(),
 				Settings.Secure.ANDROID_ID);

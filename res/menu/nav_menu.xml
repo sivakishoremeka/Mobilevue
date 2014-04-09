@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/menu_btn_home"
+        android:id="@+id/action_home"
         android:layout_width="50dp"
         android:layout_height="120dp"
         android:icon="@drawable/ic_action_home_icon"
@@ -42,6 +42,15 @@
         android:showAsAction="ifRoom"
         android:title="@string/action_wish_list"/> -->
     <item
+        android:id="@+id/action_account"
+        android:layout_width="50dp"
+        android:layout_height="120dp"
+        android:icon="@drawable/ic_action_account_icon"
+        android:orderInCategory="3"
+        android:showAsAction="always"
+        android:title="@string/action_account"
+         android:visible="false"/>
+    <item
         android:id="@+id/action_search"
         android:actionViewClass="android.widget.SearchView"
         android:icon="@android:drawable/ic_menu_search"
@@ -49,9 +58,9 @@
         android:showAsAction="always"
         android:title="@string/action_bar_search"/>
     <item
-        android:id="@+id/menu_btn_refresh"
+        android:id="@+id/action_refresh"
         android:icon="@drawable/ic_stat_navigation_refresh"
-        android:orderInCategory="3"
+        android:orderInCategory="4"
         android:showAsAction="always"
         android:title="@string/action_refresh"
         android:visible="false"/>

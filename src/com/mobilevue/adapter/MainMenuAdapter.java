@@ -23,7 +23,7 @@ public class MainMenuAdapter extends BaseAdapter {
 		this.activity = activity;
 		inflater = (LayoutInflater) activity
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		this.arrMenu = activity.getResources().getStringArray(R.array.arrMenu);
+		this.arrMenu = activity.getResources().getStringArray(R.array.arrMainMenu);
 		imgNames = activity.getResources().getStringArray(
 				R.array.arrMenuImageNames);
 

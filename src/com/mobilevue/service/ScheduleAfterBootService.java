@@ -50,7 +50,7 @@ public class ScheduleAfterBootService extends Service {
 		Calendar c = Calendar.getInstance();
 		for (Reminder r : remindersList) {
 			c.setTimeInMillis(r.get_time());
-			new AlarmTask(this, c, r.get_prog_name()).run();
+			new AlarmTask(this, c, r.get_prog_name(),r.get_channel_id(),r.get_channel_name(),r.get_url()).run();
 		}
 		dbHandler.deleteOldReminders();
 	}

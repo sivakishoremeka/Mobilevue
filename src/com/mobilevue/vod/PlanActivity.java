@@ -17,7 +17,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -37,7 +36,6 @@ public class PlanActivity extends Activity {
 	public static String TAG = PlanActivity.class.getName();
 	private final static String NETWORK_ERROR = "Network error.";
 	private ProgressDialog mProgressDialog;
-	int clientId;
 
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
@@ -58,12 +56,6 @@ public class PlanActivity extends Activity {
 		mApplication = ((MyApplication) getApplicationContext());
 		mExecutorService = Executors.newCachedThreadPool();
 		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
-
-		SharedPreferences mPrefs = getSharedPreferences(
-				AuthenticationAcitivity.PREFS_FILE, 0);
-		clientId = mPrefs.getInt("CLIENTID", 0);
-
-		Log.d(TAG + "-onCreate", "CLIENTID :" + clientId);
 
 		fetchAndBuildPlanList();
 	}
@@ -226,7 +218,7 @@ public class PlanActivity extends Activity {
 						new Locale("en"));
 				String formattedDate = df.format(date);
 
-				map.put("TagURL", "/orders/" + clientId);
+				map.put("TagURL", "/orders/" + mApplication.getClientId());
 				map.put("planCode", plan.getId().toString());
 				map.put("dateFormat", "dd MMMM yyyy");
 				map.put("locale", "en");

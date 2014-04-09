@@ -45,7 +45,6 @@ import com.mobilevue.retrofit.OBSClient;
 public class EpgFragment extends Fragment {
 
 	private static final String TAG = "EpgFragment";
-	public final static String PREFS_FILE = "PREFS_FILE";
 	public final static String IS_REFRESH = "isRefresh";
 	private ProgressDialog mProgressDialog;
 	private SharedPreferences mPrefs;
@@ -71,7 +70,7 @@ public class EpgFragment extends Fragment {
 		mExecutorService = Executors.newCachedThreadPool();
 		mOBSClient = mApplication.getOBSClient(getActivity(), mExecutorService);
 
-		mPrefs = getActivity().getSharedPreferences(PREFS_FILE, 0);
+		mPrefs = getActivity().getSharedPreferences(mApplication.PREFS_FILE, 0);
 		list = (ListView) rootView.findViewById(R.id.fr_epg_lv_epg_dtls);
 		list.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		String channelName = mPrefs.getString(IPTVActivity.CHANNEL_NAME, "");
@@ -309,8 +308,8 @@ public class EpgFragment extends Fragment {
 						c.set(Calendar.HOUR_OF_DAY, t.get(Calendar.HOUR_OF_DAY));
 						c.set(Calendar.MINUTE, t.get(Calendar.MINUTE));
 						c.set(Calendar.SECOND, 0);
-						ReqProgDetails progDtls = new ReqProgDetails(c, data
-								.getProgramTitle());
+						ProgDetails progDtls = new ProgDetails(c, data
+								.getProgramTitle(), data.getChannelName());
 						btn.setTag(progDtls);
 						btn.setText(R.string.remind_me);
 					}
@@ -409,13 +408,15 @@ public class EpgFragment extends Fragment {
 		}
 	}
 
-	public class ReqProgDetails {
-		public Calendar c;
-		public String progName;
+	public class ProgDetails {
+		public Calendar calendar;
+		public String progTitle;
+		public String channelName;
 
-		public ReqProgDetails(Calendar c, String progName) {
-			this.c = c;
-			this.progName = progName;
+		public ProgDetails(Calendar cal, String title, String chName) {
+			this.calendar = cal;
+			this.progTitle = title;
+			this.channelName = chName;
 		}
 	}
 

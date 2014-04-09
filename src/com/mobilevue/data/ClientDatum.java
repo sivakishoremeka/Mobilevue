@@ -1,7 +1,9 @@
 package com.mobilevue.data;
 
-public class RegClientDatum {
+public class ClientDatum {
 
+	private String clientId;
+	private String accountNo;
 	private String officeId;
 	private String phone;
 	private String middlename;
@@ -22,6 +24,48 @@ public class RegClientDatum {
 	private String dateFormat;
 	private String addressNo;
 	private String fullname;
+	private float balanceAmount;
+	private String hwSerialNumber;
+	private String categoryType;
+
+	public float getBalanceAmount() {
+		return balanceAmount;
+	}
+
+	public void setBalanceAmount(float balanceAmount) {
+		this.balanceAmount = -balanceAmount;
+	}
+
+	public String getHwSerialNumber() {
+		return hwSerialNumber;
+	}
+
+	public void setHwSerialNumber(String hwSerialNumber) {
+		this.hwSerialNumber = hwSerialNumber;
+	}
+
+	public String getCategoryType() {
+		return categoryType;
+	}
+
+	public void setCategoryType(String categoryType) {
+		this.categoryType = categoryType;
+	}
+	public String getAccountNo() {
+		return accountNo;
+	}
+
+	public void setAccountNo(String accountNo) {
+		this.accountNo = accountNo;
+	}
+
+	public String getClientId() {
+		return clientId;
+	}
+
+	public void setClientId(String clientId) {
+		this.clientId = clientId;
+	}
 
 	public String getOfficeId() {
 		return officeId;

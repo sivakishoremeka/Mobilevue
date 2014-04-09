@@ -45,14 +45,12 @@ public class ChannelsActivity extends Activity {
 
 	private final String TAG = ChannelsActivity.this.getClass().getName();
 	public final static String CHANNEL_EPG = "Channel Epg";
-	public final static String PREFS_FILE = "PREFS_FILE";
 	public final static String IPTV_CHANNELS_DETAILS = "IPTV Channels Details";
 	public final static String CHANNELS_UPDATED_AT = "Updated At";
 	public final static String CHANNELS_LIST = "Channels";
 	private SharedPreferences mPrefs;
 	private ProgressDialog mProgressDialog;
 	private Editor mPrefsEditor;
-	int clientId;
 	GridView gridView;
 	ChannelGridViewAdapter adapter;
 	List<ServiceDatum> mServiceList = new ArrayList<ServiceDatum>();
@@ -76,9 +74,8 @@ public class ChannelsActivity extends Activity {
 		mApplication = ((MyApplication) getApplicationContext());
 		mExecutorService = Executors.newCachedThreadPool();
 		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
-
-		mPrefs = getSharedPreferences(AuthenticationAcitivity.PREFS_FILE, 0);
-		clientId = mPrefs.getInt("CLIENTID", 0);
+		mPrefs = ChannelsActivity.this.getSharedPreferences(
+				mApplication.PREFS_FILE, Activity.MODE_PRIVATE);
 		isBalCheckReq = mApplication.isBalCheckReq;
 		gridView = (GridView) (findViewById(R.id.a_gv_channels));
 
@@ -106,7 +103,7 @@ public class ChannelsActivity extends Activity {
 		if (isBalCheckReq) {
 			if (isLiveDataReq)
 				GetChannelsFromServer();
-			else if (((MyApplication) getApplicationContext()).balance >= 0)
+			else if (mApplication.getBalance() >= 0)
 				Toast.makeText(ChannelsActivity.this,
 						"Insufficient Balance.Please Make a Payment.",
 						Toast.LENGTH_LONG).show();
@@ -142,7 +139,8 @@ public class ChannelsActivity extends Activity {
 			}
 		});
 		mProgressDialog.show();
-		mOBSClient.getPlanServices(clientId + "", getPlanServicesCallBack);
+		mOBSClient.getPlanServices(mApplication.getClientId(),
+				getPlanServicesCallBack);
 	}
 
 	final Callback<List<ServiceDatum>> getPlanServicesCallBack = new Callback<List<ServiceDatum>>() {
@@ -192,8 +190,7 @@ public class ChannelsActivity extends Activity {
 				if (serviceList != null && serviceList.size() > 0) {
 
 					/** saving channel details to preferences */
-					mPrefs = ChannelsActivity.this.getSharedPreferences(
-							IPTVActivity.PREFS_FILE, Activity.MODE_PRIVATE);
+
 					mPrefsEditor = mPrefs.edit();
 					Date date = new Date();
 					String formattedDate = mApplication.df.format(date);
@@ -222,7 +219,7 @@ public class ChannelsActivity extends Activity {
 		getMenuInflater().inflate(R.menu.nav_menu, menu);
 		MenuItem searchItem = menu.findItem(R.id.action_search);
 		searchItem.setVisible(false);
-		MenuItem refreshItem = menu.findItem(R.id.menu_btn_refresh);
+		MenuItem refreshItem = menu.findItem(R.id.action_refresh);
 		refreshItem.setVisible(true);
 		return true;
 	}
@@ -234,10 +231,10 @@ public class ChannelsActivity extends Activity {
 		case android.R.id.home:
 			NavUtils.navigateUpFromSameTask(this);
 			break;
-		case R.id.menu_btn_home:
+		case R.id.action_home:
 			NavUtils.navigateUpFromSameTask(this);
 			break;
-		case R.id.menu_btn_refresh:
+		case R.id.action_refresh:
 			isLiveDataReq = true;
 			if (adapter != null) {
 				mServiceList.clear();

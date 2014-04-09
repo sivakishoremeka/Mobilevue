@@ -16,8 +16,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -29,7 +27,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.mobilevue.data.RegClientDatum;
+import com.mobilevue.data.ClientDatum;
 import com.mobilevue.data.RegClientRespDatum;
 import com.mobilevue.data.ResponseObj;
 import com.mobilevue.data.TemplateDatum;
@@ -40,7 +38,6 @@ public class RegisterActivity extends Activity {
 
 	public static String TAG = RegisterActivity.class.getName();
 	private final static String NETWORK_ERROR = "Network error.";
-	public final static String PREFS_FILE = "PREFS_FILE";
 	private ProgressDialog mProgressDialog;
 	EditText et_MobileNumber;
 	EditText et_FirstName;
@@ -133,8 +130,11 @@ public class RegisterActivity extends Activity {
 			try {
 				mCountry = template.getAddressTemplateData().getCountryData()
 						.get(0);
-			} catch (NullPointerException e) {
+			} catch (Exception e) {
 				Log.d("templateCallBack-success", e.getMessage());
+				Toast.makeText(RegisterActivity.this,
+						"Server Error : Country Name not Specified",
+						Toast.LENGTH_LONG).show();
 			}
 		}
 	};
@@ -153,7 +153,7 @@ public class RegisterActivity extends Activity {
 			Toast.makeText(RegisterActivity.this, "Please enter Last Name",
 					Toast.LENGTH_LONG).show();
 		} else if (email.matches(emailPattern)) {
-			RegClientDatum client = new RegClientDatum();
+			ClientDatum client = new ClientDatum();
 			client.setPhone(et_MobileNumber.getText().toString());
 			client.setFirstname(et_FirstName.getText().toString());
 			client.setLastname(et_LastName.getText().toString());
@@ -202,8 +202,8 @@ public class RegisterActivity extends Activity {
 	}
 
 	private class DoOnBackgroundAsyncTask extends
-			AsyncTask<RegClientDatum, Void, ResponseObj> {
-		RegClientDatum clientData;
+			AsyncTask<ClientDatum, Void, ResponseObj> {
+		ClientDatum clientData;
 
 		@Override
 		protected void onPreExecute() {
@@ -239,9 +239,9 @@ public class RegisterActivity extends Activity {
 		}
 
 		@Override
-		protected ResponseObj doInBackground(RegClientDatum... arg0) {
+		protected ResponseObj doInBackground(ClientDatum... arg0) {
 			ResponseObj resObj = new ResponseObj();
-			clientData = (RegClientDatum) arg0[0];
+			clientData = (ClientDatum) arg0[0];
 			if (mApplication.isNetworkAvailable()) {
 				HashMap<String, String> map = new HashMap<String, String>();
 				map.put("TagURL", "/clients");
@@ -274,15 +274,10 @@ public class RegisterActivity extends Activity {
 				mIsClientRegistered = true;
 				RegClientRespDatum clientResData = readJsonUser(resObj
 						.getsResponse());
-				int clientId = (int) clientResData.getClientId();
-				SharedPreferences mPrefs = getSharedPreferences(
-						AuthenticationAcitivity.PREFS_FILE, 0);
-				Editor mPrefsEditor = mPrefs.edit();
-				mPrefsEditor.putInt("CLIENTID", clientId);
-				mPrefsEditor.commit();
+				mApplication.setClientId(Long.toString(clientResData.getClientId()));
 				if (mApplication.isNetworkAvailable()) {
 					HashMap<String, String> map = new HashMap<String, String>();
-					map.put("TagURL", "/ownedhardware/" + clientId);
+					map.put("TagURL", "/ownedhardware/" + mApplication.getClientId());
 					map.put("itemType", "1");
 					map.put("dateFormat", "dd MMMM yyyy");
 					String androidId = Settings.Secure.getString(

@@ -1,6 +1,5 @@
 package com.mobilevue.data;
 
-import java.util.Calendar;
 
 public class Reminder {
 		
@@ -8,15 +7,39 @@ public class Reminder {
 		int _id;
 		String _prog_name;
 		long _time;
+		int _channel_id;
+		String _channel_name;
+		String _url;
 		
 		// Empty constructor
 		public Reminder(){
 			
 		}
 		// constructor
-		public Reminder(String prog_name, long time){
+		public Reminder(String prog_name, long time,int ch_id,String channel_name,String url){
 			this._prog_name = prog_name;
 			this._time = time;
+			this._channel_id = ch_id;
+			this._channel_name = channel_name;
+			this._url = url;
+		}
+		public int get_channel_id() {
+			return _channel_id;
+		}
+		public void set_channel_id(int _channel_id) {
+			this._channel_id = _channel_id;
+		}
+		public String get_channel_name() {
+			return _channel_name;
+		}
+		public void set_channel_name(String _channel_name) {
+			this._channel_name = _channel_name;
+		}
+		public String get_url() {
+			return _url;
+		}
+		public void set_url(String _url) {
+			this._url = _url;
 		}
 		public int get_id() {
 			return _id;

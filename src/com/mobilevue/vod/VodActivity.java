@@ -8,7 +8,9 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import android.app.ActionBar;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -38,7 +40,6 @@ public class VodActivity extends FragmentActivity implements
 		SearchView.OnQueryTextListener {
 	private static final String TAG = VodActivity.class.getName();
 	public static int ITEMS;
-	private final static String PREFS_FILE = "PREFS_FILE";
 	private final static String CATEGORY = "CATEGORY";
 	MyFragmentPagerAdapter mAdapter;
 	ViewPager mPager;
@@ -65,7 +66,7 @@ public class VodActivity extends FragmentActivity implements
 		mExecutorService = Executors.newCachedThreadPool();
 		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
 
-		mPrefs = getSharedPreferences(PREFS_FILE, 0);
+		mPrefs = getSharedPreferences(mApplication.PREFS_FILE, 0);
 		mPrefsEditor = mPrefs.edit();
 		mPrefsEditor.putString(CATEGORY, "RELEASE");
 		mPrefsEditor.commit();
@@ -125,12 +126,33 @@ public class VodActivity extends FragmentActivity implements
 
 		Log.d(TAG, "setPageCountAndGetDetails");
 
-		mPrefs = getSharedPreferences(PREFS_FILE, 0);
+		mPrefs = getSharedPreferences(mApplication.PREFS_FILE, 0);
 		String category = mPrefs.getString(CATEGORY, "");
 
 		String deviceId = Settings.Secure.getString(getApplicationContext()
 				.getContentResolver(), Settings.Secure.ANDROID_ID);
 
+		if (mProgressDialog != null) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+		}
+		mProgressDialog = new ProgressDialog(VodActivity.this,
+				ProgressDialog.THEME_HOLO_DARK);
+		mProgressDialog.setMessage("Retriving Detials");
+		mProgressDialog.setCanceledOnTouchOutside(false);
+		mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+			public void onCancel(DialogInterface arg0) {
+				if (mProgressDialog.isShowing())
+					mProgressDialog.dismiss();
+				mIsReqCanceled = true;
+				if (null != mExecutorService)
+					if (!mExecutorService.isShutdown())
+						mExecutorService.shutdownNow();
+			}
+		});
+		mProgressDialog.show();
+		
 		mOBSClient.getPageCountAndMediaDetails(category.equals("") ? "RELEASE"
 				: category, "0", deviceId, getPageCountAndDetailsCallBack);
 	}
@@ -183,7 +205,7 @@ public class VodActivity extends FragmentActivity implements
 		MenuItem searchItem = menu.findItem(R.id.action_search);
 		mSearchView = (SearchView) searchItem.getActionView();
 		setupSearchView(searchItem);
-		MenuItem refreshItem = menu.findItem(R.id.menu_btn_refresh);
+		MenuItem refreshItem = menu.findItem(R.id.action_refresh);
 		refreshItem.setVisible(true);
 		return true;
 	}
@@ -195,10 +217,10 @@ public class VodActivity extends FragmentActivity implements
 		case android.R.id.home:
 			NavUtils.navigateUpFromSameTask(this);
 			break;
-		case R.id.menu_btn_home:
+		case R.id.action_home:
 			NavUtils.navigateUpFromSameTask(this);
 			break;
-		case R.id.menu_btn_refresh:
+		case R.id.action_refresh:
 			setPageCountAndGetDetails();
 			break;	
 		default:
@@ -224,7 +246,7 @@ public class VodActivity extends FragmentActivity implements
 	public boolean onQueryTextSubmit(String movieName) {
 		mSearchView.clearFocus();
 		listView.clearChoices();
-		mPrefs = getSharedPreferences(PREFS_FILE, 0);
+		mPrefs = getSharedPreferences(mApplication.PREFS_FILE, 0);
 		mPrefsEditor = mPrefs.edit();
 		mPrefsEditor.putString(CATEGORY, movieName);
 		mPrefsEditor.commit();

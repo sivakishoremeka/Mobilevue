@@ -1,7 +1,7 @@
 package com.mobilevue.vod;
 
 import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -11,11 +11,11 @@ import java.util.concurrent.Executors;
 import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
+import retrofit.android.MainThreadExecutor;
 import retrofit.client.Response;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -23,9 +23,13 @@ import android.app.Application;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.provider.Settings;
+import android.util.Log;
 
 import com.mobilevue.imagehandler.AuthImageDownloader;
 import com.mobilevue.retrofit.OBSClient;
@@ -39,13 +43,18 @@ mailTo = "kishoremekas@gmail.com", // my email here
 mode = ReportingInteractionMode.TOAST, resToastText = R.string.crash_toast_text)
 public class MyApplication extends Application {
 	public static String TAG = MyApplication.class.getName();
+	public final String PREFS_FILE = "PREFS_FILE";
+	public SharedPreferences prefs;
+	public Editor editor;
 	public static String tenentId;
 	public static String basicAuth;
 	public static String contentType;
 	public static String API_URL;
 	public static SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd",
 			new Locale("en"));
-	public Double balance = new Double("0");
+	private float balance = 0;
+	public static String androidId;
+	private String clientId = null;
 	public boolean isBalCheckReq = false;
 	public boolean D = true; // need to delete this variable
 	public Player player = Player.NATIVE_PLAYER;
@@ -82,6 +91,11 @@ public class MyApplication extends Application {
 		tenentId = getString(R.string.tenent_id);
 		basicAuth = getString(R.string.basic_auth);
 		contentType = getString(R.string.content_type);
+
+		prefs = getSharedPreferences(PREFS_FILE, 0);
+		editor = prefs.edit();
+		androidId = Settings.Secure.getString(getApplicationContext()
+				.getContentResolver(), Settings.Secure.ANDROID_ID);
 	}
 
 	public void startPlayer(Intent intent, Context context) {
@@ -130,6 +144,7 @@ public class MyApplication extends Application {
 		RestAdapter restAdapter = new RestAdapter.Builder()
 				.setEndpoint(API_URL)
 				.setLogLevel(RestAdapter.LogLevel.FULL)
+				.setExecutors(mExecutorService, new MainThreadExecutor())
 				.setClient(
 						new com.mobilevue.retrofit.CustomUrlConnectionClient(
 								tenentId, basicAuth, contentType)).build();
@@ -157,17 +172,24 @@ public class MyApplication extends Application {
 	}
 
 	public String getResponseOnSuccess(Response response) {
+		try {
+			return getJSONfromInputStream(response.getBody().in());
+		} catch (Exception e) {
+			Log.i(TAG, e.getMessage());
+			return "Internal Server Error";
+		}
+	}
+
+	public static String getJSONfromInputStream(InputStream in) {
 		StringBuffer res = new StringBuffer();
 		String msg = null;
 		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-					response.getBody().in()));
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			while ((msg = br.readLine()) != null) {
 				res.append(msg);
 			}
-		} catch (IOException e) {
-			msg = "Internal Server Error : " + e.getMessage();
-			e.printStackTrace();
+		} catch (Exception e) {
+			Log.i(TAG, e.getMessage());
 		}
 		if (res.length() > 0) {
 			return res.toString();
@@ -176,27 +198,52 @@ public class MyApplication extends Application {
 	}
 
 	public String getDeveloperMessage(RetrofitError retrofitError) {
-		StringBuffer res = new StringBuffer();
 		String msg = null;
 		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-					retrofitError.getResponse().getBody().in()));
-			while ((msg = br.readLine()) != null) {
-				res.append(msg);
-			}
-		} catch (IOException e) {
-			msg = "Internal Server Error : " + e.getMessage();
-			e.printStackTrace();
-		}
-		if (res.length() > 0) {
-			try {
-				msg = new JSONObject(res.toString()).getJSONArray("errors")
-						.getJSONObject(0).getString("developerMessage");
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			msg = getJSONfromInputStream(retrofitError.getResponse().getBody()
+					.in());
+			msg = new JSONObject(msg).getJSONArray("errors").getJSONObject(0)
+					.getString("developerMessage");
+		} catch (Exception e) {
+			msg = "Internal Server Error";
+			Log.i(TAG, e.getMessage());
 		}
 		return msg;
+	}
+
+	public float getBalance() {
+		if (balance == 0) {
+			balance = getPrefs().getFloat("BALANCE",0);
+		}
+		return balance;
+	}
+
+	public void setBalance(float balance) {
+		getEditor().putFloat("BALANCE", balance);
+		this.balance = balance;
+	}
+
+	public String getClientId() {
+		if (clientId == null ||clientId.length()==0) {
+			clientId = getPrefs().getString("CLIENTID","");
+		}
+		return clientId;
+	}
+
+	public void setClientId(String clientId) {
+		getEditor().putString("CLIENTID", clientId);
+		this.clientId = clientId;
+	}
+
+	public SharedPreferences getPrefs() {
+		if (prefs == null)
+			prefs = getSharedPreferences(PREFS_FILE, 0);
+		return prefs;
+	}
+
+	public Editor getEditor() {
+		if (editor == null)
+			editor = prefs.edit();
+		return editor;
 	}
 }

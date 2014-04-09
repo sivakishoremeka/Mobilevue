@@ -28,6 +28,7 @@ public class VideoPlayerActivity extends Activity implements
 		VideoControllerView.MediaPlayerControl {
 
 	public static String TAG = VideoPlayerActivity.class.getName();
+	public static int ChannelId ;
 	SurfaceView videoSurface;
 	MediaPlayer player;
 	VideoControllerView controller;
@@ -48,6 +49,7 @@ public class VideoPlayerActivity extends Activity implements
 		if (videoType.equalsIgnoreCase("LIVETV")) {
 			isLiveController = true;
 			VideoControllerView.sDefaultTimeout = 3000;
+			ChannelId =  getIntent().getIntExtra("CHANNELID",0);
 		} else if (videoType.equalsIgnoreCase("VOD")) {
 			isLiveController = false;
 			VideoControllerView.sDefaultTimeout = 3000;
@@ -152,15 +154,15 @@ public class VideoPlayerActivity extends Activity implements
 				}
 			});
 		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
+			Log.d(TAG,e.getMessage());
 		} catch (SecurityException e) {
-			e.printStackTrace();
+			Log.d(TAG,e.getMessage());
 		} catch (IllegalStateException e) {
-			e.printStackTrace();
+			Log.d(TAG,e.getMessage());
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.d(TAG,e.getMessage());
 		} catch (Exception e) {
-			e.printStackTrace();
+			Log.d(TAG,e.getMessage());
 		}
 	}
 
@@ -225,7 +227,7 @@ public class VideoPlayerActivity extends Activity implements
 		if (mProgressDialog.isShowing()) {
 			mProgressDialog.dismiss();
 		}
-		player.start();
+		mp.start();
 	}
 
 	@Override
@@ -359,8 +361,9 @@ public class VideoPlayerActivity extends Activity implements
 	}
 
 	@Override
-	public void changeChannel(Uri uri) {
+	public void changeChannel(Uri uri,int channelId) {
 		Log.d(TAG, "ChangeChannel: " + uri);
+		ChannelId = channelId;
 		if (!player.isPlaying())
 			player.stop();
 		player.reset();
@@ -369,17 +372,13 @@ public class VideoPlayerActivity extends Activity implements
 			player.setOnPreparedListener(this);
 			player.prepareAsync();
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.d(TAG,e.getMessage());
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.d(TAG,e.getMessage());
 		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+           Log.d(TAG,e.getMessage());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.d(TAG,e.getMessage());
 		}
 		RelativeLayout rlayout = (RelativeLayout) findViewById(R.id.video_container);
 		rlayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);

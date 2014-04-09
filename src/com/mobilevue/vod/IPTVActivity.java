@@ -17,7 +17,6 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import android.app.ActionBar;
 import android.app.ActionBar.LayoutParams;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
@@ -48,7 +47,7 @@ import com.mobilevue.database.DatabaseHandler;
 import com.mobilevue.retrofit.OBSClient;
 import com.mobilevue.service.ScheduleClient;
 import com.mobilevue.utils.Utilities;
-import com.mobilevue.vod.EpgFragment.ReqProgDetails;
+import com.mobilevue.vod.EpgFragment.ProgDetails;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class IPTVActivity extends FragmentActivity {
@@ -56,9 +55,8 @@ public class IPTVActivity extends FragmentActivity {
 	/** This is live/Iptv activity */
 
 	public static String TAG = IPTVActivity.class.getName();
-	public final static String CHANNEL_NAME = "Channel Name";
-	public final static String CHANNEL_URL = "Channel URL";
-	public final static String PREFS_FILE = "PREFS_FILE";
+	public final static String CHANNEL_NAME = "CHANNELNAME";
+	public final static String CHANNEL_URL = "URL";
 	private SharedPreferences mPrefs;
 	private Editor mPrefsEditor;
 	EPGFragmentPagerAdapter mEpgPagerAdapter;
@@ -68,8 +66,8 @@ public class IPTVActivity extends FragmentActivity {
 
 	private ProgressDialog mProgressDialog;
 	private String mChannelURL;
+	private int mChannelId;
 	ViewPager mViewPager;
-	int clientId;
 
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
@@ -90,15 +88,12 @@ public class IPTVActivity extends FragmentActivity {
 		mExecutorService = Executors.newCachedThreadPool();
 		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
 
-		SharedPreferences mPrefs = getSharedPreferences(
-				AuthenticationAcitivity.PREFS_FILE, 0);
+		mPrefs = mApplication.getPrefs();
 		// for not refresh data
-		mPrefsEditor = mPrefs.edit();
+		mPrefsEditor = mApplication.getEditor();
 		mPrefsEditor.putBoolean(EpgFragment.IS_REFRESH, false);
 		mPrefsEditor.commit();
 		// for not refresh data
-		clientId = mPrefs.getInt("CLIENTID", 0);
-
 		Button btn = (Button) findViewById(R.id.a_iptv_btn_watch_remind);
 		btn.setOnClickListener(new OnClickListener() {
 
@@ -109,30 +104,32 @@ public class IPTVActivity extends FragmentActivity {
 				if (label.trim().equalsIgnoreCase("Watch")) {
 					Intent intent = new Intent();
 					intent.putExtra("VIDEOTYPE", "LIVETV");
-					intent.putExtra("URL", mChannelURL);
+					intent.putExtra(CHANNEL_URL, mChannelURL);
+					intent.putExtra("CHANNELID", mChannelId);
 					mApplication.startPlayer(intent, IPTVActivity.this);
 				} else {
 					/**
 					 * This is called to set a new notification
 					 */
-					ReqProgDetails progDtls = (ReqProgDetails) ((Button) v)
-							.getTag();
+					ProgDetails progDtls = (ProgDetails) ((Button) v).getTag();
 					// Ask our service to set an alarm for that date, this
 					// activity talks to the client that talks to the service
 
 					if (progDtls != null) {
-						scheduleClient.setAlarmForNotification(progDtls.c,
-								progDtls.progName);
+						scheduleClient.setAlarmForNotification(
+								progDtls.calendar, progDtls.progTitle,
+								mChannelId, progDtls.channelName, mChannelURL);
 						SimpleDateFormat sdf = new SimpleDateFormat(
 								"yyyy-MM-dd HH:mm", new Locale("en"));
-						String date = sdf.format(progDtls.c.getTime());
+						String date = sdf.format(progDtls.calendar.getTime());
 
 						// add to db
 						DatabaseHandler dbHandler = new DatabaseHandler(
 								IPTVActivity.this);
 						dbHandler.deleteOldReminders();
-						dbHandler.addReminder(new Reminder(progDtls.progName,
-								progDtls.c.getTimeInMillis()));
+						dbHandler.addReminder(new Reminder(progDtls.progTitle,
+								progDtls.calendar.getTimeInMillis(),
+								mChannelId, progDtls.channelName, mChannelURL));
 						Toast.makeText(IPTVActivity.this,
 								"Notification set for: " + date,
 								Toast.LENGTH_SHORT).show();
@@ -165,7 +162,7 @@ public class IPTVActivity extends FragmentActivity {
 		getMenuInflater().inflate(R.menu.nav_menu, menu);
 		MenuItem searchItem = menu.findItem(R.id.action_search);
 		searchItem.setVisible(false);
-		MenuItem refreshItem = menu.findItem(R.id.menu_btn_refresh);
+		MenuItem refreshItem = menu.findItem(R.id.action_refresh);
 		refreshItem.setVisible(true);
 		return true;
 	}
@@ -177,12 +174,12 @@ public class IPTVActivity extends FragmentActivity {
 		case android.R.id.home:
 			NavUtils.navigateUpFromSameTask(this);
 			break;
-		case R.id.menu_btn_home:
+		case R.id.action_home:
 			/* NavUtils.navigateUpFromSameTask(this); */
 			startActivity(new Intent(this, MainActivity.class));
 			break;
-		case R.id.menu_btn_refresh:
-			mPrefsEditor = mPrefs.edit();
+		case R.id.action_refresh:
+
 			mPrefsEditor.remove(ChannelsActivity.IPTV_CHANNELS_DETAILS);
 			mPrefsEditor.commit();
 			CheckCacheForChannelList();
@@ -195,7 +192,6 @@ public class IPTVActivity extends FragmentActivity {
 
 	private void CheckCacheForChannelList() {
 
-		mPrefs = this.getSharedPreferences(PREFS_FILE, Activity.MODE_PRIVATE);
 		String sChannelDtls = mPrefs.getString(
 				ChannelsActivity.IPTV_CHANNELS_DETAILS, "");
 		if (sChannelDtls.length() != 0) {
@@ -242,7 +238,7 @@ public class IPTVActivity extends FragmentActivity {
 			requiredLiveData = true;
 		}
 		if (requiredLiveData) {
-			mPrefsEditor = mPrefs.edit();
+
 			mPrefsEditor.putBoolean(EpgFragment.IS_REFRESH, true);
 			mPrefsEditor.commit();
 			GetChannelsFromServer();
@@ -273,7 +269,8 @@ public class IPTVActivity extends FragmentActivity {
 			}
 		});
 		mProgressDialog.show();
-		mOBSClient.getPlanServices(clientId + "", getPlanServicesCallBack);
+		mOBSClient.getPlanServices(mApplication.getClientId(),
+				getPlanServicesCallBack);
 
 	}
 
@@ -318,9 +315,6 @@ public class IPTVActivity extends FragmentActivity {
 				if (serviceList != null && serviceList.size() > 0) {
 
 					/** saving channel details to preferences */
-					mPrefs = IPTVActivity.this.getSharedPreferences(
-							IPTVActivity.PREFS_FILE, Activity.MODE_PRIVATE);
-					mPrefsEditor = mPrefs.edit();
 					Date date = new Date();
 					String formattedDate = Utilities.df.format(date);
 
@@ -352,8 +346,6 @@ public class IPTVActivity extends FragmentActivity {
 		LinearLayout channels = (LinearLayout) findViewById(R.id.a_iptv_ll_channels);
 		channels.removeAllViews();
 
-		SharedPreferences mPrefs = getSharedPreferences(
-				IPTVActivity.PREFS_FILE, 0);
 		final Editor editor = mPrefs.edit();
 		for (final ServiceDatum data : result) {
 
@@ -361,7 +353,7 @@ public class IPTVActivity extends FragmentActivity {
 			editor.commit();
 			imgno += 1;
 			ChannelInfo chInfo = new ChannelInfo(data.getChannelName(),
-					data.getUrl());
+					data.getUrl(), data.getServiceId());
 			final ImageButton button = new ImageButton(this);
 			LayoutParams params = new LayoutParams(Gravity.CENTER);
 			params.height = 96;
@@ -393,6 +385,7 @@ public class IPTVActivity extends FragmentActivity {
 					editor.commit();
 					// centerLockHorizontalScrollview.setCenter(v.getId()-1001);
 					mChannelURL = info.channelURL;
+					mChannelId = info.channelId;
 					mEpgPagerAdapter = new EPGFragmentPagerAdapter(
 							IPTVActivity.this.getSupportFragmentManager());
 					mViewPager.setAdapter(mEpgPagerAdapter);
@@ -415,10 +408,12 @@ public class IPTVActivity extends FragmentActivity {
 	private class ChannelInfo {
 		private String channelName;
 		private String channelURL;
+		private int channelId;
 
-		public ChannelInfo(String channelName, String channelURL) {
+		public ChannelInfo(String channelName, String channelURL, int channelId) {
 			this.channelName = channelName;
 			this.channelURL = channelURL;
+			this.channelId = channelId;
 		}
 	}
 }

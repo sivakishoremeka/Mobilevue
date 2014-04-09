@@ -14,7 +14,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 
 	private static final String DATABASE_NAME = "VueDatabase";
 
@@ -23,6 +23,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	private static final String KEY_ID = "id";
 	private static final String KEY_PROG_NAME = "program_name";
 	private static final String KEY_TIME = "time";
+	private static final String KEY_CHANNEL_ID = "channel_id";
+	private static final String KEY_CHANNEL_NAME = "channel_name";
+	private static final String KEY_URL = "url";
 
 	public DatabaseHandler(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -32,7 +35,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		String CREATE_REMINDER_TABLE = "CREATE TABLE " + TABLE_PROGRAM_REMINDER
 				+ "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-				+ KEY_PROG_NAME + " TEXT," + KEY_TIME + " INTEGER" + ")";
+				+ KEY_PROG_NAME + " TEXT," + KEY_TIME + " INTEGER,"
+				 + KEY_CHANNEL_ID + " INTEGER,"+ KEY_CHANNEL_NAME + " TEXT," + KEY_URL + " TEXT" + ")";
 		db.execSQL(CREATE_REMINDER_TABLE);
 	}
 
@@ -47,6 +51,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 		ContentValues values = new ContentValues();
 		values.put(KEY_PROG_NAME, reminder.get_prog_name());
 		values.put(KEY_TIME, reminder.get_time());
+		values.put(KEY_CHANNEL_ID,reminder.get_channel_id());
+		values.put(KEY_CHANNEL_NAME, reminder.get_channel_name());
+		values.put(KEY_URL, reminder.get_url());
 		db.insert(TABLE_PROGRAM_REMINDER, null, values);
 		db.close();
 	}
@@ -66,6 +73,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 				reminder.set_id((Integer.parseInt(cursor.getString(0))));
 				reminder.set_prog_name(cursor.getString(1));
 				reminder.set_time(cursor.getLong(2));
+				reminder.set_channel_id(cursor.getInt(3));
+				reminder.set_channel_name(cursor.getString(4));
+				reminder.set_url(cursor.getString(5));
 				reminderList.add(reminder);
 			} while (cursor.moveToNext());
 		}

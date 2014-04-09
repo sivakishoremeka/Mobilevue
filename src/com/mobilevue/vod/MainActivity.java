@@ -15,13 +15,10 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import com.mobilevue.adapter.MainMenuAdapter;
-import com.mobilevue.adapter.MyFragmentPagerAdapter;
 
 public class MainActivity extends Activity {
 
-	public final static String PREFS_FILE = "PREFS_FILE";
 	private static final String TAG = MainActivity.class.getName();
-	MyFragmentPagerAdapter mAdapter;
 	ListView listView;
 
 	@Override
@@ -58,6 +55,8 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.nav_menu, menu);
 		MenuItem searchItem = menu.findItem(R.id.action_search);
 		searchItem.setVisible(false);
+		MenuItem accountItem = menu.findItem(R.id.action_account);
+		accountItem.setVisible(true);
 		return true;
 	}
 
@@ -65,6 +64,9 @@ public class MainActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 
 		switch (item.getItemId()) {
+		case R.id.action_account:
+			startActivity(new Intent(this, MyAccountActivity.class));
+			break;
 		default:
 			break;
 		}

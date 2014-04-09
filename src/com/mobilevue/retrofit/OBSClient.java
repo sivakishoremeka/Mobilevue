@@ -8,9 +8,11 @@ import retrofit.http.Path;
 import retrofit.http.Query;
 
 import com.mobilevue.data.ActivePlanDatum;
+import com.mobilevue.data.ClientDatum;
 import com.mobilevue.data.DeviceDatum;
 import com.mobilevue.data.EPGData;
 import com.mobilevue.data.MediaDetailRes;
+import com.mobilevue.data.OrderDatum;
 import com.mobilevue.data.PlanDatum;
 import com.mobilevue.data.ServiceDatum;
 import com.mobilevue.data.TemplateDatum;
@@ -33,7 +35,10 @@ public interface OBSClient {
 	void getPageCountAndMediaDetails(@Query("filterType") String category,@Query("pageNo") String pageNo,@Query("deviceId") String deviceId,Callback<MediaDetailRes> cb);
 	@GET("/assetdetails/{mediaId}")
 	void getMediaDetails(@Path("mediaId") String mediaId,@Query("eventId") String eventId,@Query("deviceId") String deviceId,Callback<Object> cb);
-	
+	@GET("/clients/{clientId}")
+	void getClinetDetails(@Path("clientId") String clientId,Callback<ClientDatum> cb);
+	@GET("/orders/{clientId}/orders")
+	void getClinetPackageDetails(@Path("clientId") String clientId,Callback<List<OrderDatum>> cb);
 }
 
 

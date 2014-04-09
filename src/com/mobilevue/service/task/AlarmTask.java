@@ -27,12 +27,18 @@ public class AlarmTask implements Runnable{
 	// Your context to retrieve the alarm manager from
 	private final Context context;
 	private String progName;
+	private int channelId;
+	private String channelName;
+	private String url;
 
-	public AlarmTask(Context context, Calendar date,String progName) {
+	public AlarmTask(Context context, Calendar date,String progName,int channelId,String channelName,String url) {
 		this.context = context;
 		this.am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 		this.date = date;
 		this.progName = progName;
+		this.channelId = channelId;
+		this.channelName = channelName;
+		this.url = url;
 	}
 	
 	@Override
@@ -49,6 +55,9 @@ public class AlarmTask implements Runnable{
 		Intent intent = new Intent(context, NotifyService.class);
 		intent.putExtra(NotifyService.INTENT_NOTIFY, true);
 		intent.putExtra("PROG", progName);
+		intent.putExtra("CHANNELNAME", channelName);
+		intent.putExtra("URL", url);
+		intent.putExtra("CHANNELID", Integer.toString(channelId));
 		PendingIntent pendingIntent = PendingIntent.getService(context, reqcode, intent, 0);		
 		// Sets an alarm - note this alarm will be lost if the phone is turned off and on again
 		am.set(AlarmManager.RTC, date.getTimeInMillis(), pendingIntent);
