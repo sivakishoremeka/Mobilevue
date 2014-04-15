@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -168,8 +169,7 @@ public class VodMovieDetailsActivity extends Activity {
 					}
 				} else {
 					Toast.makeText(VodMovieDetailsActivity.this,
-							"Server Error  ",
-							Toast.LENGTH_LONG).show();
+							"Server Error  ", Toast.LENGTH_LONG).show();
 				}
 			}
 		}
@@ -353,5 +353,23 @@ public class VodMovieDetailsActivity extends Activity {
 			}
 
 		}
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+		if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == 4) {
+			if (mProgressDialog != null) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			mIsReqCanceled = true;
+			mExecutorService.shutdownNow();
+			this.finish();
+		} else if (keyCode == 23) {
+			View focusedView = getWindow().getCurrentFocus();
+			focusedView.performClick();
+		}
+		return super.onKeyDown(keyCode, event);
 	}
 }

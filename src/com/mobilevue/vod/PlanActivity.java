@@ -166,8 +166,11 @@ public class PlanActivity extends Activity {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+		if ((keyCode == KeyEvent.KEYCODE_BACK) || keyCode == 4) {
 			closeApp();
+		} else if (keyCode == 23) {
+			View focusedView = getWindow().getCurrentFocus();
+			focusedView.performClick();
 		}
 		return super.onKeyDown(keyCode, event);
 	}

@@ -1,0 +1,541 @@
+android.support.v4.app.BackStackState
+android.support.v4.app.BackStackState: android.os.Parcelable$Creator CREATOR
+android.support.v4.app.Fragment$SavedState
+android.support.v4.app.Fragment$SavedState: android.os.Parcelable$Creator CREATOR
+android.support.v4.app.FragmentActivity
+android.support.v4.app.FragmentActivity: FragmentActivity()
+android.support.v4.app.FragmentManagerState
+android.support.v4.app.FragmentManagerState: android.os.Parcelable$Creator CREATOR
+android.support.v4.app.FragmentState
+android.support.v4.app.FragmentState: android.os.Parcelable$Creator CREATOR
+android.support.v4.app.FragmentTabHost
+android.support.v4.app.FragmentTabHost: FragmentTabHost(android.content.Context)
+android.support.v4.app.FragmentTabHost: FragmentTabHost(android.content.Context,android.util.AttributeSet)
+android.support.v4.app.FragmentTabHost: void setup()
+android.support.v4.app.FragmentTabHost: void setup(android.content.Context,android.support.v4.app.FragmentManager)
+android.support.v4.app.FragmentTabHost: void setup(android.content.Context,android.support.v4.app.FragmentManager,int)
+android.support.v4.app.FragmentTabHost: void setOnTabChangedListener(android.widget.TabHost$OnTabChangeListener)
+android.support.v4.app.FragmentTabHost$SavedState
+android.support.v4.app.FragmentTabHost$SavedState: android.os.Parcelable$Creator CREATOR
+android.support.v4.content.FileProvider
+android.support.v4.content.ModernAsyncTask$Status: android.support.v4.content.ModernAsyncTask$Status[] values()
+android.support.v4.content.ModernAsyncTask$Status: android.support.v4.content.ModernAsyncTask$Status valueOf(java.lang.String)
+android.support.v4.content.WakefulBroadcastReceiver
+android.support.v4.view.PagerTabStrip
+android.support.v4.view.PagerTabStrip: PagerTabStrip(android.content.Context)
+android.support.v4.view.PagerTabStrip: PagerTabStrip(android.content.Context,android.util.AttributeSet)
+android.support.v4.view.PagerTabStrip: void setTabIndicatorColor(int)
+android.support.v4.view.PagerTabStrip: void setTabIndicatorColorResource(int)
+android.support.v4.view.PagerTabStrip: int getTabIndicatorColor()
+android.support.v4.view.PagerTabStrip: void setPadding(int,int,int,int)
+android.support.v4.view.PagerTabStrip: void setTextSpacing(int)
+android.support.v4.view.PagerTabStrip: void setBackgroundDrawable(android.graphics.drawable.Drawable)
+android.support.v4.view.PagerTabStrip: void setBackgroundColor(int)
+android.support.v4.view.PagerTabStrip: void setBackgroundResource(int)
+android.support.v4.view.PagerTabStrip: void setDrawFullUnderline(boolean)
+android.support.v4.view.PagerTabStrip: boolean getDrawFullUnderline()
+android.support.v4.view.PagerTabStrip: int getMinHeight()
+android.support.v4.view.PagerTitleStrip
+android.support.v4.view.PagerTitleStrip: void setSingleLineAllCaps(android.widget.TextView)
+android.support.v4.view.PagerTitleStrip: PagerTitleStrip(android.content.Context)
+android.support.v4.view.PagerTitleStrip: PagerTitleStrip(android.content.Context,android.util.AttributeSet)
+android.support.v4.view.PagerTitleStrip: void setTextSpacing(int)
+android.support.v4.view.PagerTitleStrip: int getTextSpacing()
+android.support.v4.view.PagerTitleStrip: void setNonPrimaryAlpha(float)
+android.support.v4.view.PagerTitleStrip: void setTextColor(int)
+android.support.v4.view.PagerTitleStrip: void setTextSize(int,float)
+android.support.v4.view.PagerTitleStrip: void setGravity(int)
+android.support.v4.view.PagerTitleStrip: int getMinHeight()
+android.support.v4.view.ViewPager
+android.support.v4.view.ViewPager: ViewPager(android.content.Context)
+android.support.v4.view.ViewPager: ViewPager(android.content.Context,android.util.AttributeSet)
+android.support.v4.view.ViewPager: void setScrollState(int)
+android.support.v4.view.ViewPager: void setAdapter(android.support.v4.view.PagerAdapter)
+android.support.v4.view.ViewPager: android.support.v4.view.PagerAdapter getAdapter()
+android.support.v4.view.ViewPager: void setOnAdapterChangeListener(android.support.v4.view.ViewPager$OnAdapterChangeListener)
+android.support.v4.view.ViewPager: int getClientWidth()
+android.support.v4.view.ViewPager: void setCurrentItem(int)
+android.support.v4.view.ViewPager: void setCurrentItem(int,boolean)
+android.support.v4.view.ViewPager: int getCurrentItem()
+android.support.v4.view.ViewPager: void setOnPageChangeListener(android.support.v4.view.ViewPager$OnPageChangeListener)
+android.support.v4.view.ViewPager: void setPageTransformer(boolean,android.support.v4.view.ViewPager$PageTransformer)
+android.support.v4.view.ViewPager: void setChildrenDrawingOrderEnabledCompat(boolean)
+android.support.v4.view.ViewPager: int getOffscreenPageLimit()
+android.support.v4.view.ViewPager: void setOffscreenPageLimit(int)
+android.support.v4.view.ViewPager: void setPageMargin(int)
+android.support.v4.view.ViewPager: int getPageMargin()
+android.support.v4.view.ViewPager: void setPageMarginDrawable(android.graphics.drawable.Drawable)
+android.support.v4.view.ViewPager: void setPageMarginDrawable(int)
+android.support.v4.view.ViewPager: void setScrollingCacheEnabled(boolean)
+android.support.v4.view.ViewPager$LayoutParams
+android.support.v4.view.ViewPager$LayoutParams: ViewPager$LayoutParams(android.content.Context,android.util.AttributeSet)
+android.support.v4.view.ViewPager$SavedState
+android.support.v4.view.ViewPager$SavedState: android.os.Parcelable$Creator CREATOR
+android.support.v4.widget.ContentLoadingProgressBar
+android.support.v4.widget.ContentLoadingProgressBar: ContentLoadingProgressBar(android.content.Context)
+android.support.v4.widget.ContentLoadingProgressBar: ContentLoadingProgressBar(android.content.Context,android.util.AttributeSet)
+android.support.v4.widget.DrawerLayout
+android.support.v4.widget.DrawerLayout: DrawerLayout(android.content.Context)
+android.support.v4.widget.DrawerLayout: DrawerLayout(android.content.Context,android.util.AttributeSet)
+android.support.v4.widget.DrawerLayout: DrawerLayout(android.content.Context,android.util.AttributeSet,int)
+android.support.v4.widget.DrawerLayout: void setDrawerShadow(android.graphics.drawable.Drawable,int)
+android.support.v4.widget.DrawerLayout: void setDrawerShadow(int,int)
+android.support.v4.widget.DrawerLayout: void setScrimColor(int)
+android.support.v4.widget.DrawerLayout: void setDrawerListener(android.support.v4.widget.DrawerLayout$DrawerListener)
+android.support.v4.widget.DrawerLayout: void setDrawerLockMode(int)
+android.support.v4.widget.DrawerLayout: void setDrawerLockMode(int,int)
+android.support.v4.widget.DrawerLayout: void setDrawerLockMode(int,android.view.View)
+android.support.v4.widget.DrawerLayout$LayoutParams
+android.support.v4.widget.DrawerLayout$LayoutParams: DrawerLayout$LayoutParams(android.content.Context,android.util.AttributeSet)
+android.support.v4.widget.DrawerLayout$SavedState
+android.support.v4.widget.DrawerLayout$SavedState: android.os.Parcelable$Creator CREATOR
+android.support.v4.widget.SearchViewCompatIcs$MySearchView
+android.support.v4.widget.SearchViewCompatIcs$MySearchView: SearchViewCompatIcs$MySearchView(android.content.Context)
+android.support.v4.widget.SlidingPaneLayout
+android.support.v4.widget.SlidingPaneLayout: SlidingPaneLayout(android.content.Context)
+android.support.v4.widget.SlidingPaneLayout: SlidingPaneLayout(android.content.Context,android.util.AttributeSet)
+android.support.v4.widget.SlidingPaneLayout: SlidingPaneLayout(android.content.Context,android.util.AttributeSet,int)
+android.support.v4.widget.SlidingPaneLayout: void setParallaxDistance(int)
+android.support.v4.widget.SlidingPaneLayout: int getParallaxDistance()
+android.support.v4.widget.SlidingPaneLayout: void setSliderFadeColor(int)
+android.support.v4.widget.SlidingPaneLayout: int getSliderFadeColor()
+android.support.v4.widget.SlidingPaneLayout: void setCoveredFadeColor(int)
+android.support.v4.widget.SlidingPaneLayout: int getCoveredFadeColor()
+android.support.v4.widget.SlidingPaneLayout: void setPanelSlideListener(android.support.v4.widget.SlidingPaneLayout$PanelSlideListener)
+android.support.v4.widget.SlidingPaneLayout: void setShadowDrawable(android.graphics.drawable.Drawable)
+android.support.v4.widget.SlidingPaneLayout: void setShadowResource(int)
+android.support.v4.widget.SlidingPaneLayout$LayoutParams
+android.support.v4.widget.SlidingPaneLayout$LayoutParams: SlidingPaneLayout$LayoutParams(android.content.Context,android.util.AttributeSet)
+android.support.v4.widget.SlidingPaneLayout$SavedState
+android.support.v4.widget.SlidingPaneLayout$SavedState: android.os.Parcelable$Creator CREATOR
+com.mobilevue.imagehandler.SquareImageView
+com.mobilevue.imagehandler.SquareImageView: SquareImageView(android.content.Context)
+com.mobilevue.imagehandler.SquareImageView: SquareImageView(android.content.Context,android.util.AttributeSet)
+com.mobilevue.imagehandler.SquareImageView: SquareImageView(android.content.Context,android.util.AttributeSet,int)
+com.mobilevue.receiver.BootReceiver
+com.mobilevue.receiver.BootReceiver: BootReceiver()
+com.mobilevue.service.NotifyService
+com.mobilevue.service.NotifyService: NotifyService()
+com.mobilevue.service.ScheduleAfterBootService
+com.mobilevue.service.ScheduleAfterBootService: ScheduleAfterBootService()
+com.mobilevue.service.ScheduleService
+com.mobilevue.service.ScheduleService: ScheduleService()
+com.mobilevue.utils.SquareImageView
+com.mobilevue.utils.SquareImageView: SquareImageView(android.content.Context)
+com.mobilevue.utils.SquareImageView: SquareImageView(android.content.Context,android.util.AttributeSet)
+com.mobilevue.utils.SquareImageView: SquareImageView(android.content.Context,android.util.AttributeSet,int)
+com.mobilevue.vod.AuthenticationAcitivity
+com.mobilevue.vod.AuthenticationAcitivity: AuthenticationAcitivity()
+com.mobilevue.vod.ChannelsActivity
+com.mobilevue.vod.ChannelsActivity: ChannelsActivity()
+com.mobilevue.vod.IPTVActivity
+com.mobilevue.vod.IPTVActivity: IPTVActivity()
+com.mobilevue.vod.MainActivity
+com.mobilevue.vod.MainActivity: MainActivity()
+com.mobilevue.vod.MyApplication
+com.mobilevue.vod.MyApplication: MyApplication()
+com.mobilevue.vod.NetworkCheckActivity
+com.mobilevue.vod.NetworkCheckActivity: NetworkCheckActivity()
+com.mobilevue.vod.PlanActivity
+com.mobilevue.vod.PlanActivity: PlanActivity()
+com.mobilevue.vod.PlanActivity: void btnSubmit_onClick(android.view.View)
+com.mobilevue.vod.PlanActivity: void btnCancel_onClick(android.view.View)
+com.mobilevue.vod.R$anim: int zoom_selection
+com.mobilevue.vod.R$array: int arrLangauges
+com.mobilevue.vod.R$array: int arrMenu
+com.mobilevue.vod.R$array: int arrMenuImageNames
+com.mobilevue.vod.R$array: int arrMovCategNames
+com.mobilevue.vod.R$array: int arrMovCategValues
+com.mobilevue.vod.R$color: int dark_pink
+com.mobilevue.vod.R$color: int form_header
+com.mobilevue.vod.R$color: int orange
+com.mobilevue.vod.R$color: int pink
+com.mobilevue.vod.R$color: int white
+com.mobilevue.vod.R$dimen: int activity_horizontal_margin
+com.mobilevue.vod.R$drawable: int apptheme_activated_background_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_btn_radio_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_btn_radio_off_disabled_focused_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_btn_radio_off_disabled_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_btn_radio_off_focused_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_btn_radio_off_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_btn_radio_off_pressed_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_btn_radio_on_disabled_focused_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_btn_radio_on_disabled_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_btn_radio_on_focused_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_btn_radio_on_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_btn_radio_on_pressed_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_item_background_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_list_activated_holo
+com.mobilevue.vod.R$drawable: int apptheme_list_focused_holo
+com.mobilevue.vod.R$drawable: int apptheme_list_longpressed_holo
+com.mobilevue.vod.R$drawable: int apptheme_list_pressed_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_list_selector_background_transition_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_list_selector_disabled_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_list_selector_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_rate_star_big_half_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_rate_star_big_off_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_rate_star_big_on_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_rate_star_small_half_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_rate_star_small_off_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_rate_star_small_on_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_rate_star_vsmall_half_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_rate_star_vsmall_off_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_rate_star_vsmall_on_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_ratingbar_big_holo_light
+com.mobilevue.vod.R$drawable: int apptheme_ratingbar_small_holo_light
+com.mobilevue.vod.R$drawable: int default_img
+com.mobilevue.vod.R$drawable: int gv_img_selector
+com.mobilevue.vod.R$drawable: int ic_action_account_icon
+com.mobilevue.vod.R$drawable: int ic_action_guide_icon
+com.mobilevue.vod.R$drawable: int ic_action_home_icon
+com.mobilevue.vod.R$drawable: int ic_action_live_tv_icon
+com.mobilevue.vod.R$drawable: int ic_action_refresh
+com.mobilevue.vod.R$drawable: int ic_action_settings_icon
+com.mobilevue.vod.R$drawable: int ic_action_vod_icon
+com.mobilevue.vod.R$drawable: int ic_action_wish_list_icon
+com.mobilevue.vod.R$drawable: int ic_av_pause_over_video
+com.mobilevue.vod.R$drawable: int ic_av_play_over_video
+com.mobilevue.vod.R$drawable: int ic_default_ch
+com.mobilevue.vod.R$drawable: int ic_launcher
+com.mobilevue.vod.R$drawable: int ic_logo
+com.mobilevue.vod.R$drawable: int ic_logo_confirm_dialog
+com.mobilevue.vod.R$drawable: int ic_media_pause
+com.mobilevue.vod.R$drawable: int ic_media_play
+com.mobilevue.vod.R$drawable: int ic_stat_navigation_refresh
+com.mobilevue.vod.R$drawable: int img_bg_reg_forum
+com.mobilevue.vod.R$drawable: int img_btn_cancel
+com.mobilevue.vod.R$drawable: int img_btn_cancel_pressed
+com.mobilevue.vod.R$drawable: int img_btn_submit
+com.mobilevue.vod.R$drawable: int img_btn_submit_pressed
+com.mobilevue.vod.R$drawable: int img_btn_vod_first
+com.mobilevue.vod.R$drawable: int img_btn_vod_first_pressed
+com.mobilevue.vod.R$drawable: int img_btn_vod_last
+com.mobilevue.vod.R$drawable: int img_btn_vod_last_pressed
+com.mobilevue.vod.R$drawable: int img_et_reg
+com.mobilevue.vod.R$drawable: int img_film_clap
+com.mobilevue.vod.R$drawable: int img_hover
+com.mobilevue.vod.R$drawable: int img_menu_about
+com.mobilevue.vod.R$drawable: int img_menu_contact
+com.mobilevue.vod.R$drawable: int img_menu_games
+com.mobilevue.vod.R$drawable: int img_menu_games_sel
+com.mobilevue.vod.R$drawable: int img_menu_help
+com.mobilevue.vod.R$drawable: int img_menu_live_tv
+com.mobilevue.vod.R$drawable: int img_menu_live_tv_sel
+com.mobilevue.vod.R$drawable: int img_menu_music
+com.mobilevue.vod.R$drawable: int img_menu_music_sel
+com.mobilevue.vod.R$drawable: int img_menu_vod
+com.mobilevue.vod.R$drawable: int img_menu_vod_sel
+com.mobilevue.vod.R$drawable: int line
+com.mobilevue.vod.R$drawable: int selector_btn_cancel
+com.mobilevue.vod.R$drawable: int selector_btn_first
+com.mobilevue.vod.R$drawable: int selector_btn_last
+com.mobilevue.vod.R$drawable: int selector_btn_submit
+com.mobilevue.vod.R$drawable: int selector_epg_frg_lv_row
+com.mobilevue.vod.R$drawable: int selector_epg_frg_lv_row_text
+com.mobilevue.vod.R$drawable: int selector_vod_lv_categ_row
+com.mobilevue.vod.R$drawable: int selector_vod_lv_categ_row_text
+com.mobilevue.vod.R$drawable: int selector_vod_mov_dtls_btn_hd
+com.mobilevue.vod.R$drawable: int selector_vod_mov_dtls_btn_hdx
+com.mobilevue.vod.R$drawable: int shape_current_page_btn_bg
+com.mobilevue.vod.R$drawable: int shape_gv_item_bg
+com.mobilevue.vod.R$drawable: int shape_mov_details_btn_hd
+com.mobilevue.vod.R$drawable: int shape_mov_details_btn_hd_pressed
+com.mobilevue.vod.R$drawable: int shape_mov_details_btn_hdx
+com.mobilevue.vod.R$drawable: int shape_mov_details_btn_hdx_pressed
+com.mobilevue.vod.R$drawable: int shape_mov_details_layout_bg
+com.mobilevue.vod.R$drawable: int shape_ratingbar_item_bg
+com.mobilevue.vod.R$id: int InfoText
+com.mobilevue.vod.R$id: int a_ch_iv_btm_line
+com.mobilevue.vod.R$id: int a_ch_iv_lf_line
+com.mobilevue.vod.R$id: int a_ch_iv_rgt_line
+com.mobilevue.vod.R$id: int a_ch_tv_channels
+com.mobilevue.vod.R$id: int a_exlv_plans_services
+com.mobilevue.vod.R$id: int a_gv_channels
+com.mobilevue.vod.R$id: int a_iptv_btn_watch_remind
+com.mobilevue.vod.R$id: int a_iptv_hsv_channels
+com.mobilevue.vod.R$id: int a_iptv_iv_btm_line
+com.mobilevue.vod.R$id: int a_iptv_iv_btm_line2
+com.mobilevue.vod.R$id: int a_iptv_ll_center_layout
+com.mobilevue.vod.R$id: int a_iptv_ll_channels
+com.mobilevue.vod.R$id: int a_iptv_pager
+com.mobilevue.vod.R$id: int a_iptv_rl_root_layout
+com.mobilevue.vod.R$id: int a_iptv_tv_Prog_name
+com.mobilevue.vod.R$id: int a_iptv_tv_ch_name
+com.mobilevue.vod.R$id: int a_iptv_tv_iptv_channels
+com.mobilevue.vod.R$id: int a_iptv_tv_pager_title_strip
+com.mobilevue.vod.R$id: int a_iptv_tv_prog_desc
+com.mobilevue.vod.R$id: int a_iptv_tv_prog_end_time
+com.mobilevue.vod.R$id: int a_iptv_tv_prog_start_time
+com.mobilevue.vod.R$id: int a_main_llayout_border
+com.mobilevue.vod.R$id: int a_main_lv_menu
+com.mobilevue.vod.R$id: int a_main_tv_home
+com.mobilevue.vod.R$id: int a_nk_chk_headerLabel
+com.mobilevue.vod.R$id: int a_nk_chk_headerLineLayout
+com.mobilevue.vod.R$id: int a_nk_chk_img
+com.mobilevue.vod.R$id: int a_nk_chk_ll
+com.mobilevue.vod.R$id: int a_plan_btn_cancel
+com.mobilevue.vod.R$id: int a_plan_btn_submit
+com.mobilevue.vod.R$id: int a_plan_linlayout
+com.mobilevue.vod.R$id: int a_plan_tv_selpkg
+com.mobilevue.vod.R$id: int a_reg_btn_cancel
+com.mobilevue.vod.R$id: int a_reg_btn_submit
+com.mobilevue.vod.R$id: int a_reg_et_email_id
+com.mobilevue.vod.R$id: int a_reg_et_first_name
+com.mobilevue.vod.R$id: int a_reg_et_last_name
+com.mobilevue.vod.R$id: int a_reg_et_mobile_no
+com.mobilevue.vod.R$id: int a_reg_iv_img_acc
+com.mobilevue.vod.R$id: int a_reg_tv_note
+com.mobilevue.vod.R$id: int a_reg_tv_user_reg
+com.mobilevue.vod.R$id: int a_video_ll_channels
+com.mobilevue.vod.R$id: int a_vod_btn_first
+com.mobilevue.vod.R$id: int a_vod_btn_last
+com.mobilevue.vod.R$id: int a_vod_btn_pgno
+com.mobilevue.vod.R$id: int a_vod_llayout_category
+com.mobilevue.vod.R$id: int a_vod_lv_category
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_btn_layout1
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_btn_layout2
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_btn_own_hd
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_btn_own_hdx
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_btn_own_sd
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_btn_own_sd_invisible
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_btn_rent_hd
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_btn_rent_hdx
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_btn_rent_sd
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_btn_rent_sd_invisible
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_header
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_iv_mov_img
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_rating_bar
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_rl1
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_rl2
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_rl3
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_rl4
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_root_layout
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_tv_cast_title
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_tv_cast_value
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_tv_descr
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_tv_descr_value
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_tv_durn_title
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_tv_durn_value
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_tv_lang_title
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_tv_lang_value
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_tv_mov_dtls
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_tv_mov_title
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_tv_own
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_tv_release_title
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_tv_release_value
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_tv_rent
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_videoSurface
+com.mobilevue.vod.R$id: int a_vod_mov_dtls_video_container
+com.mobilevue.vod.R$id: int a_vod_pager
+com.mobilevue.vod.R$id: int action_search
+com.mobilevue.vod.R$id: int cancelBtn
+com.mobilevue.vod.R$id: int ch_gv_item_img
+com.mobilevue.vod.R$id: int epg_details_list_row_new_tv_prog_title
+com.mobilevue.vod.R$id: int epg_details_list_row_new_tv_start_time
+com.mobilevue.vod.R$id: int f_category_gv_movies
+com.mobilevue.vod.R$id: int ffwd
+com.mobilevue.vod.R$id: int fr_epg_lv_epg_dtls
+com.mobilevue.vod.R$id: int imageView
+com.mobilevue.vod.R$id: int imageView1
+com.mobilevue.vod.R$id: int ll_desc
+com.mobilevue.vod.R$id: int loginFormBody
+com.mobilevue.vod.R$id: int loginFormBottomButtons
+com.mobilevue.vod.R$id: int loginHeader
+com.mobilevue.vod.R$id: int main_menu_list_row_iv_menu_image
+com.mobilevue.vod.R$id: int main_menu_list_row_tv_menu_name
+com.mobilevue.vod.R$id: int mediacontroller_progress
+com.mobilevue.vod.R$id: int menu_btn_home
+com.mobilevue.vod.R$id: int menu_btn_refresh
+com.mobilevue.vod.R$id: int next
+com.mobilevue.vod.R$id: int okBtn
+com.mobilevue.vod.R$id: int pause
+com.mobilevue.vod.R$id: int plan_list_item_tv
+com.mobilevue.vod.R$id: int plan_list_plan_rb
+com.mobilevue.vod.R$id: int plan_list_plan_tv
+com.mobilevue.vod.R$id: int prev
+com.mobilevue.vod.R$id: int progressBar
+com.mobilevue.vod.R$id: int rew
+com.mobilevue.vod.R$id: int textView1
+com.mobilevue.vod.R$id: int time
+com.mobilevue.vod.R$id: int time_current
+com.mobilevue.vod.R$id: int videoSurface
+com.mobilevue.vod.R$id: int video_container
+com.mobilevue.vod.R$id: int vod_categ_list_row_tv_name
+com.mobilevue.vod.R$id: int vod_gv_item_img
+com.mobilevue.vod.R$id: int vod_gv_item_rating_bar
+com.mobilevue.vod.R$layout: int activity_authentication
+com.mobilevue.vod.R$layout: int activity_channels
+com.mobilevue.vod.R$layout: int activity_iptv
+com.mobilevue.vod.R$layout: int activity_main
+com.mobilevue.vod.R$layout: int activity_network_check
+com.mobilevue.vod.R$layout: int activity_plan
+com.mobilevue.vod.R$layout: int activity_register
+com.mobilevue.vod.R$layout: int activity_video_player
+com.mobilevue.vod.R$layout: int activity_vod
+com.mobilevue.vod.R$layout: int activity_vod_mov_details
+com.mobilevue.vod.R$layout: int ch_gridview_item
+com.mobilevue.vod.R$layout: int fragment_category
+com.mobilevue.vod.R$layout: int fragment_epg
+com.mobilevue.vod.R$layout: int fragment_epg_details_list_row
+com.mobilevue.vod.R$layout: int header_gradient
+com.mobilevue.vod.R$layout: int main_menu_list_row
+com.mobilevue.vod.R$layout: int media_controller
+com.mobilevue.vod.R$layout: int media_controller_live_tv
+com.mobilevue.vod.R$layout: int media_controller_live_tv_new
+com.mobilevue.vod.R$layout: int plan_list_group
+com.mobilevue.vod.R$layout: int plan_list_item
+com.mobilevue.vod.R$layout: int vod_categ_list_row
+com.mobilevue.vod.R$layout: int vod_gridview_item
+com.mobilevue.vod.R$menu: int menu
+com.mobilevue.vod.R$menu: int nav_menu
+com.mobilevue.vod.R$string: int action_account
+com.mobilevue.vod.R$string: int action_bar_search
+com.mobilevue.vod.R$string: int action_guide
+com.mobilevue.vod.R$string: int action_home
+com.mobilevue.vod.R$string: int action_live_tv
+com.mobilevue.vod.R$string: int action_refresh
+com.mobilevue.vod.R$string: int action_settings
+com.mobilevue.vod.R$string: int action_vod
+com.mobilevue.vod.R$string: int action_wish_list
+com.mobilevue.vod.R$string: int app_name
+com.mobilevue.vod.R$string: int cast_crew
+com.mobilevue.vod.R$string: int crash_toast_text
+com.mobilevue.vod.R$string: int description
+com.mobilevue.vod.R$string: int duration
+com.mobilevue.vod.R$string: int email_id
+com.mobilevue.vod.R$string: int first_name
+com.mobilevue.vod.R$string: int header_title
+com.mobilevue.vod.R$string: int home
+com.mobilevue.vod.R$string: int language
+com.mobilevue.vod.R$string: int last_name
+com.mobilevue.vod.R$string: int live_tv
+com.mobilevue.vod.R$string: int mobile_no
+com.mobilevue.vod.R$string: int movie_descr
+com.mobilevue.vod.R$string: int movie_details
+com.mobilevue.vod.R$string: int own_buy
+com.mobilevue.vod.R$string: int reg_acc
+com.mobilevue.vod.R$string: int reg_note
+com.mobilevue.vod.R$string: int release
+com.mobilevue.vod.R$string: int remind_me
+com.mobilevue.vod.R$string: int rental
+com.mobilevue.vod.R$string: int sel_country
+com.mobilevue.vod.R$string: int sel_pkg
+com.mobilevue.vod.R$string: int server_Authorization_base64
+com.mobilevue.vod.R$string: int server_Authorization_base64_s
+com.mobilevue.vod.R$string: int server_url
+com.mobilevue.vod.R$string: int server_url_p
+com.mobilevue.vod.R$string: int server_url_q
+com.mobilevue.vod.R$string: int server_url_s
+com.mobilevue.vod.R$string: int user_name
+com.mobilevue.vod.R$string: int user_reg
+com.mobilevue.vod.R$string: int vod
+com.mobilevue.vod.R$string: int watch
+com.mobilevue.vod.R$style: int AppBaseTheme
+com.mobilevue.vod.R$style: int AppTheme
+com.mobilevue.vod.R$style: int ListViewAppTheme
+com.mobilevue.vod.R$style: int ListViewAppTheme_White
+com.mobilevue.vod.R$style: int RadioButtonAppTheme
+com.mobilevue.vod.R$style: int RatingBarBigAppTheme
+com.mobilevue.vod.R$style: int RatingBarSmallAppTheme
+com.mobilevue.vod.R$style: int SpinnerItemAppTheme
+com.mobilevue.vod.R$style: int header_title_style
+com.mobilevue.vod.RegisterActivity
+com.mobilevue.vod.RegisterActivity: RegisterActivity()
+com.mobilevue.vod.RegisterActivity: void btnSubmit_onClick(android.view.View)
+com.mobilevue.vod.RegisterActivity: void btnCancel_onClick(android.view.View)
+com.mobilevue.vod.VideoControllerView
+com.mobilevue.vod.VideoControllerView: VideoControllerView(android.content.Context,android.util.AttributeSet)
+com.mobilevue.vod.VideoControllerView: VideoControllerView(android.content.Context)
+com.mobilevue.vod.VideoControllerView: void setMediaPlayer(com.mobilevue.vod.VideoControllerView$MediaPlayerControl)
+com.mobilevue.vod.VideoControllerView: void setAnchorView(android.view.ViewGroup)
+com.mobilevue.vod.VideoControllerView: void setEnabled(boolean)
+com.mobilevue.vod.VideoControllerView: void setPrevNextListeners(android.view.View$OnClickListener,android.view.View$OnClickListener)
+com.mobilevue.vod.VideoPlayerActivity
+com.mobilevue.vod.VideoPlayerActivity: VideoPlayerActivity()
+com.mobilevue.vod.VodActivity
+com.mobilevue.vod.VodActivity: VodActivity()
+com.mobilevue.vod.VodMovieDetailsActivity
+com.mobilevue.vod.VodMovieDetailsActivity: VodMovieDetailsActivity()
+com.mobilevue.vod.VodMovieDetailsActivity: void btnOnClick(android.view.View)
+com.nostra13.universalimageloader.core.assist.FailReason$FailType: com.nostra13.universalimageloader.core.assist.FailReason$FailType[] values()
+com.nostra13.universalimageloader.core.assist.FailReason$FailType: com.nostra13.universalimageloader.core.assist.FailReason$FailType valueOf(java.lang.String)
+com.nostra13.universalimageloader.core.assist.ImageScaleType: com.nostra13.universalimageloader.core.assist.ImageScaleType[] values()
+com.nostra13.universalimageloader.core.assist.ImageScaleType: com.nostra13.universalimageloader.core.assist.ImageScaleType valueOf(java.lang.String)
+com.nostra13.universalimageloader.core.assist.LoadedFrom: com.nostra13.universalimageloader.core.assist.LoadedFrom[] values()
+com.nostra13.universalimageloader.core.assist.LoadedFrom: com.nostra13.universalimageloader.core.assist.LoadedFrom valueOf(java.lang.String)
+com.nostra13.universalimageloader.core.assist.QueueProcessingType: com.nostra13.universalimageloader.core.assist.QueueProcessingType[] values()
+com.nostra13.universalimageloader.core.assist.QueueProcessingType: com.nostra13.universalimageloader.core.assist.QueueProcessingType valueOf(java.lang.String)
+com.nostra13.universalimageloader.core.assist.ViewScaleType: com.nostra13.universalimageloader.core.assist.ViewScaleType[] values()
+com.nostra13.universalimageloader.core.assist.ViewScaleType: com.nostra13.universalimageloader.core.assist.ViewScaleType valueOf(java.lang.String)
+com.nostra13.universalimageloader.core.assist.deque.LIFOLinkedBlockingDeque: long serialVersionUID
+com.nostra13.universalimageloader.core.assist.deque.LinkedBlockingDeque: long serialVersionUID
+com.nostra13.universalimageloader.core.assist.deque.LinkedBlockingDeque: void writeObject(java.io.ObjectOutputStream)
+com.nostra13.universalimageloader.core.assist.deque.LinkedBlockingDeque: void readObject(java.io.ObjectInputStream)
+com.nostra13.universalimageloader.core.download.ImageDownloader$Scheme: com.nostra13.universalimageloader.core.download.ImageDownloader$Scheme[] values()
+com.nostra13.universalimageloader.core.download.ImageDownloader$Scheme: com.nostra13.universalimageloader.core.download.ImageDownloader$Scheme valueOf(java.lang.String)
+org.acra.ACRAConfigurationException: long serialVersionUID
+org.acra.CrashReportDialog
+org.acra.ReportField: org.acra.ReportField[] values()
+org.acra.ReportField: org.acra.ReportField valueOf(java.lang.String)
+org.acra.ReportingInteractionMode: org.acra.ReportingInteractionMode[] values()
+org.acra.ReportingInteractionMode: org.acra.ReportingInteractionMode valueOf(java.lang.String)
+org.acra.collector.CrashReportData: long serialVersionUID
+org.acra.collector.MediaCodecListCollector$CodecType: org.acra.collector.MediaCodecListCollector$CodecType[] values()
+org.acra.collector.MediaCodecListCollector$CodecType: org.acra.collector.MediaCodecListCollector$CodecType valueOf(java.lang.String)
+org.acra.sender.HttpSender$Method: org.acra.sender.HttpSender$Method[] values()
+org.acra.sender.HttpSender$Method: org.acra.sender.HttpSender$Method valueOf(java.lang.String)
+org.acra.sender.HttpSender$Type: org.acra.sender.HttpSender$Type[] values()
+org.acra.sender.HttpSender$Type: org.acra.sender.HttpSender$Type valueOf(java.lang.String)
+org.acra.util.JSONReportBuilder$JSONReportException: long serialVersionUID
+org.codehaus.jackson.JsonEncoding: org.codehaus.jackson.JsonEncoding[] values()
+org.codehaus.jackson.JsonEncoding: org.codehaus.jackson.JsonEncoding valueOf(java.lang.String)
+org.codehaus.jackson.JsonGenerationException: long serialVersionUID
+org.codehaus.jackson.JsonGenerator$Feature: org.codehaus.jackson.JsonGenerator$Feature[] values()
+org.codehaus.jackson.JsonGenerator$Feature: org.codehaus.jackson.JsonGenerator$Feature valueOf(java.lang.String)
+org.codehaus.jackson.JsonLocation: long serialVersionUID
+org.codehaus.jackson.JsonParseException: long serialVersionUID
+org.codehaus.jackson.JsonParser$Feature: org.codehaus.jackson.JsonParser$Feature[] values()
+org.codehaus.jackson.JsonParser$Feature: org.codehaus.jackson.JsonParser$Feature valueOf(java.lang.String)
+org.codehaus.jackson.JsonParser$NumberType: org.codehaus.jackson.JsonParser$NumberType[] values()
+org.codehaus.jackson.JsonParser$NumberType: org.codehaus.jackson.JsonParser$NumberType valueOf(java.lang.String)
+org.codehaus.jackson.JsonProcessingException: long serialVersionUID
+org.codehaus.jackson.JsonToken: org.codehaus.jackson.JsonToken[] values()
+org.codehaus.jackson.JsonToken: org.codehaus.jackson.JsonToken valueOf(java.lang.String)
+org.codehaus.jackson.annotate.JsonAutoDetect$Visibility: org.codehaus.jackson.annotate.JsonAutoDetect$Visibility[] values()
+org.codehaus.jackson.annotate.JsonAutoDetect$Visibility: org.codehaus.jackson.annotate.JsonAutoDetect$Visibility valueOf(java.lang.String)
+org.codehaus.jackson.annotate.JsonMethod: org.codehaus.jackson.annotate.JsonMethod[] values()
+org.codehaus.jackson.annotate.JsonMethod: org.codehaus.jackson.annotate.JsonMethod valueOf(java.lang.String)
+org.codehaus.jackson.annotate.JsonTypeInfo$As: org.codehaus.jackson.annotate.JsonTypeInfo$As[] values()
+org.codehaus.jackson.annotate.JsonTypeInfo$As: org.codehaus.jackson.annotate.JsonTypeInfo$As valueOf(java.lang.String)
+org.codehaus.jackson.annotate.JsonTypeInfo$Id: org.codehaus.jackson.annotate.JsonTypeInfo$Id[] values()
+org.codehaus.jackson.annotate.JsonTypeInfo$Id: org.codehaus.jackson.annotate.JsonTypeInfo$Id valueOf(java.lang.String)
+org.codehaus.jackson.format.MatchStrength: org.codehaus.jackson.format.MatchStrength[] values()
+org.codehaus.jackson.format.MatchStrength: org.codehaus.jackson.format.MatchStrength valueOf(java.lang.String)
+org.codehaus.jackson.jaxrs.Annotations: org.codehaus.jackson.jaxrs.Annotations[] values()
+org.codehaus.jackson.jaxrs.Annotations: org.codehaus.jackson.jaxrs.Annotations valueOf(java.lang.String)
+org.codehaus.jackson.map.AnnotationIntrospector$ReferenceProperty$Type: org.codehaus.jackson.map.AnnotationIntrospector$ReferenceProperty$Type[] values()
+org.codehaus.jackson.map.AnnotationIntrospector$ReferenceProperty$Type: org.codehaus.jackson.map.AnnotationIntrospector$ReferenceProperty$Type valueOf(java.lang.String)
+org.codehaus.jackson.map.DeserializationConfig$Feature: org.codehaus.jackson.map.DeserializationConfig$Feature[] values()
+org.codehaus.jackson.map.DeserializationConfig$Feature: org.codehaus.jackson.map.DeserializationConfig$Feature valueOf(java.lang.String)
+org.codehaus.jackson.map.JsonMappingException: long serialVersionUID
+org.codehaus.jackson.map.JsonMappingException$Reference: long serialVersionUID
+org.codehaus.jackson.map.ObjectMapper$DefaultTyping: org.codehaus.jackson.map.ObjectMapper$DefaultTyping[] values()
+org.codehaus.jackson.map.ObjectMapper$DefaultTyping: org.codehaus.jackson.map.ObjectMapper$DefaultTyping valueOf(java.lang.String)
+org.codehaus.jackson.map.SerializationConfig$Feature: org.codehaus.jackson.map.SerializationConfig$Feature[] values()
+org.codehaus.jackson.map.SerializationConfig$Feature: org.codehaus.jackson.map.SerializationConfig$Feature valueOf(java.lang.String)
+org.codehaus.jackson.map.annotate.JsonSerialize$Inclusion: org.codehaus.jackson.map.annotate.JsonSerialize$Inclusion[] values()
+org.codehaus.jackson.map.annotate.JsonSerialize$Inclusion: org.codehaus.jackson.map.annotate.JsonSerialize$Inclusion valueOf(java.lang.String)
+org.codehaus.jackson.map.annotate.JsonSerialize$Typing: org.codehaus.jackson.map.annotate.JsonSerialize$Typing[] values()
+org.codehaus.jackson.map.annotate.JsonSerialize$Typing: org.codehaus.jackson.map.annotate.JsonSerialize$Typing valueOf(java.lang.String)
+org.codehaus.jackson.map.exc.UnrecognizedPropertyException: long serialVersionUID
+org.codehaus.jackson.map.util.ISO8601DateFormat: long serialVersionUID
+org.codehaus.jackson.mrbean.AbstractTypeMaterializer$Feature: org.codehaus.jackson.mrbean.AbstractTypeMaterializer$Feature[] values()
+org.codehaus.jackson.mrbean.AbstractTypeMaterializer$Feature: org.codehaus.jackson.mrbean.AbstractTypeMaterializer$Feature valueOf(java.lang.String)
+org.codehaus.jackson.smile.SmileGenerator$Feature: org.codehaus.jackson.smile.SmileGenerator$Feature[] values()
+org.codehaus.jackson.smile.SmileGenerator$Feature: org.codehaus.jackson.smile.SmileGenerator$Feature valueOf(java.lang.String)
+org.codehaus.jackson.smile.SmileParser$Feature: org.codehaus.jackson.smile.SmileParser$Feature[] values()
+org.codehaus.jackson.smile.SmileParser$Feature: org.codehaus.jackson.smile.SmileParser$Feature valueOf(java.lang.String)
+org.codehaus.jackson.util.BufferRecycler$ByteBufferType: org.codehaus.jackson.util.BufferRecycler$ByteBufferType[] values()
+org.codehaus.jackson.util.BufferRecycler$ByteBufferType: org.codehaus.jackson.util.BufferRecycler$ByteBufferType valueOf(java.lang.String)
+org.codehaus.jackson.util.BufferRecycler$CharBufferType: org.codehaus.jackson.util.BufferRecycler$CharBufferType[] values()
+org.codehaus.jackson.util.BufferRecycler$CharBufferType: org.codehaus.jackson.util.BufferRecycler$CharBufferType valueOf(java.lang.String)

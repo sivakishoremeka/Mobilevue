@@ -13,6 +13,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -117,7 +118,8 @@ public class AuthenticationAcitivity extends Activity {
 			if (!mIsReqCanceled) {
 				if (device != null) {
 					/** on success save client id and check for active plans */
-					mApplication.setClientId(Long.toString(device.getClientId()));
+					mApplication
+							.setClientId(Long.toString(device.getClientId()));
 					mOBSClient.getActivePlans(mApplication.getClientId(),
 							activePlansCallBack);
 				} else {
@@ -131,7 +133,7 @@ public class AuthenticationAcitivity extends Activity {
 		@Override
 		public void failure(RetrofitError retrofitError) {
 			if (!mIsReqCanceled) {
-				mIsFailed =true;
+				mIsFailed = true;
 				if (mProgressBar.isShown()) {
 					mProgressBar.setVisibility(View.INVISIBLE);
 				}
@@ -161,31 +163,39 @@ public class AuthenticationAcitivity extends Activity {
 		}
 	};
 
-	public void  Refresh_OnClick(View v){
+	public void Refresh_OnClick(View v) {
+		mBtnRefresh.setVisibility(View.INVISIBLE);
 		validateDevice();
 	}
+
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			if(mIsFailed){
+		if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == 4) {
+			Log.d("keyCode", keyCode + "");
+			if (mIsFailed) {
 				AuthenticationAcitivity.this.finish();
-			}else{
-			AlertDialog mConfirmDialog = mApplication.getConfirmDialog(this);
-			mConfirmDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
-					new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							if (mProgressBar.isShown()) {
-								mProgressBar.setVisibility(View.INVISIBLE);
+			} else {
+				AlertDialog mConfirmDialog = mApplication
+						.getConfirmDialog(this);
+				mConfirmDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								if (mProgressBar.isShown()) {
+									mProgressBar.setVisibility(View.INVISIBLE);
+								}
+								mIsReqCanceled = true;
+								mExecutorService.shutdownNow();
+								AuthenticationAcitivity.this.finish();
 							}
-							mIsReqCanceled = true;
-							mExecutorService.shutdownNow();
-							AuthenticationAcitivity.this.finish();
-						}
-					});
-			mConfirmDialog.show();
+						});
+				mConfirmDialog.show();
 			}
+		} else if (keyCode == 23) {
+			View focusedView = getWindow().getCurrentFocus();
+			focusedView.performClick();
 		}
 		return super.onKeyDown(keyCode, event);
 	}

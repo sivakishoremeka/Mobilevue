@@ -93,10 +93,14 @@
                 android:layout_marginTop="9dp"
                 android:background="@drawable/selector_vod_mov_dtls_btn_hd"
                 android:gravity="center"
+                android:nextFocusDown="@+id/a_iptv_ch_btn1"
+                android:nextFocusRight="@+id/a_iptv_pager"
                 android:text="@string/watch"
                 android:textColor="#FFFFFF"
                 android:textSize="25sp"
-                android:textStyle="bold" />
+                android:textStyle="bold" >
+                <requestFocus />
+            </Button>
         </LinearLayout>
 
         <View
@@ -119,6 +123,7 @@
                 android:layout_height="33dp"
                 android:layout_gravity="top"
                 android:background="#66FF7c00"
+                 android:nextFocusLeft="@+id/a_iptv_btn_watch_remind"
                 android:textColor="#fff"
                 android:textSize="25sp" >
             </android.support.v4.view.PagerTitleStrip>
@@ -143,6 +148,8 @@
             android:id="@+id/a_iptv_ll_channels"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:nextFocusLeft="@+id/a_iptv_btn_watch_remind"
+            android:nextFocusUp="@+id/a_iptv_btn_watch_remind"
             android:orientation="horizontal" >
         </LinearLayout>
     </HorizontalScrollView>

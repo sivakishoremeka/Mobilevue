@@ -27,6 +27,7 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -53,7 +54,7 @@ public class ChannelsActivity extends Activity {
 	private Editor mPrefsEditor;
 	GridView gridView;
 	ChannelGridViewAdapter adapter;
-	List<ServiceDatum> mServiceList = new ArrayList<ServiceDatum>();
+	ArrayList<ServiceDatum> mServiceList = new ArrayList<ServiceDatum>();
 
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
@@ -143,7 +144,7 @@ public class ChannelsActivity extends Activity {
 				getPlanServicesCallBack);
 	}
 
-	final Callback<List<ServiceDatum>> getPlanServicesCallBack = new Callback<List<ServiceDatum>>() {
+	final Callback<ArrayList<ServiceDatum>> getPlanServicesCallBack = new Callback<ArrayList<ServiceDatum>>() {
 		@Override
 		public void failure(RetrofitError retrofitError) {
 			if (!mIsReqCanceled) {
@@ -178,7 +179,8 @@ public class ChannelsActivity extends Activity {
 		}
 
 		@Override
-		public void success(List<ServiceDatum> serviceList, Response response) {
+		public void success(ArrayList<ServiceDatum> serviceList,
+				Response response) {
 			if (!mIsReqCanceled) {
 
 				Log.d(TAG, "success");
@@ -306,6 +308,24 @@ public class ChannelsActivity extends Activity {
 		}.getType();
 		List<ServiceDatum> serviceList = new Gson().fromJson(json, t);
 		return serviceList;
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+		if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == 4) {
+			if (mProgressDialog != null) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			mIsReqCanceled = true;
+			mExecutorService.shutdownNow();
+			this.finish();
+		} else if (keyCode == 23) {
+			View focusedView = getWindow().getCurrentFocus();
+			focusedView.performClick();
+		}
+		return super.onKeyDown(keyCode, event);
 	}
 
 	private void updateChannels(final List<ServiceDatum> list) {

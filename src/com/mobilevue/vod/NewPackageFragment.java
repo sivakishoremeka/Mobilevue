@@ -28,6 +28,7 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
@@ -60,14 +61,12 @@ public class NewPackageFragment extends Fragment {
 	private final static String PREPAID_PLANS = "Prepaid plans";
 	private final static String MY_PLANS = "My plans";
 	private static String NEW_PAKAGE_DATA;
-
+	static String CLIENT_PACKAGE_DATA;
 	private ProgressDialog mProgressDialog;
-
 	MyApplication mApplication = null;
-	OBSClient mOBSClient;
 	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
-
+	boolean mIsPlanSubscribed = false;
 	List<PlanDatum> mPlans;
 	List<PlanDatum> mNewPlans;
 	List<OrderDatum> mMyOrders;
@@ -82,8 +81,8 @@ public class NewPackageFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		mActivity = getActivity();
 		mApplication = ((MyApplication) mActivity.getApplicationContext());
-		mExecutorService = Executors.newCachedThreadPool();
-		mOBSClient = mApplication.getOBSClient(mActivity, mExecutorService);
+		CLIENT_PACKAGE_DATA = mApplication.getResources().getString(
+				R.string.client_pkg_data);
 		/**
 		 * In order for onCreateOptionsMenu() and onOptionsItemSelected()
 		 * methods to receive calls, however, you must call setHasOptionsMenu()
@@ -111,7 +110,8 @@ public class NewPackageFragment extends Fragment {
 		}
 		return mRootView;
 	}
-	private void CheckForNewPlansnUpdate(){
+
+	private void CheckForNewPlansnUpdate() {
 		mNewPlans = new ArrayList<PlanDatum>();
 		if (null != mPlans && null != mMyOrders && mPlans.size() > 0
 				&& mMyOrders.size() > 0) {
@@ -128,18 +128,19 @@ public class NewPackageFragment extends Fragment {
 				}
 			}
 		}
-		if (null != mNewPlans && mNewPlans.size() != 0) {
+		if ((null != mNewPlans && mNewPlans.size() != 0)
+				|| (mPlans.size() == mMyOrders.size())) {
 			Editor editor = mApplication.getEditor();
-			editor.putString(NEW_PAKAGE_DATA,
-					new Gson().toJson(mNewPlans));
+			editor.putString(NEW_PAKAGE_DATA, new Gson().toJson(mNewPlans));
 			editor.commit();
 			buildPlansList();
 		}
 	}
+
 	private void getMyPlansFromServer() {
 		getPlans(MY_PLANS);
 	}
-	
+
 	private void getPlansFromServer() {
 		getPlans(PREPAID_PLANS);
 	}
@@ -165,9 +166,12 @@ public class NewPackageFragment extends Fragment {
 			}
 		});
 		mProgressDialog.show();
-		if (PREPAID_PLANS.equalsIgnoreCase(planType))
+		if (PREPAID_PLANS.equalsIgnoreCase(planType)) {
+			mExecutorService = Executors.newCachedThreadPool();
+			OBSClient mOBSClient = mApplication.getOBSClient(mActivity,
+					mExecutorService);
 			mOBSClient.getPrepaidPlans(getPlansCallBack);
-		else if (MY_PLANS.equalsIgnoreCase(planType)) {
+		} else if (MY_PLANS.equalsIgnoreCase(planType)) {
 			mExecutorService = Executors.newCachedThreadPool();
 			RestAdapter restAdapter = new RestAdapter.Builder()
 					.setEndpoint(mApplication.API_URL)
@@ -179,7 +183,7 @@ public class NewPackageFragment extends Fragment {
 									mApplication.tenentId,
 									mApplication.basicAuth,
 									mApplication.contentType)).build();
-			mOBSClient = restAdapter.create(OBSClient.class);
+			OBSClient mOBSClient = restAdapter.create(OBSClient.class);
 			mOBSClient.getClinetPackageDetails(mApplication.getClientId(),
 					getClientPkgDtlsCallBack);
 		}
@@ -199,6 +203,11 @@ public class NewPackageFragment extends Fragment {
 					Toast.makeText(mActivity, "Server Error.",
 							Toast.LENGTH_LONG).show();
 				} else {
+					SharedPreferences.Editor editor = mApplication.getPrefs()
+							.edit();
+					editor.putString(CLIENT_PACKAGE_DATA,
+							new Gson().toJson(orderList));
+					editor.commit();
 					mMyOrders = orderList;
 					CheckForNewPlansnUpdate();
 				}
@@ -267,11 +276,13 @@ public class NewPackageFragment extends Fragment {
 	};
 
 	private void buildPlansList() {
-
 		expListView = (ExpandableListView) mRootView
 				.findViewById(R.id.a_exlv_plans_services);
 		listAdapter = new NewPackageAdapter(mActivity, mNewPlans, this);
 		expListView.setAdapter(listAdapter);
+		if (mIsPlanSubscribed)
+			Toast.makeText(mActivity, "Plan Subscription Success.",
+					Toast.LENGTH_LONG).show();
 	}
 
 	public void btnSubmit_onClick() {
@@ -326,9 +337,7 @@ public class NewPackageFragment extends Fragment {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-
 			Log.d(TAG, "onPreExecute");
-
 			if (mProgressDialog != null) {
 				mProgressDialog.dismiss();
 				mProgressDialog = null;
@@ -350,9 +359,7 @@ public class NewPackageFragment extends Fragment {
 
 		@Override
 		protected ResponseObj doInBackground(Void... params) {
-
 			Log.d(TAG, "doInBackground");
-
 			PlanDatum plan = mNewPlans.get(selectedGroupItem);
 			ResponseObj resObj = new ResponseObj();
 			if (Utilities.isNetworkAvailable(mApplication)) {
@@ -361,7 +368,6 @@ public class NewPackageFragment extends Fragment {
 				SimpleDateFormat df = new SimpleDateFormat("dd MMMM yyyy",
 						new Locale("en"));
 				String formattedDate = df.format(date);
-
 				map.put("TagURL", "/orders/" + mApplication.getClientId());
 				map.put("planCode", plan.getId().toString());
 				map.put("dateFormat", "dd MMMM yyyy");
@@ -372,12 +378,10 @@ public class NewPackageFragment extends Fragment {
 				map.put("billAlign", "true");
 				map.put("paytermCode", plan.getServices().get(0)
 						.getChargeCode());
-
 				resObj = Utilities.callExternalApiPostMethod(mApplication, map);
 			} else {
 				resObj.setFailResponse(100, NETWORK_ERROR);
 			}
-
 			return resObj;
 		}
 
@@ -391,8 +395,8 @@ public class NewPackageFragment extends Fragment {
 				mProgressDialog.dismiss();
 			}
 			if (resObj.getStatusCode() == 200) {
-				Toast.makeText(mActivity, "Plan Subscription Success.",
-						Toast.LENGTH_LONG).show();
+				mIsPlanSubscribed = true;
+				getPlansFromServer();
 			} else {
 				Toast.makeText(mActivity, resObj.getsErrorMessage(),
 						Toast.LENGTH_LONG).show();
@@ -406,11 +410,9 @@ public class NewPackageFragment extends Fragment {
 		public List<OrderDatum> fromBody(TypedInput typedInput, Type type)
 				throws ConversionException {
 			List<OrderDatum> ordersList = null;
-
 			try {
 				String json = MyApplication.getJSONfromInputStream(typedInput
 						.in());
-
 				JSONObject jsonObj;
 				jsonObj = new JSONObject(json);
 				JSONArray arrOrders = jsonObj.getJSONArray("clientOrders");
@@ -435,10 +437,8 @@ public class NewPackageFragment extends Fragment {
 	public static List<OrderDatum> getOrdersFromJson(String json) {
 		List<OrderDatum> ordersList = new ArrayList<OrderDatum>();
 		try {
-
 			JSONArray arrOrders = new JSONArray(json);
 			for (int i = 0; i < arrOrders.length(); i++) {
-
 				JSONObject obj = arrOrders.getJSONObject(i);
 				if ("ACTIVE".equalsIgnoreCase(obj.getString("status"))) {
 					OrderDatum order = new OrderDatum();

@@ -19,6 +19,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,6 +27,7 @@ import android.view.View.OnClickListener;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SearchView;
@@ -90,6 +92,24 @@ public class VodActivity extends FragmentActivity implements
 				setPageCountAndGetDetails();
 			}
 		});
+		listView.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View arg1,
+					int arg2, long arg3) {
+				((AbsListView) arg0).setItemChecked(arg2, true);
+				String[] arrMovCategValues = getResources().getStringArray(
+						R.array.arrMovCategValues);
+				mPrefsEditor.putString(CATEGORY, arrMovCategValues[arg2]);
+				mPrefsEditor.commit();
+				setPageCountAndGetDetails();
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+				// Doing nothing
+			}
+		});
 		setPageCountAndGetDetails();
 		mPager = (ViewPager) findViewById(R.id.a_vod_pager);
 		mPager.setOnPageChangeListener(new OnPageChangeListener() {
@@ -152,7 +172,7 @@ public class VodActivity extends FragmentActivity implements
 			}
 		});
 		mProgressDialog.show();
-		
+
 		mOBSClient.getPageCountAndMediaDetails(category.equals("") ? "RELEASE"
 				: category, "0", deviceId, getPageCountAndDetailsCallBack);
 	}
@@ -222,7 +242,7 @@ public class VodActivity extends FragmentActivity implements
 			break;
 		case R.id.action_refresh:
 			setPageCountAndGetDetails();
-			break;	
+			break;
 		default:
 			break;
 		}
@@ -252,5 +272,23 @@ public class VodActivity extends FragmentActivity implements
 		mPrefsEditor.commit();
 		setPageCountAndGetDetails();
 		return false;
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+		if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == 4) {
+			if (mProgressDialog != null) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			mIsReqCanceled = true;
+			mExecutorService.shutdownNow();
+			this.finish();
+		} else if (keyCode == 23) {
+			View focusedView = getWindow().getCurrentFocus();
+			focusedView.performClick();
+		}
+		return super.onKeyDown(keyCode, event);
 	}
 }

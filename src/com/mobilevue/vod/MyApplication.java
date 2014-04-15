@@ -58,6 +58,7 @@ public class MyApplication extends Application {
 	public boolean isBalCheckReq = false;
 	public boolean D = true; // need to delete this variable
 	public Player player = Player.NATIVE_PLAYER;
+	
 
 	@Override
 	public void onCreate() {

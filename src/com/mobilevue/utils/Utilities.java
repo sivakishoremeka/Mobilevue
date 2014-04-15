@@ -181,6 +181,11 @@ public class Utilities {
 						+ " Communication Error.Please try again.");
 				Log.e("callExternalAPI", statusCode
 						+ " Communication Error.Please try again.");
+			}else if (statusCode == 500) {
+				resObj.setFailResponse(statusCode, statusCode
+						+ " Internal Server Error.");
+				Log.e("callExternalAPI", statusCode
+						+ " Internal Server Error.");
 			} else {
 				entity = response.getEntity();
 				String content = EntityUtils.toString(entity);

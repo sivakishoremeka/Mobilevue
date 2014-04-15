@@ -75,7 +75,7 @@ public class MainActivity extends Activity {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+		if ((keyCode == KeyEvent.KEYCODE_BACK) || keyCode == 4) {
 			AlertDialog mConfirmDialog = ((MyApplication) getApplicationContext())
 					.getConfirmDialog(this);
 			mConfirmDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
@@ -86,6 +86,9 @@ public class MainActivity extends Activity {
 						}
 					});
 			mConfirmDialog.show();
+		} else if (keyCode == 23) {
+			View focusedView = getWindow().getCurrentFocus();
+			focusedView.performClick();
 		}
 		return super.onKeyDown(keyCode, event);
 	}

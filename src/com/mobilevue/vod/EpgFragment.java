@@ -30,6 +30,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -258,61 +259,26 @@ public class EpgFragment extends Fragment {
 			EPGDetailsAdapter adapter = new EPGDetailsAdapter(getActivity(),
 					mProgGuideList);
 			list.setAdapter(adapter);
+			list.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+				@Override
+				public void onItemSelected(AdapterView<?> adapterView, View view,
+						int position, long arg3) {
+					OnItemSelectedOrClicked(adapterView,position,mProgGuideList);
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView<?> arg0) {
+					//nothing selected
+					
+				}
+				
+			});
 			list.setOnItemClickListener(new OnItemClickListener() {
 				@Override
-				public void onItemClick(AdapterView<?> arg0, View arg1,
-						int arg2, long arg3) {
-					((AbsListView) arg0).setItemChecked(arg2, true);
-					((AbsListView) arg0).smoothScrollToPosition(arg2);
-					EpgDatum data = mProgGuideList.get(arg2);
-					TextView chName = (TextView) getActivity().findViewById(
-							R.id.a_iptv_tv_ch_name);
-					TextView progName = (TextView) getActivity().findViewById(
-							R.id.a_iptv_tv_Prog_name);
-					TextView stTime = (TextView) getActivity().findViewById(
-							R.id.a_iptv_tv_prog_start_time);
-					TextView endTime = (TextView) getActivity().findViewById(
-							R.id.a_iptv_tv_prog_end_time);
-					TextView progDescr = (TextView) getActivity().findViewById(
-							R.id.a_iptv_tv_prog_desc);
-					chName.setText(data.getChannelName());
-					progName.setText(data.getProgramTitle());
-					SimpleDateFormat tf = new SimpleDateFormat("HH:mm");
-					Date sTime = null, eTime = null;
-					try {
-						sTime = tf.parse(data.getStartTime());
-						eTime = tf.parse(data.getStopTime());
-					} catch (ParseException e) {
-						e.printStackTrace();
-					}
-					stTime.setText("Start Time: " + tf.format(sTime));
-					endTime.setText("End Time  : " + tf.format(eTime));
-					progDescr.setText(data.getProgramDescription());
-
-					Button btn = (Button) getActivity().findViewById(
-							R.id.a_iptv_btn_watch_remind);
-					if (isCurrentProgramme(data))
-						btn.setText(R.string.watch);
-					else {
-						SimpleDateFormat df1 = new SimpleDateFormat(
-								"yyyy-MM-dd", new Locale("en"));
-						Calendar c = Calendar.getInstance();
-						String progStartTime = data.getStartTime();
-						Calendar t = Calendar.getInstance();
-						try {
-							c.setTime(df1.parse(reqestedDate));
-							t.setTime(tf.parse(progStartTime));
-						} catch (ParseException e) {
-							e.printStackTrace();
-						}
-						c.set(Calendar.HOUR_OF_DAY, t.get(Calendar.HOUR_OF_DAY));
-						c.set(Calendar.MINUTE, t.get(Calendar.MINUTE));
-						c.set(Calendar.SECOND, 0);
-						ProgDetails progDtls = new ProgDetails(c, data
-								.getProgramTitle(), data.getChannelName());
-						btn.setTag(progDtls);
-						btn.setText(R.string.remind_me);
-					}
+				public void onItemClick(AdapterView<?> adapterView, View view,
+						int position, long arg3) {
+					OnItemSelectedOrClicked(adapterView,position,mProgGuideList);
 				}
 			});
 			if (mProgGuideList != null) {
@@ -333,8 +299,11 @@ public class EpgFragment extends Fragment {
 
 						EpgDatum data = mProgGuideList.get(i);
 						if (isCurrentProgramme(data)) {
-							list.setItemChecked(i, true);
+							
 							list.smoothScrollToPosition(i);
+							list.setItemChecked(i, true);
+							list.setSelection(i);
+							list.setSelected(true);
 							TextView chName = (TextView) getActivity()
 									.findViewById(R.id.a_iptv_tv_ch_name);
 							TextView progName = (TextView) getActivity()
@@ -368,6 +337,64 @@ public class EpgFragment extends Fragment {
 			}
 		}
 
+	}
+
+	
+	protected void OnItemSelectedOrClicked(AdapterView<?> adapterView,
+			int position,List<EpgDatum> mProgGuideList) {
+
+		((AbsListView) adapterView).setItemChecked(position, true);
+		((AbsListView) adapterView).smoothScrollToPosition(position);
+		EpgDatum data = mProgGuideList.get(position);
+		TextView chName = (TextView) getActivity().findViewById(
+				R.id.a_iptv_tv_ch_name);
+		TextView progName = (TextView) getActivity().findViewById(
+				R.id.a_iptv_tv_Prog_name);
+		TextView stTime = (TextView) getActivity().findViewById(
+				R.id.a_iptv_tv_prog_start_time);
+		TextView endTime = (TextView) getActivity().findViewById(
+				R.id.a_iptv_tv_prog_end_time);
+		TextView progDescr = (TextView) getActivity().findViewById(
+				R.id.a_iptv_tv_prog_desc);
+		chName.setText(data.getChannelName());
+		progName.setText(data.getProgramTitle());
+		SimpleDateFormat tf = new SimpleDateFormat("HH:mm");
+		Date sTime = null, eTime = null;
+		try {
+			sTime = tf.parse(data.getStartTime());
+			eTime = tf.parse(data.getStopTime());
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		stTime.setText("Start Time: " + tf.format(sTime));
+		endTime.setText("End Time  : " + tf.format(eTime));
+		progDescr.setText(data.getProgramDescription());
+
+		Button btn = (Button) getActivity().findViewById(
+				R.id.a_iptv_btn_watch_remind);
+		if (isCurrentProgramme(data))
+			btn.setText(R.string.watch);
+		else {
+			SimpleDateFormat df1 = new SimpleDateFormat(
+					"yyyy-MM-dd", new Locale("en"));
+			Calendar c = Calendar.getInstance();
+			String progStartTime = data.getStartTime();
+			Calendar t = Calendar.getInstance();
+			try {
+				c.setTime(df1.parse(reqestedDate));
+				t.setTime(tf.parse(progStartTime));
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			c.set(Calendar.HOUR_OF_DAY, t.get(Calendar.HOUR_OF_DAY));
+			c.set(Calendar.MINUTE, t.get(Calendar.MINUTE));
+			c.set(Calendar.SECOND, 0);
+			ProgDetails progDtls = new ProgDetails(c, data
+					.getProgramTitle(), data.getChannelName());
+			btn.setTag(progDtls);
+			btn.setText(R.string.remind_me);
+		}
+		
 	}
 
 	private boolean isCurrentProgramme(EpgDatum data) {

@@ -2,9 +2,9 @@ package com.mobilevue.vod;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,6 +29,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,6 +37,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -50,7 +52,7 @@ import com.mobilevue.utils.Utilities;
 import com.mobilevue.vod.EpgFragment.ProgDetails;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-public class IPTVActivity extends FragmentActivity {
+public class IPTVActivity extends FragmentActivity implements SearchView.OnQueryTextListener {
 
 	/** This is live/Iptv activity */
 
@@ -58,6 +60,7 @@ public class IPTVActivity extends FragmentActivity {
 	public final static String CHANNEL_NAME = "CHANNELNAME";
 	public final static String CHANNEL_URL = "URL";
 	private SharedPreferences mPrefs;
+	private SearchView mSearchView;
 	private Editor mPrefsEditor;
 	EPGFragmentPagerAdapter mEpgPagerAdapter;
 
@@ -67,6 +70,7 @@ public class IPTVActivity extends FragmentActivity {
 	private ProgressDialog mProgressDialog;
 	private String mChannelURL;
 	private int mChannelId;
+	private ArrayList<ServiceDatum> mServiceList;
 	ViewPager mViewPager;
 
 	MyApplication mApplication = null;
@@ -95,6 +99,7 @@ public class IPTVActivity extends FragmentActivity {
 		mPrefsEditor.commit();
 		// for not refresh data
 		Button btn = (Button) findViewById(R.id.a_iptv_btn_watch_remind);
+		btn.setFocusable(true);btn.requestFocus();
 		btn.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -106,6 +111,9 @@ public class IPTVActivity extends FragmentActivity {
 					intent.putExtra("VIDEOTYPE", "LIVETV");
 					intent.putExtra(CHANNEL_URL, mChannelURL);
 					intent.putExtra("CHANNELID", mChannelId);
+					intent.putParcelableArrayListExtra("SERVICELIST",
+							mServiceList);
+
 					mApplication.startPlayer(intent, IPTVActivity.this);
 				} else {
 					/**
@@ -161,7 +169,7 @@ public class IPTVActivity extends FragmentActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.nav_menu, menu);
 		MenuItem searchItem = menu.findItem(R.id.action_search);
-		searchItem.setVisible(false);
+		searchItem.setVisible(true);
 		MenuItem refreshItem = menu.findItem(R.id.action_refresh);
 		refreshItem.setVisible(true);
 		return true;
@@ -188,6 +196,10 @@ public class IPTVActivity extends FragmentActivity {
 			break;
 		}
 		return true;
+	}
+	
+	private void setupSearchView(MenuItem searchItem) {
+		mSearchView.setOnQueryTextListener(this);
 	}
 
 	private void CheckCacheForChannelList() {
@@ -274,7 +286,7 @@ public class IPTVActivity extends FragmentActivity {
 
 	}
 
-	final Callback<List<ServiceDatum>> getPlanServicesCallBack = new Callback<List<ServiceDatum>>() {
+	final Callback<ArrayList<ServiceDatum>> getPlanServicesCallBack = new Callback<ArrayList<ServiceDatum>>() {
 		@Override
 		public void failure(RetrofitError retrofitError) {
 			if (!mIsReqCanceled) {
@@ -306,7 +318,8 @@ public class IPTVActivity extends FragmentActivity {
 		}
 
 		@Override
-		public void success(List<ServiceDatum> serviceList, Response response) {
+		public void success(ArrayList<ServiceDatum> serviceList,
+				Response response) {
 			if (!mIsReqCanceled) {
 				if (mProgressDialog != null) {
 					mProgressDialog.dismiss();
@@ -341,7 +354,8 @@ public class IPTVActivity extends FragmentActivity {
 		}
 	};
 
-	private void updateChannels(List<ServiceDatum> result) {
+	private void updateChannels(ArrayList<ServiceDatum> result) {
+		mServiceList = result;
 		int imgno = 0;
 		LinearLayout channels = (LinearLayout) findViewById(R.id.a_iptv_ll_channels);
 		channels.removeAllViews();
@@ -351,7 +365,7 @@ public class IPTVActivity extends FragmentActivity {
 
 			editor.putString(data.getChannelName(), data.getUrl());
 			editor.commit();
-			imgno += 1;
+			// imgno += 1;
 			ChannelInfo chInfo = new ChannelInfo(data.getChannelName(),
 					data.getUrl(), data.getServiceId());
 			final ImageButton button = new ImageButton(this);
@@ -360,9 +374,9 @@ public class IPTVActivity extends FragmentActivity {
 			params.width = 96;
 			params.setMargins(1, 1, 1, 1);
 			button.setLayoutParams(params);
-			button.setId(1000 + imgno);
+			// button.setId(1000 + imgno);
 			button.setTag(chInfo);
-			button.setFocusable(false);
+			button.setFocusable(true);
 			button.setFocusableInTouchMode(false);
 			button.setImageDrawable(getResources().getDrawable(
 					R.drawable.ic_default_ch));
@@ -398,10 +412,10 @@ public class IPTVActivity extends FragmentActivity {
 		mViewPager.setAdapter(mEpgPagerAdapter);
 	}
 
-	private List<ServiceDatum> getServiceListFromJSON(String json) {
-		java.lang.reflect.Type t = new TypeToken<List<ServiceDatum>>() {
+	private ArrayList<ServiceDatum> getServiceListFromJSON(String json) {
+		java.lang.reflect.Type t = new TypeToken<ArrayList<ServiceDatum>>() {
 		}.getType();
-		List<ServiceDatum> serviceList = new Gson().fromJson(json, t);
+		ArrayList<ServiceDatum> serviceList = new Gson().fromJson(json, t);
 		return serviceList;
 	}
 
@@ -415,5 +429,34 @@ public class IPTVActivity extends FragmentActivity {
 			this.channelURL = channelURL;
 			this.channelId = channelId;
 		}
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+		if (keyCode == KeyEvent.KEYCODE_BACK || keyCode == 4) {
+			if (mProgressDialog != null) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			mIsReqCanceled = true;
+			mExecutorService.shutdownNow();
+			this.finish();
+		} else if (keyCode == 23) {
+			View focusedView = getWindow().getCurrentFocus();
+			focusedView.performClick();
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
+	@Override
+	public boolean onQueryTextSubmit(String query) {
+		
+		return false;
+	}
+
+	@Override
+	public boolean onQueryTextChange(String newText) {
+		return false;
 	}
 }

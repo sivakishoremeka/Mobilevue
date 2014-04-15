@@ -21,13 +21,7 @@ import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
@@ -41,16 +35,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.mobilevue.data.ServiceDatum;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
  * A view containing controls for a MediaPlayer. Typically contains the buttons
@@ -106,6 +96,7 @@ public class VideoControllerView extends FrameLayout {
 	private ImageButton mPrevButton;
 	// private ImageButton mFullscreenButton;
 	public Handler mHandler = new MessageHandler(this);
+	private List<ServiceDatum> mserviceList;
 
 	public VideoControllerView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -117,16 +108,16 @@ public class VideoControllerView extends FrameLayout {
 		Log.i(TAG, TAG);
 	}
 
-	public VideoControllerView(Context context, boolean useFastForward) {
+	public VideoControllerView(Context context, boolean useFastForward,List<ServiceDatum> mserviceList) {
 		super(context);
 		mContext = context;
 		mUseFastForward = useFastForward;
-
+		this.mserviceList = mserviceList;
 		Log.i(TAG, TAG);
 	}
 
 	public VideoControllerView(Context context) {
-		this(context, true);
+		this(context, true,null);
 
 		Log.i(TAG, TAG);
 	}
@@ -177,93 +168,10 @@ public class VideoControllerView extends FrameLayout {
 		else {
 			mRoot = inflate
 					.inflate(R.layout.media_controller_live_tv_new, null);
-			GetChannelsList(mRoot);
-
 		}
 		initControllerView(mRoot);
 
 		return mRoot;
-	}
-
-	private void GetChannelsList(View v) {
-
-		SharedPreferences mPrefs = ((MyApplication)mContext.getApplicationContext()).getPrefs();
-		String sChannelDtls = mPrefs.getString(
-				ChannelsActivity.IPTV_CHANNELS_DETAILS, "");
-		if (sChannelDtls.length() != 0) {
-			JSONObject json_ch_dtls = null;
-			String channel_details = null;
-			try {
-				json_ch_dtls = new JSONObject(sChannelDtls);
-				channel_details = json_ch_dtls.getString("Channels");
-				// channel_details =
-				// "[{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https:/,/spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"}]";
-			} catch (JSONException e1) {
-				e1.printStackTrace();
-			}
-			if (channel_details.length() != 0) {
-
-				updateChannels(v, getServiceListFromJSON(channel_details));
-			}
-		}
-	}
-
-	private void updateChannels(View v, List<ServiceDatum> result) {
-		int imgno = 0;
-		LinearLayout channels = (LinearLayout) v
-				.findViewById(R.id.a_video_ll_channels);
-		
-		final Editor editor = ((MyApplication)mContext.getApplicationContext()).getEditor();
-		for (final ServiceDatum data : result) {
-
-			editor.putString(data.getChannelName(), data.getUrl());
-			editor.commit();
-			imgno += 1;
-			ChannelInfo Info = new ChannelInfo(data.getChannelName(),
-					data.getUrl(),data.getServiceId());
-			final ImageButton button = new ImageButton(mContext);
-			LayoutParams params = new LayoutParams(Gravity.CENTER,
-					Gravity.CENTER);
-			params.height = 96;
-			params.width = 96;
-			params.setMargins(1, 1, 1, 1);
-			button.setLayoutParams(params);
-			button.setId(1000 + imgno);
-			button.setTag(Info);
-			button.setFocusable(false);
-			button.setFocusableInTouchMode(false);
-
-			ImageLoader.getInstance().displayImage(data.getImage(), button);
-
-			button.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					ChannelInfo info = (ChannelInfo) v.getTag();
-					if(VideoPlayerActivity.ChannelId != info.channelId)
-					mPlayer.changeChannel(Uri.parse(info.channelURL),info.channelId);
-				}
-			});
-			channels.addView(button);
-		}
-	}
-
-	private List<ServiceDatum> getServiceListFromJSON(String json) {
-		java.lang.reflect.Type t = new TypeToken<List<ServiceDatum>>() {
-		}.getType();
-		List<ServiceDatum> serviceList = new Gson().fromJson(json, t);
-		return serviceList;
-	}
-
-	private class ChannelInfo {
-		private String channelName;
-		private String channelURL;
-		private int channelId;
-
-		public ChannelInfo(String channelName, String channelURL,int channelId) {
-			this.channelName = channelName;
-			this.channelURL = channelURL;
-			this.channelId = channelId;
-		}
 	}
 
 	private void initControllerView(View v) {
@@ -331,6 +239,7 @@ public class VideoControllerView extends FrameLayout {
 	 * seconds of inactivity.
 	 */
 	public void show() {
+	
 		show(sDefaultTimeout);
 	}
 
@@ -371,6 +280,9 @@ public class VideoControllerView extends FrameLayout {
 	 *            until hide() is called.
 	 */
 	public void show(int timeout) {
+	
+		if(null == mPlayer)
+			return;
 		if (!mShowing && mAnchor != null) {
 
 			setProgress();
@@ -438,6 +350,7 @@ public class VideoControllerView extends FrameLayout {
 	}
 
 	private int setProgress() {
+		
 		if (mPlayer == null || mDragging || !mPlayer.isPlaying()) {
 			return 0;
 		}
@@ -522,11 +435,11 @@ public class VideoControllerView extends FrameLayout {
 			return true;
 		}
 
-		show(sDefaultTimeout);
+		//show(sDefaultTimeout);
 		return super.dispatchKeyEvent(event);
 	}
 
-	private View.OnClickListener mPauseListener = new View.OnClickListener() {
+	public View.OnClickListener mPauseListener = new View.OnClickListener() {
 		public void onClick(View v) {
 			doPauseResume();
 			show(sDefaultTimeout);
@@ -540,6 +453,7 @@ public class VideoControllerView extends FrameLayout {
 	 */
 
 	public void updatePausePlay() {
+		
 		if (mRoot == null || mPauseButton == null)
 			return;
 
@@ -682,7 +596,7 @@ public class VideoControllerView extends FrameLayout {
 		super.setEnabled(enabled);
 	}
 
-	private View.OnClickListener mRewListener = new View.OnClickListener() {
+	public View.OnClickListener mRewListener = new View.OnClickListener() {
 		public void onClick(View v) {
 			if (mPlayer == null) {
 				return;
@@ -697,7 +611,7 @@ public class VideoControllerView extends FrameLayout {
 		}
 	};
 
-	private View.OnClickListener mFfwdListener = new View.OnClickListener() {
+	public View.OnClickListener mFfwdListener = new View.OnClickListener() {
 		public void onClick(View v) {
 			if (mPlayer == null) {
 				return;

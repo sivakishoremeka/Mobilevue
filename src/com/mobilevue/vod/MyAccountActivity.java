@@ -35,14 +35,14 @@ public class MyAccountActivity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
-				
+
 				switch (arg2) {
 				case 0:
 					Fragment newPackageFrag = new NewPackageFragment();
 					FragmentTransaction transaction = getFragmentManager()
 							.beginTransaction();
 					transaction.replace(R.id.a_my_acc_frag_container,
-							newPackageFrag,FRAG_TAG);
+							newPackageFrag, FRAG_TAG);
 					transaction.commit();
 					break;
 				case 1:
@@ -50,7 +50,7 @@ public class MyAccountActivity extends Activity {
 					FragmentTransaction transaction1 = getFragmentManager()
 							.beginTransaction();
 					transaction1.replace(R.id.a_my_acc_frag_container,
-							myPackageFrag,FRAG_TAG);
+							myPackageFrag, FRAG_TAG);
 					transaction1.commit();
 					break;
 
@@ -59,19 +59,19 @@ public class MyAccountActivity extends Activity {
 					FragmentTransaction transaction2 = getFragmentManager()
 							.beginTransaction();
 					transaction2.replace(R.id.a_my_acc_frag_container,
-							myProfileFrag,FRAG_TAG);
+							myProfileFrag, FRAG_TAG);
 					transaction2.commit();
 					break;
-								}
+				}
 			}
 		});
 		Fragment newPackageFrag = new NewPackageFragment();
 		FragmentTransaction transaction = getFragmentManager()
 				.beginTransaction();
-		transaction.add(R.id.a_my_acc_frag_container, newPackageFrag,FRAG_TAG);
+		transaction.add(R.id.a_my_acc_frag_container, newPackageFrag, FRAG_TAG);
 		transaction.commit();
 	}
-	
+
 	public void btnSubmit_onClick(View v) {
 		Fragment frag = getFragmentManager().findFragmentByTag(FRAG_TAG);
 		((NewPackageFragment) frag).btnSubmit_onClick();
@@ -81,19 +81,25 @@ public class MyAccountActivity extends Activity {
 
 	}
 
-	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		Fragment frag = getFragmentManager().findFragmentByTag(FRAG_TAG);
-		if(frag!=null){
-			if(frag instanceof MyProfileFragment)
-				((MyProfileFragment) frag).onFragKeydown(keyCode,event);
-			else if(frag instanceof MyPakagesFragment)
-				((MyPakagesFragment) frag).onFragKeydown(keyCode,event);
-			else if(frag instanceof NewPackageFragment)
-				((NewPackageFragment) frag).onFragKeydown(keyCode,event);
+		if (keyCode == 4) {
+			this.finish();
+		} else if (keyCode == 23) {
+			View focusedView = getWindow().getCurrentFocus();
+			focusedView.performClick();
+		} else {
+			Fragment frag = getFragmentManager().findFragmentByTag(FRAG_TAG);
+			if (frag != null) {
+				if (frag instanceof MyProfileFragment)
+					((MyProfileFragment) frag).onFragKeydown(keyCode, event);
+				else if (frag instanceof MyPakagesFragment)
+					((MyPakagesFragment) frag).onFragKeydown(keyCode, event);
+				else if (frag instanceof NewPackageFragment)
+					((NewPackageFragment) frag).onFragKeydown(keyCode, event);
+			}
 		}
 		return super.onKeyDown(keyCode, event);
 	}
-	
+
 }

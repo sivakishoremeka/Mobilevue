@@ -15,8 +15,8 @@
     <string name="actvtd_on">Activated On</string>
     <string name="app_name">Mobilevue</string>
     <string name="balance">Balance</string>
-    <string name="basic_auth">Basic YWRtaW46b2JzQDEyMw==</string> <!-- Spark  admin/obs@123 -->
-    <string name="basic_auth_">Basic YmlsbGluZzpwYXNzd29yZA==</string> <!-- Peter  billing/password -->
+    <string name="basic_auth_">Basic YWRtaW46b2JzQDEyMw==</string> <!-- Spark  admin/obs@123 -->
+    <string name="basic_auth">Basic YmlsbGluZzpwYXNzd29yZA==</string> <!-- Peter  billing/password -->
     <string name="cast_crew">Cast &amp; Crew</string>
     <string name="client_data">Client Data</string>
     <string name="client_pkg_data">Client Package Data</string>
@@ -51,9 +51,9 @@
     <string name="sel_pkg">Select Package</string>
     <string name="serialno">Serial No</string>
     <string name="server_url_">https://192.168.1.104:8443/obsplatform/api/v1</string> <!-- Spark -->
-    <string name="server_url">https://spark.openbillingsystem.com/obsplatform/api/v1</string> <!-- Spark -->
+    <string name="server_url_sp">https://demo.openbillingsystem.com/obsplatform/api/v1</string> <!-- Spark -->
     <string name="server_url_uyh">https://192.168.1.100:8443/obsplatform/api/v1</string> <!-- kiran -->
-    <string name="server_url_yu">https://188.138.84.29:8443/obsplatform/api/v1</string> <!-- Yusuf -->
+    <string name="server_url">https://188.138.84.29:8443/obsplatform/api/v1</string> <!-- Yusuf -->
     <string name="server_url_p">https://46.21.175.210:8443/obsplatform/api/v1</string> <!-- Peter -->
     <string name="server_url_q">https://80.82.222.173:8443/obsplatform/api/v1</string> <!-- Quasay -->
     <string name="tenent_id">default</string>
