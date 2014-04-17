@@ -23,7 +23,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -90,9 +89,6 @@ public class EpgFragment extends Fragment {
 	}
 
 	public void CheckCacheForEpgDetails(EpgReqDetails rd) {
-
-		Log.d(TAG, "frag-getDetails");
-
 		String Epg_Dtls_key = rd.channelName + "_EPG_Details";
 		String Epg_Dtls_value = mPrefs.getString(Epg_Dtls_key, "");
 		String req_date_Dtls = null;
@@ -136,9 +132,6 @@ public class EpgFragment extends Fragment {
 	}
 
 	private void getEpgDetailsFromServer(EpgReqDetails rd) {
-
-		Log.d(TAG, "GetChannelsFromServer");
-
 		if (mProgressDialog != null) {
 			mProgressDialog.dismiss();
 			mProgressDialog = null;
@@ -252,8 +245,6 @@ public class EpgFragment extends Fragment {
 	};
 
 	public void updateDetails(final List<EpgDatum> mProgGuideList, View rootview) {
-		Log.d(TAG, "frag-updateDetails :");
-
 		if (mProgGuideList != null && mProgGuideList.size() > 0) {
 			EPGDetailsAdapter adapter = new EPGDetailsAdapter(getActivity(),
 					mProgGuideList);

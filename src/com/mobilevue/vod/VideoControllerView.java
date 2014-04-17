@@ -24,7 +24,6 @@ import java.util.Locale;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -187,7 +186,8 @@ public class VideoControllerView extends FrameLayout {
 
 	private void GetChannelsList(View v) {
 
-		SharedPreferences mPrefs = ((MyApplication)mContext.getApplicationContext()).getPrefs();
+		SharedPreferences mPrefs = ((MyApplication) mContext
+				.getApplicationContext()).getPrefs();
 		String sChannelDtls = mPrefs.getString(
 				ChannelsActivity.IPTV_CHANNELS_DETAILS, "");
 		if (sChannelDtls.length() != 0) {
@@ -212,15 +212,16 @@ public class VideoControllerView extends FrameLayout {
 		int imgno = 0;
 		LinearLayout channels = (LinearLayout) v
 				.findViewById(R.id.a_video_ll_channels);
-		
-		final Editor editor = ((MyApplication)mContext.getApplicationContext()).getEditor();
+
+		final Editor editor = ((MyApplication) mContext.getApplicationContext())
+				.getEditor();
 		for (final ServiceDatum data : result) {
 
 			editor.putString(data.getChannelName(), data.getUrl());
 			editor.commit();
 			imgno += 1;
 			ChannelInfo Info = new ChannelInfo(data.getChannelName(),
-					data.getUrl(),data.getServiceId());
+					data.getUrl(), data.getServiceId());
 			final ImageButton button = new ImageButton(mContext);
 			LayoutParams params = new LayoutParams(Gravity.CENTER,
 					Gravity.CENTER);
@@ -239,8 +240,9 @@ public class VideoControllerView extends FrameLayout {
 				@Override
 				public void onClick(View v) {
 					ChannelInfo info = (ChannelInfo) v.getTag();
-					if(VideoPlayerActivity.ChannelId != info.channelId)
-					mPlayer.changeChannel(Uri.parse(info.channelURL),info.channelId);
+					if (VideoPlayerActivity.mChannelId != info.channelId)
+						mPlayer.changeChannel(Uri.parse(info.channelURL),
+								info.channelId);
 				}
 			});
 			channels.addView(button);
@@ -259,7 +261,7 @@ public class VideoControllerView extends FrameLayout {
 		private String channelURL;
 		private int channelId;
 
-		public ChannelInfo(String channelName, String channelURL,int channelId) {
+		public ChannelInfo(String channelName, String channelURL, int channelId) {
 			this.channelName = channelName;
 			this.channelURL = channelURL;
 			this.channelId = channelId;
@@ -766,7 +768,7 @@ public class VideoControllerView extends FrameLayout {
 		boolean isFullScreen();
 
 		// void toggleFullScreen();
-		void changeChannel(Uri url,int channelId);
+		void changeChannel(Uri url, int channelId);
 	}
 
 	private static class MessageHandler extends Handler {

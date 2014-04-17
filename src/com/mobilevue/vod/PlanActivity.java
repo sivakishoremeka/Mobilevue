@@ -19,7 +19,6 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ExpandableListView;
@@ -182,9 +181,6 @@ public class PlanActivity extends Activity {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-
-			Log.d(TAG, "onPreExecute");
-
 			if (mProgressDialog != null) {
 				mProgressDialog.dismiss();
 				mProgressDialog = null;
@@ -206,9 +202,6 @@ public class PlanActivity extends Activity {
 
 		@Override
 		protected ResponseObj doInBackground(Void... params) {
-
-			Log.d(TAG, "doInBackground");
-
 			PlanDatum plan = mPlans.get(selectedGroupItem);
 			ResponseObj resObj = new ResponseObj();
 			if (Utilities.isNetworkAvailable(getApplicationContext())) {
@@ -241,9 +234,6 @@ public class PlanActivity extends Activity {
 		@Override
 		protected void onPostExecute(ResponseObj resObj) {
 			super.onPostExecute(resObj);
-
-			Log.d(TAG, "onPostExecute");
-
 			if (mProgressDialog.isShowing()) {
 				mProgressDialog.dismiss();
 			}

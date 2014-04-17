@@ -29,7 +29,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -119,7 +118,6 @@ public class MyProfileFragment extends Fragment {
 		@Override
 		public void failure(RetrofitError retrofitError) {
 			if (!mIsReqCanceled) {
-				Log.d(TAG, "getClientDetailsCallBack-failure");
 				if (mProgressDialog != null) {
 					mProgressDialog.dismiss();
 					mProgressDialog = null;
@@ -141,7 +139,6 @@ public class MyProfileFragment extends Fragment {
 		@Override
 		public void success(ClientDatum client, Response response) {
 			if (!mIsReqCanceled) {
-				Log.d(TAG, "templateCallBack-success");
 				if (mProgressDialog != null) {
 					mProgressDialog.dismiss();
 					mProgressDialog = null;
@@ -182,34 +179,28 @@ public class MyProfileFragment extends Fragment {
 
 			((TextView) mRootView
 					.findViewById(R.id.f_my_profile_account_no_value))
-					.setText(":   "+client.getAccountNo());
+					.setText(":   " + client.getAccountNo());
 			((TextView) mRootView
 					.findViewById(R.id.f_my_profile_activation_date_value))
-					.setText(":   "+client.getActivationDate());
+					.setText(":   " + client.getActivationDate());
 			((TextView) mRootView.findViewById(R.id.f_my_profile_name_value))
-					.setText(":   "+client.getFullname());
+					.setText(":   " + client.getFullname());
 			((TextView) mRootView.findViewById(R.id.f_my_profile_email_value))
-					.setText(":   "+client.getEmail());
+					.setText(":   " + client.getEmail());
 			((TextView) mRootView.findViewById(R.id.f_my_profile_phone_value))
-					.setText(":   "+client.getPhone());
+					.setText(":   " + client.getPhone());
 			((TextView) mRootView.findViewById(R.id.f_my_profile_country_value))
-					.setText(":   "+client.getCountry());
+					.setText(":   " + client.getCountry());
 			((TextView) mRootView.findViewById(R.id.f_my_profile_serial_value))
-					.setText(":   "+client.getHwSerialNumber());
+					.setText(":   " + client.getHwSerialNumber());
 			((TextView) mRootView.findViewById(R.id.f_my_profile_balance_value))
-					.setText(":   "+Float.toString(client.getBalanceAmount()));
+					.setText(":   " + Float.toString(-client.getBalanceAmount()));
 		}
 	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.nav_menu, menu);
-		MenuItem homeItem = menu.findItem(R.id.action_home);
-		homeItem.setVisible(true);
-		MenuItem searchItem = menu.findItem(R.id.action_search);
-		searchItem.setVisible(false);
-		MenuItem accountItem = menu.findItem(R.id.action_account);
-		accountItem.setVisible(false);
 		MenuItem refreshItem = menu.findItem(R.id.action_refresh);
 		refreshItem.setVisible(true);
 		super.onCreateOptionsMenu(menu, inflater);
@@ -277,7 +268,7 @@ public class MyProfileFragment extends Fragment {
 			client.setEmail(jsonObj.getString("email"));
 			client.setPhone(jsonObj.getString("phone"));
 			client.setCountry(jsonObj.getString("country"));
-			client.setBalanceAmount((float)jsonObj.getDouble("balanceAmount"));
+			client.setBalanceAmount((float) jsonObj.getDouble("balanceAmount"));
 			client.setHwSerialNumber(MyApplication.androidId);
 
 		} catch (JSONException e) {
@@ -287,16 +278,6 @@ public class MyProfileFragment extends Fragment {
 		}
 
 		return client;
-	}
-
-	public void onFragKeydown(int keyCode, KeyEvent event) {
-		if (mProgressDialog != null)
-			if (mProgressDialog.isShowing()) {
-				mProgressDialog.dismiss();
-				mProgressDialog = null;
-			}
-		mIsReqCanceled = true;
-		mExecutorService.shutdownNow();
 	}
 
 }

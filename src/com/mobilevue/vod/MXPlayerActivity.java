@@ -55,7 +55,7 @@ public class MXPlayerActivity extends Activity {
 			startActivityForResult(i, 0);
 			return;
 		} catch (ActivityNotFoundException e2) {
-			Log.d("MxException", e2.getMessage().toString());
+			Log.e("MxException", e2.getMessage().toString());
 		}
 	}
 
@@ -63,7 +63,6 @@ public class MXPlayerActivity extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		finish();
 		if (resultCode != RESULT_OK) {
-			Log.d(TAG, "Canceled.");
 			return;
 		}
 		// handle result.

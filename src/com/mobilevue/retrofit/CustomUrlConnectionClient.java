@@ -76,10 +76,10 @@ public class CustomUrlConnectionClient implements Client {
 			sc = SSLContext.getInstance("TLS");
 			sc.init(null, trustAllCerts, new java.security.SecureRandom());
 		} catch (NoSuchAlgorithmException e) {
-			Log.d("Eeception :", e.toString());
+			Log.e("Eeception :", e.toString());
 			e.printStackTrace();
 		} catch (KeyManagementException e) {
-			Log.d("Eeception :", e.toString());
+			Log.e("Eeception :", e.toString());
 			e.printStackTrace();
 		}
 		HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());

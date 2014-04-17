@@ -1,5 +1,6 @@
 package com.mobilevue.retrofit;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.Callback;
@@ -27,6 +28,8 @@ public interface OBSClient {
 	void getTemplate(Callback<TemplateDatum> cb);
 	@GET("/plans?planType=prepaid")
 	void getPrepaidPlans(Callback<List<PlanDatum>> cb);
+	@GET("/planservices/{clientId}?serviceType=IPTV")
+	ArrayList<ServiceDatum> getPlanServicesSync(@Path("clientId") String clientId);
 	@GET("/planservices/{clientId}?serviceType=IPTV")
 	void getPlanServices(@Path("clientId") String clientId,Callback<List<ServiceDatum>> cb);
 	@GET("/epgprogramguide/{channelName}/{reqDate}")

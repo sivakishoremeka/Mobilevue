@@ -44,6 +44,8 @@ public class RegisterActivity extends Activity {
 	EditText et_LastName;
 	EditText et_EmailId;
 	String mCountry;
+	String mState;
+	String mCity;
 
 	/** Boolean check for which request is processing */
 	boolean mIsClientRegistered = false;
@@ -71,9 +73,6 @@ public class RegisterActivity extends Activity {
 	}
 
 	private void getCountries() {
-
-		Log.d(TAG, "getCountries");
-
 		if (mProgressDialog != null) {
 			mProgressDialog.dismiss();
 			mProgressDialog = null;
@@ -84,9 +83,7 @@ public class RegisterActivity extends Activity {
 		mProgressDialog.setCanceledOnTouchOutside(false);
 		mProgressDialog.setOnCancelListener(new OnCancelListener() {
 			public void onCancel(DialogInterface arg0) {
-				Log.d(TAG, "onCancel");
-
-				if (mProgressDialog.isShowing())
+				if (mProgressDialog != null && mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
 				mExecutorService.shutdownNow();
 			}
@@ -99,7 +96,6 @@ public class RegisterActivity extends Activity {
 		@Override
 		public void failure(RetrofitError retrofitError) {
 
-			Log.d(TAG, "templateCallBack-failure");
 			if (mProgressDialog != null) {
 				mProgressDialog.dismiss();
 				mProgressDialog = null;
@@ -122,7 +118,6 @@ public class RegisterActivity extends Activity {
 		@Override
 		public void success(TemplateDatum template, Response response) {
 
-			Log.d(TAG, "templateCallBack-success");
 			if (mProgressDialog != null) {
 				mProgressDialog.dismiss();
 				mProgressDialog = null;
@@ -130,8 +125,11 @@ public class RegisterActivity extends Activity {
 			try {
 				mCountry = template.getAddressTemplateData().getCountryData()
 						.get(0);
+				mState = template.getAddressTemplateData().getStateData()
+						.get(0);
+				mCity = template.getAddressTemplateData().getCityData().get(0);
 			} catch (Exception e) {
-				Log.d("templateCallBack-success", e.getMessage());
+				Log.e("templateCallBack-success", e.getMessage());
 				Toast.makeText(RegisterActivity.this,
 						"Server Error : Country Name not Specified",
 						Toast.LENGTH_LONG).show();
@@ -158,6 +156,8 @@ public class RegisterActivity extends Activity {
 			client.setFirstname(et_FirstName.getText().toString());
 			client.setLastname(et_LastName.getText().toString());
 			client.setCountry(mCountry);
+			client.setState(mState);
+			client.setCity(mCity);
 			client.setEmail(et_EmailId.getText().toString());
 			DoOnBackgroundAsyncTask task = new DoOnBackgroundAsyncTask();
 			task.execute(client);
@@ -259,8 +259,11 @@ public class RegisterActivity extends Activity {
 				map.put("activationDate", "");
 				map.put("addressNo", "ghcv");
 				map.put("street", "Hyderabad");
-				map.put("city", "Hyderabad");
-				map.put("state", "ANDHRA PRADESH");// "Akershus");//"Drenth");//
+				map.put("addressNo", "ghcv");
+				map.put("street", "#23");
+				map.put("city", clientData.getCity());
+				map.put("state", clientData.getState());// "ANDHRA PRADESH");//
+														// "Akershus");//"Drenth");//
 				map.put("country", clientData.getCountry());
 				map.put("zipCode", "436346");
 				map.put("phone", clientData.getPhone());
@@ -274,10 +277,12 @@ public class RegisterActivity extends Activity {
 				mIsClientRegistered = true;
 				RegClientRespDatum clientResData = readJsonUser(resObj
 						.getsResponse());
-				mApplication.setClientId(Long.toString(clientResData.getClientId()));
+				mApplication.setClientId(Long.toString(clientResData
+						.getClientId()));
 				if (mApplication.isNetworkAvailable()) {
 					HashMap<String, String> map = new HashMap<String, String>();
-					map.put("TagURL", "/ownedhardware/" + mApplication.getClientId());
+					map.put("TagURL",
+							"/ownedhardware/" + mApplication.getClientId());
 					map.put("itemType", "1");
 					map.put("dateFormat", "dd MMMM yyyy");
 					String androidId = Settings.Secure.getString(
@@ -330,9 +335,6 @@ public class RegisterActivity extends Activity {
 	}
 
 	private RegClientRespDatum readJsonUser(String jsonText) {
-
-		Log.d("readJsonUser", "result is " + jsonText);
-
 		Gson gson = new Gson();
 		RegClientRespDatum response = gson.fromJson(jsonText,
 				RegClientRespDatum.class);

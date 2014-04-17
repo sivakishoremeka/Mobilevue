@@ -27,7 +27,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -160,8 +159,6 @@ public class IPTVActivity extends FragmentActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.nav_menu, menu);
-		MenuItem searchItem = menu.findItem(R.id.action_search);
-		searchItem.setVisible(false);
 		MenuItem refreshItem = menu.findItem(R.id.action_refresh);
 		refreshItem.setVisible(true);
 		return true;
@@ -246,9 +243,6 @@ public class IPTVActivity extends FragmentActivity {
 	}
 
 	private void GetChannelsFromServer() {
-
-		Log.d(TAG, "GetChannelsFromServer");
-
 		if (mProgressDialog != null) {
 			mProgressDialog.dismiss();
 			mProgressDialog = null;

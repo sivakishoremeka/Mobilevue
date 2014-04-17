@@ -43,4 +43,12 @@
         android:layout_height="2dp"
         android:layout_marginTop="3dp"
         android:background="#C3C1C2" />
+ 
+    <LinearLayout
+        android:id="@+id/f_my_pkgs_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+    </LinearLayout>
+ 
  </LinearLayout>

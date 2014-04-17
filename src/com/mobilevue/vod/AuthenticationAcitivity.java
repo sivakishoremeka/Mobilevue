@@ -118,6 +118,7 @@ public class AuthenticationAcitivity extends Activity {
 				if (device != null) {
 					/** on success save client id and check for active plans */
 					mApplication.setClientId(Long.toString(device.getClientId()));
+					mApplication.setBalance(device.getBalanceAmount());
 					mOBSClient.getActivePlans(mApplication.getClientId(),
 							activePlansCallBack);
 				} else {
@@ -162,6 +163,7 @@ public class AuthenticationAcitivity extends Activity {
 	};
 
 	public void  Refresh_OnClick(View v){
+		mBtnRefresh.setVisibility(View.INVISIBLE);
 		validateDevice();
 	}
 	@Override

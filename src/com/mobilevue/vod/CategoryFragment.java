@@ -8,13 +8,12 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.DialogInterface.OnCancelListener;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,9 +61,6 @@ public class CategoryFragment extends Fragment {
 	}
 
 	public void getDetails(SearchDetails sd) {
-
-		Log.d(TAG, "getDetails");
-
 		if (mProgressDialog != null) {
 			mProgressDialog.dismiss();
 			mProgressDialog = null;
@@ -85,7 +81,7 @@ public class CategoryFragment extends Fragment {
 			}
 		});
 		mProgressDialog.show();
-		
+
 		String deviceId = Settings.Secure.getString(getActivity()
 				.getApplicationContext().getContentResolver(),
 				Settings.Secure.ANDROID_ID);

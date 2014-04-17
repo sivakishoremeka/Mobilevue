@@ -8,9 +8,11 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import android.app.ActionBar;
 import android.app.ProgressDialog;
+import android.app.SearchManager;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -28,7 +30,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.mobilevue.adapter.MyFragmentPagerAdapter;
@@ -36,8 +37,10 @@ import com.mobilevue.adapter.VodCategoryAdapter;
 import com.mobilevue.data.MediaDetailRes;
 import com.mobilevue.retrofit.OBSClient;
 
-public class VodActivity extends FragmentActivity implements
-		SearchView.OnQueryTextListener {
+public class VodActivity extends FragmentActivity 
+//implements
+//		SearchView.OnQueryTextListener
+{
 	private static final String TAG = VodActivity.class.getName();
 	public static int ITEMS;
 	private final static String CATEGORY = "CATEGORY";
@@ -45,7 +48,7 @@ public class VodActivity extends FragmentActivity implements
 	ViewPager mPager;
 	private SharedPreferences mPrefs;
 	private Editor mPrefsEditor;
-	private SearchView mSearchView;
+	//private SearchView mSearchView;
 	ListView listView;
 	private ProgressDialog mProgressDialog;
 
@@ -53,6 +56,8 @@ public class VodActivity extends FragmentActivity implements
 	OBSClient mOBSClient;
 	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
+	
+	String mSearchString;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -122,10 +127,23 @@ public class VodActivity extends FragmentActivity implements
 		});
 	}
 
+	@Override
+	protected void onNewIntent(Intent intent) {		
+		super.onNewIntent(intent);
+		Log.d("onNewIntent", "onNewIntent");
+		if(null!=intent.getAction()&&intent.getAction().equals(Intent.ACTION_SEARCH)){
+			Log.d(intent.getStringExtra(SearchManager.QUERY),"onNewIntent");
+			mSearchString = intent.getStringExtra(SearchManager.QUERY);
+			listView.clearChoices();
+			mPrefs = getSharedPreferences(mApplication.PREFS_FILE, 0);
+			mPrefsEditor = mPrefs.edit();
+			mPrefsEditor.putString(CATEGORY, mSearchString);
+			mPrefsEditor.commit();
+			setPageCountAndGetDetails();
+		}
+	}
+	
 	protected void setPageCountAndGetDetails() {
-
-		Log.d(TAG, "setPageCountAndGetDetails");
-
 		mPrefs = getSharedPreferences(mApplication.PREFS_FILE, 0);
 		String category = mPrefs.getString(CATEGORY, "");
 
@@ -152,7 +170,7 @@ public class VodActivity extends FragmentActivity implements
 			}
 		});
 		mProgressDialog.show();
-		
+
 		mOBSClient.getPageCountAndMediaDetails(category.equals("") ? "RELEASE"
 				: category, "0", deviceId, getPageCountAndDetailsCallBack);
 	}
@@ -203,10 +221,14 @@ public class VodActivity extends FragmentActivity implements
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.nav_menu, menu);
 		MenuItem searchItem = menu.findItem(R.id.action_search);
-		mSearchView = (SearchView) searchItem.getActionView();
-		setupSearchView(searchItem);
-		MenuItem refreshItem = menu.findItem(R.id.action_refresh);
-		refreshItem.setVisible(true);
+	    searchItem.setVisible(true);
+	    MenuItem refreshItem = menu.findItem(R.id.action_refresh);
+	    refreshItem.setVisible(true);
+		//MenuItem searchItem = menu.findItem(R.id.action_search);
+		//mSearchView = (SearchView) searchItem.getActionView();
+		//setupSearchView(searchItem);
+	/*	MenuItem refreshItem = menu.findItem(R.id.action_refresh);
+		refreshItem.setVisible(true);*/
 		return true;
 	}
 
@@ -220,16 +242,22 @@ public class VodActivity extends FragmentActivity implements
 		case R.id.action_home:
 			NavUtils.navigateUpFromSameTask(this);
 			break;
+		case R.id.action_account:
+			startActivity(new Intent(this, MyAccountActivity.class));
+			break;
+		case R.id.action_search:
+			onSearchRequested();
+		break;
 		case R.id.action_refresh:
 			setPageCountAndGetDetails();
-			break;	
+			break;
 		default:
 			break;
 		}
 		return true;
 	}
 
-	private void setupSearchView(MenuItem searchItem) {
+	/*private void setupSearchView(MenuItem searchItem) {
 		mSearchView.setOnQueryTextListener(this);
 	}
 
@@ -252,5 +280,5 @@ public class VodActivity extends FragmentActivity implements
 		mPrefsEditor.commit();
 		setPageCountAndGetDetails();
 		return false;
-	}
+	}*/
 }

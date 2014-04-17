@@ -40,7 +40,6 @@ public class Utilities {
 	public static String basicAuth;
 	public static String contentType;
 	public static String API_URL;
-	static boolean D;
 
 	// private static ResponseObj resObj;
 
@@ -49,9 +48,6 @@ public class Utilities {
 
 	public static ResponseObj callExternalApiGetMethod(Context context,
 			HashMap<String, String> param) {
-		D = ((com.mobilevue.vod.MyApplication) context.getApplicationContext()).D;
-		if (D)
-			Log.d(TAG, "callExternalApiGetMethod");
 		StringBuilder builder = new StringBuilder();
 		ResponseObj resObj = new ResponseObj();
 		HttpClient client = MySSLSocketFactory.getNewHttpClient();
@@ -70,14 +66,9 @@ public class Utilities {
 		try {
 			HttpGet httpGet = new HttpGet(url.toString());
 			httpGet.setHeader("X-Mifos-Platform-TenantId", "default");
-			httpGet.setHeader(
-					"Authorization",
-					context
-									.getString(R.string.basic_auth));
+			httpGet.setHeader("Authorization",
+					context.getString(R.string.basic_auth));
 			httpGet.setHeader("Content-Type", "application/json");
-			if (D)
-				Log.d("callExternalApiGetMethod", " " + httpGet.getURI());
-
 			HttpResponse response = client.execute(httpGet);
 			StatusLine statusLine = response.getStatusLine();
 			int statusCode = statusLine.getStatusCode();
@@ -128,9 +119,6 @@ public class Utilities {
 
 	public static ResponseObj callExternalApiPostMethod(Context context,
 			HashMap<String, String> param) {
-		D = ((com.mobilevue.vod.MyApplication) context.getApplicationContext()).D;
-		if (D)
-			Log.d(TAG, "callExternalApi");
 		ResponseObj resObj = new ResponseObj();
 		StringBuilder builder = new StringBuilder();
 		HttpClient client = MySSLSocketFactory.getNewHttpClient();
@@ -142,10 +130,8 @@ public class Utilities {
 
 			HttpPost httpPost = new HttpPost(url);
 			httpPost.setHeader("X-Mifos-Platform-TenantId", "default");
-			httpPost.setHeader(
-					"Authorization",
-					context
-					.getString(R.string.basic_auth));
+			httpPost.setHeader("Authorization",
+					context.getString(R.string.basic_auth));
 			httpPost.setHeader("Content-Type", "application/json");
 			for (int i = 0; i < param.size(); i++) {
 				json.put((String) param.keySet().toArray()[i], (String) param
@@ -157,11 +143,6 @@ public class Utilities {
 			se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE,
 					"application/json"));
 			httpPost.setEntity(se);
-			if (D)
-				Log.d("callExternalApiPostMethod", " httpPost.getURI "
-						+ httpPost.getURI());
-			if (D)
-				Log.d("callExternalApiPostMethod", "json: " + json);
 			HttpResponse response = client.execute(httpPost);
 			StatusLine statusLine = response.getStatusLine();
 			int statusCode = statusLine.getStatusCode();
@@ -211,9 +192,6 @@ public class Utilities {
 	}
 
 	public static boolean isNetworkAvailable(Context context) {
-		D = ((com.mobilevue.vod.MyApplication) context.getApplicationContext()).D;
-		if (D)
-			Log.d(TAG, "getDetails");
 		ConnectivityManager connectivityManager = (ConnectivityManager) context
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 
@@ -235,7 +213,6 @@ public class Utilities {
 		}
 		return false;
 	}
-
 
 	public static AlertDialog getAlertDialog(final Context context) {
 

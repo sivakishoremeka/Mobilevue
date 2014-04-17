@@ -27,7 +27,6 @@ import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.RelativeLayout;
@@ -94,9 +93,6 @@ public class VodMovieDetailsActivity extends Activity {
 	}
 
 	public void btnOnClick(View v) {
-
-		Log.d("Btn Click", ((Button) v).getText().toString());
-
 		AlertDialog dialog = new AlertDialog.Builder(
 				VodMovieDetailsActivity.this, AlertDialog.THEME_HOLO_LIGHT)
 				.create();
@@ -168,8 +164,7 @@ public class VodMovieDetailsActivity extends Activity {
 					}
 				} else {
 					Toast.makeText(VodMovieDetailsActivity.this,
-							"Server Error  ",
-							Toast.LENGTH_LONG).show();
+							"Server Error  ", Toast.LENGTH_LONG).show();
 				}
 			}
 		}
@@ -226,9 +221,6 @@ public class VodMovieDetailsActivity extends Activity {
 		@Override
 		protected void onPostExecute(ResponseObj resObj) {
 			super.onPostExecute(resObj);
-
-			Log.d(TAG, "onPostExecute");
-
 			if (resObj.getStatusCode() == 200) {
 				if (mProgressDialog.isShowing()) {
 					mProgressDialog.dismiss();
@@ -349,7 +341,7 @@ public class VodMovieDetailsActivity extends Activity {
 				JSONObject filmLocObj = (JSONObject) jsonLocnArr.get(0);
 				language = filmLocObj.getInt("languageId");
 			} catch (JSONException e) {
-				Log.d(TAG, e.getMessage());
+				Log.e(TAG, e.getMessage());
 			}
 
 		}

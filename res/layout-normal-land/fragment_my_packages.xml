@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/f_my_pkgs_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -16,34 +15,41 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="4.5"
-            android:textStyle="bold"
+            android:text="@string/package_name"
             android:textSize="10sp"
-            android:text="@string/package_name" />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/f_my_pkgs_actvtd_on_h"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2.75"
-            android:textStyle="bold"
+            android:text="@string/actvtd_on"
             android:textSize="10sp"
-            android:text="@string/actvtd_on" />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/f_my_pkgs_valid_till_h"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2.75"
-            android:textStyle="bold"
+            android:text="@string/valid_till"
             android:textSize="10sp"
-            android:text="@string/valid_till" />
+            android:textStyle="bold" />
     </LinearLayout>
-    
-     <View
+
+    <View
         android:id="@+id/f_my_profile_hr_line1"
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_marginTop="3dp"
         android:background="#C3C1C2" />
+
+    <LinearLayout
+        android:id="@+id/f_my_pkgs_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+    </LinearLayout>
 
 </LinearLayout>

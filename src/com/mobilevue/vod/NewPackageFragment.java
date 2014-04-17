@@ -30,6 +30,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -50,6 +51,7 @@ import com.mobilevue.adapter.NewPackageAdapter;
 import com.mobilevue.data.OrderDatum;
 import com.mobilevue.data.PlanDatum;
 import com.mobilevue.data.ResponseObj;
+import com.mobilevue.data.ServiceDatum;
 import com.mobilevue.retrofit.OBSClient;
 import com.mobilevue.utils.Utilities;
 
@@ -59,15 +61,16 @@ public class NewPackageFragment extends Fragment {
 	private final static String NETWORK_ERROR = "Network error.";
 	private final static String PREPAID_PLANS = "Prepaid plans";
 	private final static String MY_PLANS = "My plans";
+	private final static String CHANNELS_UPDATED_AT = "Updated At";
+	private final static String CHANNELS_LIST = "Channels";
+	private final static String IPTV_CHANNELS_DETAILS = "IPTV Channels Details";
 	private static String NEW_PAKAGE_DATA;
-
+	static String CLIENT_PACKAGE_DATA;
 	private ProgressDialog mProgressDialog;
-
 	MyApplication mApplication = null;
-	OBSClient mOBSClient;
 	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
-
+	boolean mIsPlanSubscribed = false;
 	List<PlanDatum> mPlans;
 	List<PlanDatum> mNewPlans;
 	List<OrderDatum> mMyOrders;
@@ -82,8 +85,8 @@ public class NewPackageFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		mActivity = getActivity();
 		mApplication = ((MyApplication) mActivity.getApplicationContext());
-		mExecutorService = Executors.newCachedThreadPool();
-		mOBSClient = mApplication.getOBSClient(mActivity, mExecutorService);
+		CLIENT_PACKAGE_DATA = mApplication.getResources().getString(
+				R.string.client_pkg_data);
 		/**
 		 * In order for onCreateOptionsMenu() and onOptionsItemSelected()
 		 * methods to receive calls, however, you must call setHasOptionsMenu()
@@ -111,7 +114,8 @@ public class NewPackageFragment extends Fragment {
 		}
 		return mRootView;
 	}
-	private void CheckForNewPlansnUpdate(){
+
+	private void CheckForNewPlansnUpdate() {
 		mNewPlans = new ArrayList<PlanDatum>();
 		if (null != mPlans && null != mMyOrders && mPlans.size() > 0
 				&& mMyOrders.size() > 0) {
@@ -128,18 +132,19 @@ public class NewPackageFragment extends Fragment {
 				}
 			}
 		}
-		if (null != mNewPlans && mNewPlans.size() != 0) {
+		if ((null != mNewPlans && mNewPlans.size() != 0)
+				|| (mPlans.size() == mMyOrders.size())) {
 			Editor editor = mApplication.getEditor();
-			editor.putString(NEW_PAKAGE_DATA,
-					new Gson().toJson(mNewPlans));
+			editor.putString(NEW_PAKAGE_DATA, new Gson().toJson(mNewPlans));
 			editor.commit();
 			buildPlansList();
 		}
 	}
+
 	private void getMyPlansFromServer() {
 		getPlans(MY_PLANS);
 	}
-	
+
 	private void getPlansFromServer() {
 		getPlans(PREPAID_PLANS);
 	}
@@ -165,9 +170,12 @@ public class NewPackageFragment extends Fragment {
 			}
 		});
 		mProgressDialog.show();
-		if (PREPAID_PLANS.equalsIgnoreCase(planType))
+		if (PREPAID_PLANS.equalsIgnoreCase(planType)) {
+			mExecutorService = Executors.newCachedThreadPool();
+			OBSClient mOBSClient = mApplication.getOBSClient(mActivity,
+					mExecutorService);
 			mOBSClient.getPrepaidPlans(getPlansCallBack);
-		else if (MY_PLANS.equalsIgnoreCase(planType)) {
+		} else if (MY_PLANS.equalsIgnoreCase(planType)) {
 			mExecutorService = Executors.newCachedThreadPool();
 			RestAdapter restAdapter = new RestAdapter.Builder()
 					.setEndpoint(mApplication.API_URL)
@@ -179,7 +187,7 @@ public class NewPackageFragment extends Fragment {
 									mApplication.tenentId,
 									mApplication.basicAuth,
 									mApplication.contentType)).build();
-			mOBSClient = restAdapter.create(OBSClient.class);
+			OBSClient mOBSClient = restAdapter.create(OBSClient.class);
 			mOBSClient.getClinetPackageDetails(mApplication.getClientId(),
 					getClientPkgDtlsCallBack);
 		}
@@ -190,7 +198,6 @@ public class NewPackageFragment extends Fragment {
 		@Override
 		public void success(List<OrderDatum> orderList, Response arg1) {
 			if (!mIsReqCanceled) {
-				Log.d(TAG, "templateCallBack-success");
 				if (mProgressDialog != null) {
 					mProgressDialog.dismiss();
 					mProgressDialog = null;
@@ -199,8 +206,14 @@ public class NewPackageFragment extends Fragment {
 					Toast.makeText(mActivity, "Server Error.",
 							Toast.LENGTH_LONG).show();
 				} else {
+					SharedPreferences.Editor editor = mApplication.getPrefs()
+							.edit();
+					editor.putString(CLIENT_PACKAGE_DATA,
+							new Gson().toJson(orderList));
+					editor.commit();
 					mMyOrders = orderList;
-					CheckForNewPlansnUpdate();
+					// updating sevices
+					GetChannelsFromServer();
 				}
 			}
 		}
@@ -208,7 +221,6 @@ public class NewPackageFragment extends Fragment {
 		@Override
 		public void failure(RetrofitError retrofitError) {
 			if (!mIsReqCanceled) {
-				Log.d(TAG, "getClientPkgDtlsCallBack-failure");
 				if (mProgressDialog != null) {
 					mProgressDialog.dismiss();
 					mProgressDialog = null;
@@ -267,11 +279,13 @@ public class NewPackageFragment extends Fragment {
 	};
 
 	private void buildPlansList() {
-
 		expListView = (ExpandableListView) mRootView
 				.findViewById(R.id.a_exlv_plans_services);
 		listAdapter = new NewPackageAdapter(mActivity, mNewPlans, this);
 		expListView.setAdapter(listAdapter);
+		if (mIsPlanSubscribed)
+			Toast.makeText(mActivity, "Plan Subscription Success.",
+					Toast.LENGTH_LONG).show();
 	}
 
 	public void btnSubmit_onClick() {
@@ -294,12 +308,6 @@ public class NewPackageFragment extends Fragment {
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.nav_menu, menu);
-		MenuItem homeItem = menu.findItem(R.id.action_home);
-		homeItem.setVisible(true);
-		MenuItem searchItem = menu.findItem(R.id.action_search);
-		searchItem.setVisible(false);
-		MenuItem accountItem = menu.findItem(R.id.action_account);
-		accountItem.setVisible(false);
 		MenuItem refreshItem = menu.findItem(R.id.action_refresh);
 		refreshItem.setVisible(true);
 		super.onCreateOptionsMenu(menu, inflater);
@@ -322,13 +330,9 @@ public class NewPackageFragment extends Fragment {
 
 	private class OrderPlansAsyncTask extends
 			AsyncTask<Void, Void, ResponseObj> {
-
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-
-			Log.d(TAG, "onPreExecute");
-
 			if (mProgressDialog != null) {
 				mProgressDialog.dismiss();
 				mProgressDialog = null;
@@ -350,9 +354,6 @@ public class NewPackageFragment extends Fragment {
 
 		@Override
 		protected ResponseObj doInBackground(Void... params) {
-
-			Log.d(TAG, "doInBackground");
-
 			PlanDatum plan = mNewPlans.get(selectedGroupItem);
 			ResponseObj resObj = new ResponseObj();
 			if (Utilities.isNetworkAvailable(mApplication)) {
@@ -372,27 +373,23 @@ public class NewPackageFragment extends Fragment {
 				map.put("billAlign", "true");
 				map.put("paytermCode", plan.getServices().get(0)
 						.getChargeCode());
-
 				resObj = Utilities.callExternalApiPostMethod(mApplication, map);
 			} else {
 				resObj.setFailResponse(100, NETWORK_ERROR);
 			}
-
 			return resObj;
 		}
 
 		@Override
 		protected void onPostExecute(ResponseObj resObj) {
 			super.onPostExecute(resObj);
-
-			Log.d(TAG, "onPostExecute");
-
-			if (mProgressDialog.isShowing()) {
+			if (mProgressDialog != null && mProgressDialog.isShowing()) {
 				mProgressDialog.dismiss();
 			}
 			if (resObj.getStatusCode() == 200) {
-				Toast.makeText(mActivity, "Plan Subscription Success.",
-						Toast.LENGTH_LONG).show();
+				mIsPlanSubscribed = true;
+				getPlansFromServer();
+
 			} else {
 				Toast.makeText(mActivity, resObj.getsErrorMessage(),
 						Toast.LENGTH_LONG).show();
@@ -406,11 +403,9 @@ public class NewPackageFragment extends Fragment {
 		public List<OrderDatum> fromBody(TypedInput typedInput, Type type)
 				throws ConversionException {
 			List<OrderDatum> ordersList = null;
-
 			try {
 				String json = MyApplication.getJSONfromInputStream(typedInput
 						.in());
-
 				JSONObject jsonObj;
 				jsonObj = new JSONObject(json);
 				JSONArray arrOrders = jsonObj.getJSONArray("clientOrders");
@@ -432,10 +427,98 @@ public class NewPackageFragment extends Fragment {
 
 	}
 
+	private void GetChannelsFromServer() {
+		if (mProgressDialog != null) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+		}
+		mProgressDialog = new ProgressDialog(getActivity(),
+				ProgressDialog.THEME_HOLO_DARK);
+		mProgressDialog.setMessage("Retriving Detials");
+		mProgressDialog.setCanceledOnTouchOutside(false);
+		mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+			public void onCancel(DialogInterface arg0) {
+				if (mProgressDialog.isShowing())
+					mProgressDialog.dismiss();
+				mIsReqCanceled = true;
+				if (null != mExecutorService)
+					if (!mExecutorService.isShutdown())
+						mExecutorService.shutdownNow();
+			}
+		});
+		mProgressDialog.show();
+		mExecutorService = Executors.newCachedThreadPool();
+		OBSClient mOBSClient = mApplication.getOBSClient(mActivity,
+				mExecutorService);
+		mOBSClient.getPlanServices(mApplication.getClientId(),
+				getPlanServicesCallBack);
+	}
+
+	final Callback<List<ServiceDatum>> getPlanServicesCallBack = new Callback<List<ServiceDatum>>() {
+		@Override
+		public void failure(RetrofitError retrofitError) {
+			if (!mIsReqCanceled) {
+				if (mProgressDialog != null) {
+					mProgressDialog.dismiss();
+					mProgressDialog = null;
+				}
+				if (retrofitError.isNetworkError()) {
+					Toast.makeText(getActivity(),
+							mApplication.getString(R.string.error_network),
+							Toast.LENGTH_LONG).show();
+				} else if (retrofitError.getResponse().getStatus() == 403) {
+					String msg = mApplication
+							.getDeveloperMessage(retrofitError);
+					msg = (msg != null && msg.length() > 0 ? msg
+							: "Internal Server Error");
+					Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG)
+							.show();
+				} else {
+					Toast.makeText(
+							getActivity(),
+							"Server Error : "
+									+ retrofitError.getResponse().getStatus(),
+							Toast.LENGTH_LONG).show();
+				}
+				CheckForNewPlansnUpdate();
+			}
+		}
+
+		@Override
+		public void success(List<ServiceDatum> serviceList, Response response) {
+			if (!mIsReqCanceled) {
+				if (mProgressDialog != null) {
+					mProgressDialog.dismiss();
+					mProgressDialog = null;
+				}
+				if (serviceList != null && serviceList.size() > 0) {
+
+					/** saving channel details to preferences */
+
+					Editor mPrefsEditor = mApplication.getPrefs().edit();
+					Date date = new Date();
+					String formattedDate = mApplication.df.format(date);
+					JSONObject json = null;
+					try {
+						json = new JSONObject();
+						json.put(CHANNELS_UPDATED_AT, formattedDate);
+						json.put(CHANNELS_LIST, new Gson().toJson(serviceList));
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+					mPrefsEditor.putString(IPTV_CHANNELS_DETAILS,
+							json.toString());
+					mPrefsEditor.commit();
+					CheckForNewPlansnUpdate();
+				}
+			}
+		}
+	};
+
 	public static List<OrderDatum> getOrdersFromJson(String json) {
 		List<OrderDatum> ordersList = new ArrayList<OrderDatum>();
 		try {
-
 			JSONArray arrOrders = new JSONArray(json);
 			for (int i = 0; i < arrOrders.length(); i++) {
 
@@ -482,13 +565,12 @@ public class NewPackageFragment extends Fragment {
 	}
 
 	public void onFragKeydown(int keyCode, KeyEvent event) {
-		if (mProgressDialog != null)
-			if (mProgressDialog.isShowing()) {
-				mProgressDialog.dismiss();
-				mProgressDialog = null;
-			}
-		mIsReqCanceled = true;
-		mExecutorService.shutdownNow();
+		/*
+		 * if (mProgressDialog != null) if (mProgressDialog.isShowing()) {
+		 * mProgressDialog.dismiss(); mProgressDialog = null; }
+		 */
+		// mIsReqCanceled = true;
+		// mExecutorService.shutdownNow();
 	}
 
 }

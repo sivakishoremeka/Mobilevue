@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,9 +23,6 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		Log.d(TAG, "onCreate");
-
 		setContentView(R.layout.activity_main);
 		listView = (ListView) findViewById(R.id.a_main_lv_menu);
 		MainMenuAdapter menuAdapter = new MainMenuAdapter(this);
@@ -53,10 +49,6 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.nav_menu, menu);
-		MenuItem searchItem = menu.findItem(R.id.action_search);
-		searchItem.setVisible(false);
-		MenuItem accountItem = menu.findItem(R.id.action_account);
-		accountItem.setVisible(true);
 		return true;
 	}
 

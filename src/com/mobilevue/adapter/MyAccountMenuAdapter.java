@@ -63,6 +63,17 @@ public class MyAccountMenuAdapter extends BaseAdapter {
 		StateListDrawable states = new StateListDrawable();
 
 		states.addState(
+				new int[] { android.R.attr.state_activated },
+				activity.getResources().getDrawable(
+						activity.getResources().getIdentifier(imgNameSel,
+								"drawable", "com.mobilevue.vod")));
+
+		states.addState(
+				new int[] { android.R.attr.state_selected },
+				activity.getResources().getDrawable(
+						activity.getResources().getIdentifier(imgName,
+								"drawable", "com.mobilevue.vod")));
+		states.addState(
 				new int[] { android.R.attr.state_pressed },
 				activity.getResources().getDrawable(
 						activity.getResources().getIdentifier(imgNameSel,

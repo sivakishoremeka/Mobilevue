@@ -55,7 +55,7 @@ public class MyApplication extends Application {
 	private float balance = 0;
 	public static String androidId;
 	private String clientId = null;
-	public boolean isBalCheckReq = false;
+	public boolean isBalCheckReq = true;
 	public boolean D = true; // need to delete this variable
 	public Player player = Player.NATIVE_PLAYER;
 
@@ -213,19 +213,19 @@ public class MyApplication extends Application {
 
 	public float getBalance() {
 		if (balance == 0) {
-			balance = getPrefs().getFloat("BALANCE",0);
+			balance = getPrefs().getFloat("BALANCE", 0);
 		}
 		return balance;
 	}
 
 	public void setBalance(float balance) {
-		getEditor().putFloat("BALANCE", balance);
-		this.balance = balance;
+		getEditor().putFloat("BALANCE", -balance);
+		this.balance = - balance;
 	}
 
 	public String getClientId() {
-		if (clientId == null ||clientId.length()==0) {
-			clientId = getPrefs().getString("CLIENTID","");
+		if (clientId == null || clientId.length() == 0) {
+			clientId = getPrefs().getString("CLIENTID", "");
 		}
 		return clientId;
 	}
