@@ -227,7 +227,7 @@ public class VideoControllerView extends FrameLayout {
 					Gravity.CENTER);
 			params.height = 96;
 			params.width = 96;
-			params.setMargins(1, 1, 1, 1);
+			//params.setMargins(1, 1, 1, 1);
 			button.setLayoutParams(params);
 			button.setId(1000 + imgno);
 			button.setTag(Info);

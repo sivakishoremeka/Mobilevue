@@ -175,8 +175,10 @@ public class IPTVActivity extends FragmentActivity {
 			/* NavUtils.navigateUpFromSameTask(this); */
 			startActivity(new Intent(this, MainActivity.class));
 			break;
+		case R.id.action_account:
+			startActivity(new Intent(this, MyAccountActivity.class));
+			break;
 		case R.id.action_refresh:
-
 			mPrefsEditor.remove(ChannelsActivity.IPTV_CHANNELS_DETAILS);
 			mPrefsEditor.commit();
 			CheckCacheForChannelList();
@@ -352,7 +354,7 @@ public class IPTVActivity extends FragmentActivity {
 			LayoutParams params = new LayoutParams(Gravity.CENTER);
 			params.height = 96;
 			params.width = 96;
-			params.setMargins(1, 1, 1, 1);
+			//params.setMargins(1, 1, 1, 1);
 			button.setLayoutParams(params);
 			button.setId(1000 + imgno);
 			button.setTag(chInfo);

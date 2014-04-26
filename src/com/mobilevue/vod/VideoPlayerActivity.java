@@ -93,7 +93,7 @@ public class VideoPlayerActivity extends Activity implements
 	public void surfaceCreated(SurfaceHolder holder) {
 		player.setDisplay(holder);
 		player.prepareAsync();
-		if (mProgressDialog != null) {
+		if (mProgressDialog != null && mProgressDialog.isShowing()) {
 			mProgressDialog.dismiss();
 			mProgressDialog = null;
 		}
@@ -128,18 +128,21 @@ public class VideoPlayerActivity extends Activity implements
 		controller.setAnchorView(rlayout);
 		controller
 				.setAnchorView((RelativeLayout) findViewById(R.id.video_container));
-		if (mProgressDialog.isShowing()) {
+		if (mProgressDialog != null && mProgressDialog.isShowing()) {
 			mProgressDialog.dismiss();
+			mProgressDialog = null;
 		}
 		mp.start();
 	}
 
 	@Override
 	public void onBackPressed() {
-		if (player != null && player.isPlaying())
-			player.stop();
-		player.release();
-		player = null;
+		if (player != null) {
+			if (player.isPlaying())
+				player.stop();
+			player.release();
+			player = null;
+		}
 		// finish();
 	}
 

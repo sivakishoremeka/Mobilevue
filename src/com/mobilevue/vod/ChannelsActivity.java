@@ -8,7 +8,6 @@ import java.util.concurrent.Executors;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
@@ -16,9 +15,9 @@ import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.Loader;
-import android.content.DialogInterface.OnCancelListener;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -28,9 +27,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.mobilevue.adapter.ChannelGridViewAdapter;
 import com.mobilevue.data.DeviceDatum;
@@ -55,7 +54,7 @@ public class ChannelsActivity extends Activity implements
 	boolean mIsReqCanceled = false;
 
 	boolean mIsLiveDataReq = false;
-	int mReqType = 1;
+	int mReqType = ServiceProvider.ALLSERVICES;
 	boolean mIsBalCheckReq;
 	float mBalance;
 
@@ -84,7 +83,7 @@ public class ChannelsActivity extends Activity implements
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
 		Log.d("onNewIntent", "onNewIntent");
-		if (intent.getAction().equals(Intent.ACTION_SEARCH)) {
+		if (null!=intent && null!=intent.getAction() && intent.getAction().equals(Intent.ACTION_SEARCH)) {
 
 			// initiallizing req criteria
 			mReqType = ServiceProvider.SEARCH;
@@ -134,6 +133,7 @@ public class ChannelsActivity extends Activity implements
 			CheckBalancenGetData();
 			break;
 		case R.id.action_search:
+			 //The searchbar is initiated programmatically with a call to your Activity’s onSearchRequested method. 
 			onSearchRequested();
 			break;
 		default:

@@ -37,6 +37,7 @@ import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
 
 @ReportsCrashes(formKey = "", // will not be used
 mailTo = "kishoremekas@gmail.com", // my email here
@@ -55,7 +56,7 @@ public class MyApplication extends Application {
 	private float balance = 0;
 	public static String androidId;
 	private String clientId = null;
-	public boolean isBalCheckReq = true;
+	public boolean isBalCheckReq = false;
 	public boolean D = true; // need to delete this variable
 	public Player player = Player.NATIVE_PLAYER;
 
@@ -71,6 +72,7 @@ public class MyApplication extends Application {
 				.showImageOnLoading(R.drawable.ic_default_ch)
 				.showImageForEmptyUri(R.drawable.ic_default_ch)
 				.showImageOnFail(R.drawable.ic_default_ch).cacheInMemory(true)
+				//.displayer(new RoundedBitmapDisplayer(10))
 				.cacheOnDisc(true).bitmapConfig(Bitmap.Config.RGB_565).build();
 
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(
