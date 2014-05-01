@@ -112,13 +112,7 @@ public class VideoPlayerActivity extends Activity implements
 		mProgressDialog.show();
 	}
 
-	@Override
-	public void surfaceDestroyed(SurfaceHolder holder) {
-
-	}
-
 	// End SurfaceHolder.Callback
-
 	// Implement MediaPlayer.OnPreparedListener
 	@Override
 	public void onPrepared(MediaPlayer mp) {
@@ -140,10 +134,12 @@ public class VideoPlayerActivity extends Activity implements
 		if (player != null) {
 			if (player.isPlaying())
 				player.stop();
+			if (controller.isShowing())
+				controller.hide();
 			player.release();
 			player = null;
+			// finish();
 		}
-		// finish();
 	}
 
 	// End MediaPlayer.OnPreparedListener
@@ -214,9 +210,11 @@ public class VideoPlayerActivity extends Activity implements
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		// TODO Auto-generated method stub
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			if (player != null && player.isPlaying()) {
-				controller.hide();
-				player.stop();
+			if (player != null) {
+				if (player.isPlaying())
+					player.stop();
+				if (controller.isShowing())
+					controller.hide();
 				player.release();
 				player = null;
 				finish();
@@ -287,43 +285,32 @@ public class VideoPlayerActivity extends Activity implements
 	@Override
 	public boolean onInfo(MediaPlayer mp, int what, int extra) {
 
-		if (Build.VERSION.SDK_INT >= 17) {
-			if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
-				if (mProgressDialog != null && mProgressDialog.isShowing()) {
-					mProgressDialog.dismiss();
-					mProgressDialog = null;
-				}
-			}
-		}
-		if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
-			if (mProgressDialog != null && mProgressDialog.isShowing()) {
-				mProgressDialog.dismiss();
-				mProgressDialog = null;
-			}
-			mProgressDialog = new ProgressDialog(VideoPlayerActivity.this,
-					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Buffering");
-			// mProgressDialog.setCancelable(true);
-			mProgressDialog.setCanceledOnTouchOutside(false);
-			mProgressDialog.setOnCancelListener(new OnCancelListener() {
-
-				public void onCancel(DialogInterface arg0) {
-					if (mProgressDialog.isShowing())
-						mProgressDialog.dismiss();
-					finish();
-				}
-			});
-			mProgressDialog.show();
-		} else if (what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
-			if (mProgressDialog != null && mProgressDialog.isShowing()) {
-				mProgressDialog.dismiss();
-				mProgressDialog = null;
-			}
-		} /*
-		 * else if (what == MediaPlayer.MEDIA_ERROR_TIMED_OUT) { if
-		 * (mProgressDialog.isShowing()) { mProgressDialog.dismiss(); } TAG,
-		 * "Request timed out.Closing MediaPlayer"); finish(); }
-		 */
+		/*
+		 * if (Build.VERSION.SDK_INT >= 17) { if (what ==
+		 * MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) { if (mProgressDialog
+		 * != null && mProgressDialog.isShowing()) { mProgressDialog.dismiss();
+		 * mProgressDialog = null; } } } if (what ==
+		 * MediaPlayer.MEDIA_INFO_BUFFERING_START) { if (mProgressDialog != null
+		 * && mProgressDialog.isShowing()) { mProgressDialog.dismiss();
+		 * mProgressDialog = null; } mProgressDialog = new
+		 * ProgressDialog(VideoPlayerActivity.this,
+		 * ProgressDialog.THEME_HOLO_DARK);
+		 * mProgressDialog.setMessage("Buffering"); //
+		 * mProgressDialog.setCancelable(true);
+		 * mProgressDialog.setCanceledOnTouchOutside(false);
+		 * mProgressDialog.setOnCancelListener(new OnCancelListener() {
+		 * 
+		 * public void onCancel(DialogInterface arg0) { if
+		 * (mProgressDialog.isShowing()) mProgressDialog.dismiss(); finish(); }
+		 * }); mProgressDialog.show(); } else if (what ==
+		 * MediaPlayer.MEDIA_INFO_BUFFERING_END) { if (mProgressDialog != null
+		 * && mProgressDialog.isShowing()) { mProgressDialog.dismiss();
+		 * mProgressDialog = null; } }
+		 *//*
+			 * else if (what == MediaPlayer.MEDIA_ERROR_TIMED_OUT) { if
+			 * (mProgressDialog.isShowing()) { mProgressDialog.dismiss(); } TAG,
+			 * "Request timed out.Closing MediaPlayer"); finish(); }
+			 */
 		return true;
 
 	}
@@ -340,21 +327,37 @@ public class VideoPlayerActivity extends Activity implements
 					getApplicationContext(),
 					"Incorrect URL or Unsupported Media Format.Media player closed.",
 					Toast.LENGTH_LONG).show();
-
-			finish();
 		} else if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == -1004) {
 
 			Toast.makeText(
 					getApplicationContext(),
 					"Invalid Stream for this channel... Please try other channel",
 					Toast.LENGTH_LONG).show();
-
-			finish();
 		} else {
 			controller.mHandler.removeMessages(controller.SHOW_PROGRESS);
 			controller.mHandler.removeMessages(controller.FADE_OUT);
 			changeChannel(mUri, mChannelId);
 		}
 		return true;
+	}
+
+	@Override
+	protected void onPause() {
+		if (player != null) {
+			if (player.isPlaying())
+				player.stop();
+			if (controller.isShowing())
+				controller.hide();
+			player.release();
+			player = null;
+			finish();
+		} else {
+			finish();
+		}
+		super.onPause();
+	}
+	@Override
+	public void surfaceDestroyed(SurfaceHolder holder) {
+
 	}
 }

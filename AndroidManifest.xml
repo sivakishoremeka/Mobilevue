@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mobilevue.vod"
-    android:versionCode="12"
-    android:versionName="1.2" >
+    android:versionCode="14"
+    android:versionName="1.2.2" >
 
     <uses-sdk
         android:minSdkVersion="11"
@@ -64,10 +64,11 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mobilevue.vod.MainActivity" />
+
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
-			<!-- Points to searchable meta data -->
+            <!-- Points to searchable meta data -->
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
@@ -90,10 +91,11 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.mobilevue.vod.MainActivity" />
+
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
-			<!-- Points to searchable meta data -->
+            <!-- Points to searchable meta data -->
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
@@ -132,7 +134,8 @@
         </receiver>
 
         <service android:name="com.mobilevue.service.ScheduleAfterBootService" />
-        <provider 
+
+        <provider
             android:name="com.mobilevue.database.ServiceProvider"
             android:authorities="com.mobilevue.database.ServiceProvider"
             android:exported="false" />

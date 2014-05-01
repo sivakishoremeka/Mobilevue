@@ -179,7 +179,7 @@ public class NewPackageFragment extends Fragment {
 			mExecutorService = Executors.newCachedThreadPool();
 			RestAdapter restAdapter = new RestAdapter.Builder()
 					.setEndpoint(mApplication.API_URL)
-					.setLogLevel(RestAdapter.LogLevel.FULL)
+					.setLogLevel(RestAdapter.LogLevel.NONE)
 					.setExecutors(mExecutorService, new MainThreadExecutor())
 					.setConverter(new JSONConverter())
 					.setClient(
