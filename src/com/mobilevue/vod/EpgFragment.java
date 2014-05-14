@@ -7,8 +7,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,7 +53,6 @@ public class EpgFragment extends Fragment {
 
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
-	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
 	EpgReqDetails mReqDetails = null;
 
@@ -66,8 +63,7 @@ public class EpgFragment extends Fragment {
 				container, false);
 
 		mApplication = ((MyApplication) getActivity().getApplicationContext());
-		mExecutorService = Executors.newCachedThreadPool();
-		mOBSClient = mApplication.getOBSClient(getActivity(), mExecutorService);
+		mOBSClient = mApplication.getOBSClient(getActivity());
 
 		mPrefs = getActivity().getSharedPreferences(mApplication.PREFS_FILE, 0);
 		list = (ListView) rootView.findViewById(R.id.fr_epg_lv_epg_dtls);
@@ -132,7 +128,7 @@ public class EpgFragment extends Fragment {
 	}
 
 	private void getEpgDetailsFromServer(EpgReqDetails rd) {
-		if (mProgressDialog != null) {
+		if (mProgressDialog != null && mProgressDialog.isShowing()) {
 			mProgressDialog.dismiss();
 			mProgressDialog = null;
 		}
@@ -143,12 +139,11 @@ public class EpgFragment extends Fragment {
 		mProgressDialog.setOnCancelListener(new OnCancelListener() {
 
 			public void onCancel(DialogInterface arg0) {
-				if (mProgressDialog.isShowing())
+				if (mProgressDialog != null && mProgressDialog.isShowing()) {
 					mProgressDialog.dismiss();
+					mProgressDialog = null;
+				}
 				mIsReqCanceled = true;
-				if (null != mExecutorService)
-					if (!mExecutorService.isShutdown())
-						mExecutorService.shutdownNow();
 			}
 		});
 		mProgressDialog.show();
@@ -161,7 +156,7 @@ public class EpgFragment extends Fragment {
 		@Override
 		public void failure(RetrofitError retrofitError) {
 			if (!mIsReqCanceled) {
-				if (mProgressDialog != null) {
+				if (mProgressDialog != null && mProgressDialog.isShowing()) {
 					mProgressDialog.dismiss();
 					mProgressDialog = null;
 				}
@@ -178,14 +173,15 @@ public class EpgFragment extends Fragment {
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 
 		@Override
 		public void success(EPGData data, Response response) {
 			List<EpgDatum> ProgGuideList = null;
 			if (!mIsReqCanceled) {
-				if (mProgressDialog != null) {
+				if (mProgressDialog != null && mProgressDialog.isShowing()) {
 					mProgressDialog.dismiss();
 					mProgressDialog = null;
 				}
@@ -240,7 +236,8 @@ public class EpgFragment extends Fragment {
 				 * else { mErrDialog.setMessage("EPG Data is not Available");
 				 * mErrDialog.show(); }
 				 */
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 	};
 

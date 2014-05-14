@@ -47,7 +47,6 @@ public class MyProfileFragment extends Fragment {
 	private ProgressDialog mProgressDialog;
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
-	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
 	Activity mActivity;
 	View mRootView;
@@ -61,11 +60,9 @@ public class MyProfileFragment extends Fragment {
 
 		mActivity = getActivity();
 		mApplication = ((MyApplication) mActivity.getApplicationContext());
-		mExecutorService = Executors.newCachedThreadPool();
 		RestAdapter restAdapter = new RestAdapter.Builder()
 				.setEndpoint(mApplication.API_URL)
 				.setLogLevel(RestAdapter.LogLevel.NONE)
-				.setExecutors(mExecutorService, new MainThreadExecutor())
 				.setConverter(new JSONConverter())
 				.setClient(
 						new com.mobilevue.retrofit.CustomUrlConnectionClient(
@@ -104,9 +101,6 @@ public class MyProfileFragment extends Fragment {
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
 				mIsReqCanceled = true;
-				if (null != mExecutorService)
-					if (!mExecutorService.isShutdown())
-						mExecutorService.shutdownNow();
 			}
 		});
 		mProgressDialog.show();
@@ -133,7 +127,8 @@ public class MyProfileFragment extends Fragment {
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 
 		@Override
@@ -153,7 +148,8 @@ public class MyProfileFragment extends Fragment {
 					mApplication.setBalance(client.getBalanceAmount());
 					updateProfile(client);
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 
 		}
 	};
@@ -194,7 +190,8 @@ public class MyProfileFragment extends Fragment {
 			((TextView) mRootView.findViewById(R.id.f_my_profile_serial_value))
 					.setText(":   " + client.getHwSerialNumber());
 			((TextView) mRootView.findViewById(R.id.f_my_profile_balance_value))
-					.setText(":   " + Float.toString(-client.getBalanceAmount()));
+					.setText(":   "
+							+ Float.toString(-client.getBalanceAmount()));
 		}
 	}
 
@@ -210,7 +207,8 @@ public class MyProfileFragment extends Fragment {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.action_home:
-			startActivity(new Intent(getActivity(), MainActivity.class));
+			startActivity(new Intent(getActivity(), MainActivity.class)
+					.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
 			break;
 		case R.id.action_refresh:
 			GetnUpdateFromServer();

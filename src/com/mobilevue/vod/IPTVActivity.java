@@ -6,8 +6,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,7 +68,6 @@ public class IPTVActivity extends FragmentActivity {
 
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
-	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
 
 	boolean requiredLiveData = false;
@@ -84,8 +81,7 @@ public class IPTVActivity extends FragmentActivity {
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		mApplication = ((MyApplication) getApplicationContext());
-		mExecutorService = Executors.newCachedThreadPool();
-		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
+		mOBSClient = mApplication.getOBSClient(this);
 
 		mPrefs = mApplication.getPrefs();
 		// for not refresh data
@@ -105,7 +101,23 @@ public class IPTVActivity extends FragmentActivity {
 					intent.putExtra("VIDEOTYPE", "LIVETV");
 					intent.putExtra(CHANNEL_URL, mChannelURL);
 					intent.putExtra("CHANNELID", mChannelId);
-					mApplication.startPlayer(intent, IPTVActivity.this);
+					switch (MyApplication.player) {
+					case NATIVE_PLAYER:
+						intent.setClass(getApplicationContext(),
+								VideoPlayerActivity.class);
+						startActivity(intent);
+						break;
+					case MXPLAYER:
+						intent.setClass(getApplicationContext(),
+								MXPlayerActivity.class);
+						startActivity(intent);
+						break;
+					default:
+						intent.setClass(getApplicationContext(),
+								VideoPlayerActivity.class);
+						startActivity(intent);
+						break;
+					}
 				} else {
 					/**
 					 * This is called to set a new notification
@@ -172,8 +184,8 @@ public class IPTVActivity extends FragmentActivity {
 			NavUtils.navigateUpFromSameTask(this);
 			break;
 		case R.id.action_home:
-			/* NavUtils.navigateUpFromSameTask(this); */
-			startActivity(new Intent(this, MainActivity.class));
+			startActivity(new Intent(IPTVActivity.this, MainActivity.class)
+					.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
 			break;
 		case R.id.action_account:
 			startActivity(new Intent(this, MyAccountActivity.class));
@@ -259,9 +271,6 @@ public class IPTVActivity extends FragmentActivity {
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
 				mIsReqCanceled = true;
-				if (null != mExecutorService)
-					if (!mExecutorService.isShutdown())
-						mExecutorService.shutdownNow();
 			}
 		});
 		mProgressDialog.show();
@@ -298,7 +307,8 @@ public class IPTVActivity extends FragmentActivity {
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 
 		@Override
@@ -333,7 +343,8 @@ public class IPTVActivity extends FragmentActivity {
 					updateChannels(serviceList);
 
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 	};
 
@@ -354,7 +365,7 @@ public class IPTVActivity extends FragmentActivity {
 			LayoutParams params = new LayoutParams(Gravity.CENTER);
 			params.height = 96;
 			params.width = 96;
-			//params.setMargins(1, 1, 1, 1);
+			// params.setMargins(1, 1, 1, 1);
 			button.setLayoutParams(params);
 			button.setId(1000 + imgno);
 			button.setTag(chInfo);

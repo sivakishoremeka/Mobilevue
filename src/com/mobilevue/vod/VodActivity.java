@@ -1,8 +1,5 @@
 package com.mobilevue.vod;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -37,9 +34,9 @@ import com.mobilevue.adapter.VodCategoryAdapter;
 import com.mobilevue.data.MediaDetailRes;
 import com.mobilevue.retrofit.OBSClient;
 
-public class VodActivity extends FragmentActivity 
-//implements
-//		SearchView.OnQueryTextListener
+public class VodActivity extends FragmentActivity
+// implements
+// SearchView.OnQueryTextListener
 {
 	private static final String TAG = VodActivity.class.getName();
 	public static int ITEMS;
@@ -48,15 +45,14 @@ public class VodActivity extends FragmentActivity
 	ViewPager mPager;
 	private SharedPreferences mPrefs;
 	private Editor mPrefsEditor;
-	//private SearchView mSearchView;
+	// private SearchView mSearchView;
 	ListView listView;
 	private ProgressDialog mProgressDialog;
 
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
-	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
-	
+
 	String mSearchString;
 
 	@Override
@@ -68,8 +64,7 @@ public class VodActivity extends FragmentActivity
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		mApplication = ((MyApplication) getApplicationContext());
-		mExecutorService = Executors.newCachedThreadPool();
-		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
+		mOBSClient = mApplication.getOBSClient(this);
 
 		mPrefs = getSharedPreferences(mApplication.PREFS_FILE, 0);
 		mPrefsEditor = mPrefs.edit();
@@ -128,11 +123,12 @@ public class VodActivity extends FragmentActivity
 	}
 
 	@Override
-	protected void onNewIntent(Intent intent) {		
+	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
 		Log.d("onNewIntent", "onNewIntent");
-		if(null!=intent.getAction()&&intent.getAction().equals(Intent.ACTION_SEARCH)){
-			Log.d(intent.getStringExtra(SearchManager.QUERY),"onNewIntent");
+		if (null != intent.getAction()
+				&& intent.getAction().equals(Intent.ACTION_SEARCH)) {
+			Log.d(intent.getStringExtra(SearchManager.QUERY), "onNewIntent");
 			mSearchString = intent.getStringExtra(SearchManager.QUERY);
 			listView.clearChoices();
 			mPrefs = getSharedPreferences(mApplication.PREFS_FILE, 0);
@@ -142,7 +138,7 @@ public class VodActivity extends FragmentActivity
 			setPageCountAndGetDetails();
 		}
 	}
-	
+
 	protected void setPageCountAndGetDetails() {
 		mPrefs = getSharedPreferences(mApplication.PREFS_FILE, 0);
 		String category = mPrefs.getString(CATEGORY, "");
@@ -164,9 +160,6 @@ public class VodActivity extends FragmentActivity
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
 				mIsReqCanceled = true;
-				if (null != mExecutorService)
-					if (!mExecutorService.isShutdown())
-						mExecutorService.shutdownNow();
 			}
 		});
 		mProgressDialog.show();
@@ -196,7 +189,8 @@ public class VodActivity extends FragmentActivity
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 
 		@Override
@@ -212,7 +206,8 @@ public class VodActivity extends FragmentActivity
 							getSupportFragmentManager());
 					mPager.setAdapter(mAdapter);
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 	};
 
@@ -221,14 +216,16 @@ public class VodActivity extends FragmentActivity
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.nav_menu, menu);
 		MenuItem searchItem = menu.findItem(R.id.action_search);
-	    searchItem.setVisible(true);
-	    MenuItem refreshItem = menu.findItem(R.id.action_refresh);
-	    refreshItem.setVisible(true);
-		//MenuItem searchItem = menu.findItem(R.id.action_search);
-		//mSearchView = (SearchView) searchItem.getActionView();
-		//setupSearchView(searchItem);
-	/*	MenuItem refreshItem = menu.findItem(R.id.action_refresh);
-		refreshItem.setVisible(true);*/
+		searchItem.setVisible(true);
+		MenuItem refreshItem = menu.findItem(R.id.action_refresh);
+		refreshItem.setVisible(true);
+		// MenuItem searchItem = menu.findItem(R.id.action_search);
+		// mSearchView = (SearchView) searchItem.getActionView();
+		// setupSearchView(searchItem);
+		/*
+		 * MenuItem refreshItem = menu.findItem(R.id.action_refresh);
+		 * refreshItem.setVisible(true);
+		 */
 		return true;
 	}
 
@@ -247,7 +244,7 @@ public class VodActivity extends FragmentActivity
 			break;
 		case R.id.action_search:
 			onSearchRequested();
-		break;
+			break;
 		case R.id.action_refresh:
 			setPageCountAndGetDetails();
 			break;
@@ -257,28 +254,18 @@ public class VodActivity extends FragmentActivity
 		return true;
 	}
 
-	/*private void setupSearchView(MenuItem searchItem) {
-		mSearchView.setOnQueryTextListener(this);
-	}
-
-	protected boolean isAlwaysExpanded() {
-		return false;
-	}
-
-	@Override
-	public boolean onQueryTextChange(String arg0) {
-		return false;
-	}
-
-	@Override
-	public boolean onQueryTextSubmit(String movieName) {
-		mSearchView.clearFocus();
-		listView.clearChoices();
-		mPrefs = getSharedPreferences(mApplication.PREFS_FILE, 0);
-		mPrefsEditor = mPrefs.edit();
-		mPrefsEditor.putString(CATEGORY, movieName);
-		mPrefsEditor.commit();
-		setPageCountAndGetDetails();
-		return false;
-	}*/
+	/*
+	 * private void setupSearchView(MenuItem searchItem) {
+	 * mSearchView.setOnQueryTextListener(this); }
+	 * 
+	 * protected boolean isAlwaysExpanded() { return false; }
+	 * 
+	 * @Override public boolean onQueryTextChange(String arg0) { return false; }
+	 * 
+	 * @Override public boolean onQueryTextSubmit(String movieName) {
+	 * mSearchView.clearFocus(); listView.clearChoices(); mPrefs =
+	 * getSharedPreferences(mApplication.PREFS_FILE, 0); mPrefsEditor =
+	 * mPrefs.edit(); mPrefsEditor.putString(CATEGORY, movieName);
+	 * mPrefsEditor.commit(); setPageCountAndGetDetails(); return false; }
+	 */
 }

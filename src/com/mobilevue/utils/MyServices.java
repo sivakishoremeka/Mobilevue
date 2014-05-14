@@ -7,8 +7,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,15 +28,13 @@ public class MyServices {
 	//ArrayList<ServiceDatum> mServiceList = new ArrayList<ServiceDatum>();
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
-	ExecutorService mExecutorService;
 	private SharedPreferences mPrefs;
 	private Editor mPrefsEditor;
 	
 	public MyServices(MyApplication myApplcn,boolean isLiveDataReq) {
 		this.mApplication = myApplcn;
 		this.mIsLiveDataReq = isLiveDataReq;
-		mExecutorService = Executors.newCachedThreadPool();
-		mOBSClient = mApplication.getOBSClient(mApplication, mExecutorService);
+		mOBSClient = mApplication.getOBSClient(mApplication);
 		mPrefs = mApplication.getPrefs();
 		mPrefsEditor = mApplication.getEditor();
 	}

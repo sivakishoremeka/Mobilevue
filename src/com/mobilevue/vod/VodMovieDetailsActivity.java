@@ -4,8 +4,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,7 +47,6 @@ public class VodMovieDetailsActivity extends Activity {
 
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
-	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
 	String mDeviceId;
 
@@ -64,8 +61,7 @@ public class VodMovieDetailsActivity extends Activity {
 		eventId = b.getString("EventId");
 
 		mApplication = ((MyApplication) getApplicationContext());
-		mExecutorService = Executors.newCachedThreadPool();
-		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
+		mOBSClient = mApplication.getOBSClient(this);
 
 		mDeviceId = Settings.Secure.getString(
 				mApplication.getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -146,7 +142,8 @@ public class VodMovieDetailsActivity extends Activity {
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 
 		@Override
@@ -166,7 +163,8 @@ public class VodMovieDetailsActivity extends Activity {
 					Toast.makeText(VodMovieDetailsActivity.this,
 							"Server Error  ", Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 	};
 
@@ -235,9 +233,25 @@ public class VodMovieDetailsActivity extends Activity {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				((MyApplication) (VodMovieDetailsActivity.this
-						.getApplicationContext())).startPlayer(intent,
-						VodMovieDetailsActivity.this);
+
+				switch (MyApplication.player) {
+				case NATIVE_PLAYER:
+					intent.setClass(getApplicationContext(),
+							VideoPlayerActivity.class);
+					startActivity(intent);
+					break;
+				case MXPLAYER:
+					intent.setClass(getApplicationContext(),
+							MXPlayerActivity.class);
+					startActivity(intent);
+					break;
+				default:
+					intent.setClass(getApplicationContext(),
+							VideoPlayerActivity.class);
+					startActivity(intent);
+					break;
+				}
+
 				finish();
 			} else {
 				if (mProgressDialog.isShowing()) {

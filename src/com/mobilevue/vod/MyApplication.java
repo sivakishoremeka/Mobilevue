@@ -58,7 +58,7 @@ public class MyApplication extends Application {
 	private String clientId = null;
 	public boolean isBalCheckReq = false;
 	public boolean D = true; // need to delete this variable
-	public Player player = Player.NATIVE_PLAYER;
+	public static Player player = Player.NATIVE_PLAYER;
 
 	@Override
 	public void onCreate() {
@@ -100,26 +100,7 @@ public class MyApplication extends Application {
 				.getContentResolver(), Settings.Secure.ANDROID_ID);
 	}
 
-	public void startPlayer(Intent intent, Context context) {
-
-		switch (player) {
-		case NATIVE_PLAYER:
-			intent.setClass(context, VideoPlayerActivity.class);
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(intent);
-			break;
-		case MXPLAYER:
-			intent.setClass(context, MXPlayerActivity.class);
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(intent);
-			break;
-		default:
-			intent.setClass(context, VideoPlayerActivity.class);
-			intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-			startActivity(intent);
-			break;
-		}
-	}
+	
 
 	public boolean isNetworkAvailable() {
 		ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -140,13 +121,10 @@ public class MyApplication extends Application {
 		return false;
 	}
 
-	public OBSClient getOBSClient(Context context,
-			ExecutorService mExecutorService) {
-		mExecutorService = Executors.newCachedThreadPool();
+	public OBSClient getOBSClient(Context context){
 		RestAdapter restAdapter = new RestAdapter.Builder()
 				.setEndpoint(API_URL)
 				.setLogLevel(RestAdapter.LogLevel.FULL)
-				.setExecutors(mExecutorService, new MainThreadExecutor())
 				.setClient(
 						new com.mobilevue.retrofit.CustomUrlConnectionClient(
 								tenentId, basicAuth, contentType)).build();
@@ -222,6 +200,7 @@ public class MyApplication extends Application {
 
 	public void setBalance(float balance) {
 		getEditor().putFloat("BALANCE", -balance);
+		getEditor().commit();
 		this.balance = - balance;
 	}
 
@@ -234,6 +213,7 @@ public class MyApplication extends Application {
 
 	public void setClientId(String clientId) {
 		getEditor().putString("CLIENTID", clientId);
+		getEditor().commit();
 		this.clientId = clientId;
 	}
 

@@ -1,8 +1,5 @@
 package com.mobilevue.vod;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -38,7 +35,6 @@ public class CategoryFragment extends Fragment {
 
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
-	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
 
 	@Override
@@ -49,8 +45,7 @@ public class CategoryFragment extends Fragment {
 				container, false);
 
 		mApplication = ((MyApplication) getActivity().getApplicationContext());
-		mExecutorService = Executors.newCachedThreadPool();
-		mOBSClient = mApplication.getOBSClient(getActivity(), mExecutorService);
+		mOBSClient = mApplication.getOBSClient(getActivity());
 
 		mPrefs = getActivity().getSharedPreferences(mApplication.PREFS_FILE, 0);
 		String category = mPrefs.getString("CATEGORY", "RELEASE");
@@ -75,9 +70,6 @@ public class CategoryFragment extends Fragment {
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
 				mIsReqCanceled = true;
-				if (null != mExecutorService)
-					if (!mExecutorService.isShutdown())
-						mExecutorService.shutdownNow();
 			}
 		});
 		mProgressDialog.show();
@@ -115,7 +107,8 @@ public class CategoryFragment extends Fragment {
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 
 		@Override
@@ -128,7 +121,8 @@ public class CategoryFragment extends Fragment {
 				if (objDetails != null) {
 					updateDetails(objDetails, searchDtls.rootview);
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 	};
 

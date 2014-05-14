@@ -2,8 +2,6 @@ package com.mobilevue.vod;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -50,7 +48,6 @@ public class ChannelsActivity extends Activity implements
 
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
-	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
 
 	boolean mIsLiveDataReq = false;
@@ -68,8 +65,7 @@ public class ChannelsActivity extends Activity implements
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		mApplication = ((MyApplication) getApplicationContext());
-		mExecutorService = Executors.newCachedThreadPool();
-		mOBSClient = mApplication.getOBSClient(this, mExecutorService);
+		mOBSClient = mApplication.getOBSClient(this);
 		mIsBalCheckReq = mApplication.isBalCheckReq;
 		gridView = (GridView) (findViewById(R.id.a_gv_channels));
 
@@ -83,7 +79,8 @@ public class ChannelsActivity extends Activity implements
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
 		Log.d("onNewIntent", "onNewIntent");
-		if (null!=intent && null!=intent.getAction() && intent.getAction().equals(Intent.ACTION_SEARCH)) {
+		if (null != intent && null != intent.getAction()
+				&& intent.getAction().equals(Intent.ACTION_SEARCH)) {
 
 			// initiallizing req criteria
 			mReqType = ServiceProvider.SEARCH;
@@ -133,7 +130,8 @@ public class ChannelsActivity extends Activity implements
 			CheckBalancenGetData();
 			break;
 		case R.id.action_search:
-			 //The searchbar is initiated programmatically with a call to your Activity’s onSearchRequested method. 
+			// The searchbar is initiated programmatically with a call to your
+			// Activity’s onSearchRequested method.
 			onSearchRequested();
 			break;
 		default:
@@ -253,9 +251,6 @@ public class ChannelsActivity extends Activity implements
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
 				mIsReqCanceled = true;
-				if (null != mExecutorService)
-					if (!mExecutorService.isShutdown())
-						mExecutorService.shutdownNow();
 			}
 		});
 		mProgressDialog.show();
@@ -285,7 +280,8 @@ public class ChannelsActivity extends Activity implements
 						getServices();
 					}
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 
 		@Override
@@ -315,7 +311,8 @@ public class ChannelsActivity extends Activity implements
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 	};
 

@@ -4,8 +4,6 @@ import java.io.IOException;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -44,7 +42,7 @@ public class VideoPlayerActivity extends Activity implements
 		videoSurface = (SurfaceView) findViewById(R.id.videoSurface);
 		SurfaceHolder videoHolder = videoSurface.getHolder();
 		videoHolder.addCallback(this);
-		player = new MediaPlayer();
+		/*player = new MediaPlayer();
 		mUri = Uri.parse(getIntent().getStringExtra("URL"));
 		String videoType = getIntent().getStringExtra("VIDEOTYPE");
 		if (videoType.equalsIgnoreCase("LIVETV")) {
@@ -74,9 +72,10 @@ public class VideoPlayerActivity extends Activity implements
 			Log.e(TAG, e.getMessage());
 		} catch (Exception e) {
 			Log.e(TAG, e.getMessage());
-		}
+		}*/
 	}
 
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		controller.show();
@@ -87,29 +86,52 @@ public class VideoPlayerActivity extends Activity implements
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
+		if ( player != null ) 
+        {
+            try {
+                player.setDisplay(holder);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 	}
 
 	@Override
-	public void surfaceCreated(SurfaceHolder holder) {
-		player.setDisplay(holder);
-		player.prepareAsync();
-		if (mProgressDialog != null && mProgressDialog.isShowing()) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
+	public void surfaceCreated(SurfaceHolder holder) {	 
+		player = new MediaPlayer();
+		player.reset();
+		mUri = Uri.parse(getIntent().getStringExtra("URL"));
+		String videoType = getIntent().getStringExtra("VIDEOTYPE");
+		if (videoType.equalsIgnoreCase("LIVETV")) {
+			isLiveController = true;
+			VideoControllerView.sDefaultTimeout = 3000;
+			mChannelId = getIntent().getIntExtra("CHANNELID", 0);
+		} else if (videoType.equalsIgnoreCase("VOD")) {
+			isLiveController = false;
+			VideoControllerView.sDefaultTimeout = 3000;
 		}
-		mProgressDialog = new ProgressDialog(VideoPlayerActivity.this,
-				ProgressDialog.THEME_HOLO_DARK);
-		mProgressDialog.setMessage("Starting MediaPlayer");
-		mProgressDialog.setCanceledOnTouchOutside(false);
-		mProgressDialog.setOnCancelListener(new OnCancelListener() {
-
-			public void onCancel(DialogInterface arg0) {
-				if (mProgressDialog.isShowing())
-					mProgressDialog.dismiss();
-				finish();
-			}
-		});
-		mProgressDialog.show();
+		controller = new VideoControllerView(this, (!isLiveController));
+		try {
+			player.setDisplay(holder);
+			player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+			player.setVolume(1.0f, 1.0f);
+			// For the Data to take from previous activity
+			player.setDataSource(this, mUri);
+			player.setOnPreparedListener(this);
+			player.setOnInfoListener(this);
+			player.setOnErrorListener(this);
+			player.prepareAsync();
+		} catch (IllegalArgumentException e) {
+			Log.e(TAG, e.getMessage());
+		} catch (SecurityException e) {
+			Log.e(TAG, e.getMessage());
+		} catch (IllegalStateException e) {
+			Log.e(TAG, e.getMessage());
+		} catch (IOException e) {
+			Log.e(TAG, e.getMessage());
+		} catch (Exception e) {
+			Log.e(TAG, e.getMessage());
+		}
 	}
 
 	// End SurfaceHolder.Callback
@@ -340,24 +362,42 @@ public class VideoPlayerActivity extends Activity implements
 		}
 		return true;
 	}
-
+	
+	
+	
+	@Override
+	protected void onResume() {	
+		videoSurface.setVisibility(View.VISIBLE);
+		super.onResume();
+	}
+	
 	@Override
 	protected void onPause() {
-		if (player != null) {
-			if (player.isPlaying())
-				player.stop();
-			if (controller.isShowing())
-				controller.hide();
-			player.release();
-			player = null;
-			finish();
-		} else {
-			finish();
-		}
+        videoSurface.setVisibility(View.GONE);
 		super.onPause();
+	}
+
+	@Override
+	protected void onStop() {
+        videoSurface.setVisibility(View.GONE);
+    	if (player != null) {
+			if (player.isPlaying()){
+				player.stop();
+				 player.release();
+		           player = null;
+			}
+		}
+		super.onStop();
 	}
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-
+		if (player != null) {
+			if (player.isPlaying()){
+				player.stop();
+				 player.release();
+		           player = null;
+			}
+		}
+		
 	}
 }

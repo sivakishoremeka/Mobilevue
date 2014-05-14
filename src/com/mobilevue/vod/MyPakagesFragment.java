@@ -5,8 +5,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,7 +13,6 @@ import org.json.JSONObject;
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
-import retrofit.android.MainThreadExecutor;
 import retrofit.client.Response;
 import retrofit.converter.ConversionException;
 import retrofit.converter.Converter;
@@ -50,7 +47,6 @@ public class MyPakagesFragment extends Fragment {
 	private ProgressDialog mProgressDialog;
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
-	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
 	Activity mActivity;
 	View mRootView;
@@ -64,11 +60,9 @@ public class MyPakagesFragment extends Fragment {
 
 		mActivity = getActivity();
 		mApplication = ((MyApplication) mActivity.getApplicationContext());
-		mExecutorService = Executors.newCachedThreadPool();
 		RestAdapter restAdapter = new RestAdapter.Builder()
 				.setEndpoint(mApplication.API_URL)
 				.setLogLevel(RestAdapter.LogLevel.NONE)
-				.setExecutors(mExecutorService, new MainThreadExecutor())
 				.setConverter(new JSONConverter())
 				.setClient(
 						new com.mobilevue.retrofit.CustomUrlConnectionClient(
@@ -107,9 +101,6 @@ public class MyPakagesFragment extends Fragment {
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
 				mIsReqCanceled = true;
-				if (null != mExecutorService)
-					if (!mExecutorService.isShutdown())
-						mExecutorService.shutdownNow();
 			}
 		});
 		mProgressDialog.show();
@@ -137,7 +128,8 @@ public class MyPakagesFragment extends Fragment {
 					editor.commit();
 					updatePackages(orderList);
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 
 		}
 
@@ -159,7 +151,8 @@ public class MyPakagesFragment extends Fragment {
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 
 		}
 	};
@@ -215,7 +208,8 @@ public class MyPakagesFragment extends Fragment {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.action_home:
-			startActivity(new Intent(getActivity(), MainActivity.class));
+			startActivity(new Intent(getActivity(), MainActivity.class)
+					.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
 			break;
 		case R.id.action_refresh:
 			GetnUpdateFromServer();

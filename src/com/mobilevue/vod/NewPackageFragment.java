@@ -8,8 +8,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,7 +16,6 @@ import org.json.JSONObject;
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
-import retrofit.android.MainThreadExecutor;
 import retrofit.client.Response;
 import retrofit.converter.ConversionException;
 import retrofit.converter.Converter;
@@ -68,7 +65,6 @@ public class NewPackageFragment extends Fragment {
 	static String CLIENT_PACKAGE_DATA;
 	private ProgressDialog mProgressDialog;
 	MyApplication mApplication = null;
-	ExecutorService mExecutorService;
 	boolean mIsReqCanceled = false;
 	boolean mIsPlanSubscribed = false;
 	List<PlanDatum> mPlans;
@@ -164,23 +160,16 @@ public class NewPackageFragment extends Fragment {
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
 				mIsReqCanceled = true;
-				if (null != mExecutorService)
-					if (!mExecutorService.isShutdown())
-						mExecutorService.shutdownNow();
 			}
 		});
 		mProgressDialog.show();
 		if (PREPAID_PLANS.equalsIgnoreCase(planType)) {
-			mExecutorService = Executors.newCachedThreadPool();
-			OBSClient mOBSClient = mApplication.getOBSClient(mActivity,
-					mExecutorService);
+			OBSClient mOBSClient = mApplication.getOBSClient(mActivity);
 			mOBSClient.getPrepaidPlans(getPlansCallBack);
 		} else if (MY_PLANS.equalsIgnoreCase(planType)) {
-			mExecutorService = Executors.newCachedThreadPool();
 			RestAdapter restAdapter = new RestAdapter.Builder()
 					.setEndpoint(mApplication.API_URL)
 					.setLogLevel(RestAdapter.LogLevel.NONE)
-					.setExecutors(mExecutorService, new MainThreadExecutor())
 					.setConverter(new JSONConverter())
 					.setClient(
 							new com.mobilevue.retrofit.CustomUrlConnectionClient(
@@ -215,7 +204,8 @@ public class NewPackageFragment extends Fragment {
 					// updating sevices
 					GetChannelsFromServer();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 
 		@Override
@@ -236,7 +226,8 @@ public class NewPackageFragment extends Fragment {
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 
 		}
 	};
@@ -260,7 +251,8 @@ public class NewPackageFragment extends Fragment {
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 
 		@Override
@@ -274,7 +266,8 @@ public class NewPackageFragment extends Fragment {
 					mPlans = planList;
 					getMyPlansFromServer();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 	};
 
@@ -317,7 +310,8 @@ public class NewPackageFragment extends Fragment {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.action_home:
-			startActivity(new Intent(getActivity(), MainActivity.class));
+			startActivity(new Intent(getActivity(), MainActivity.class)
+					.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
 			break;
 		case R.id.action_refresh:
 			getPlansFromServer();
@@ -442,15 +436,10 @@ public class NewPackageFragment extends Fragment {
 				if (mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
 				mIsReqCanceled = true;
-				if (null != mExecutorService)
-					if (!mExecutorService.isShutdown())
-						mExecutorService.shutdownNow();
 			}
 		});
 		mProgressDialog.show();
-		mExecutorService = Executors.newCachedThreadPool();
-		OBSClient mOBSClient = mApplication.getOBSClient(mActivity,
-				mExecutorService);
+		OBSClient mOBSClient = mApplication.getOBSClient(mActivity);
 		mOBSClient.getPlanServices(mApplication.getClientId(),
 				getPlanServicesCallBack);
 	}
@@ -482,7 +471,8 @@ public class NewPackageFragment extends Fragment {
 							Toast.LENGTH_LONG).show();
 				}
 				CheckForNewPlansnUpdate();
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 
 		@Override
@@ -512,7 +502,8 @@ public class NewPackageFragment extends Fragment {
 					mPrefsEditor.commit();
 					CheckForNewPlansnUpdate();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 	};
 
