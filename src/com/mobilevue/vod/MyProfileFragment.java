@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,7 +12,6 @@ import org.json.JSONObject;
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
-import retrofit.android.MainThreadExecutor;
 import retrofit.client.Response;
 import retrofit.converter.ConversionException;
 import retrofit.converter.Converter;
@@ -40,6 +37,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.mobilevue.data.ClientDatum;
+import com.mobilevue.data.ConfigurationProperty;
 import com.mobilevue.retrofit.OBSClient;
 
 public class MyProfileFragment extends Fragment {
@@ -146,6 +144,38 @@ public class MyProfileFragment extends Fragment {
 					editor.putString(CLIENT_DATA, new Gson().toJson(client));
 					editor.commit();
 					mApplication.setBalance(client.getBalanceAmount());
+					mApplication.setCurrency(client.getCurrency());
+					mApplication.setBalanceCheck(client.isBalanceCheck());
+					boolean isPayPalReq = false;
+					if (client.getConfigurationProperty() != null)
+						isPayPalReq = client.getConfigurationProperty()
+								.getEnabled();
+					mApplication.setPayPalCheck(isPayPalReq);
+					if (isPayPalReq) {
+						String value = client.getConfigurationProperty()
+								.getValue();
+						if (value != null && value.length() > 0) {
+							try {
+								JSONObject json = new JSONObject(value);
+								if (json != null) {
+									mApplication.setPayPalClientID(json.get(
+											"clientId").toString());
+									// mApplication.setPayPalSecret(json.get(
+									// "secretCode").toString());
+								}
+							} catch (JSONException e) {
+								Log.e("AuthenticationAcitivity",
+										(e.getMessage() == null) ? "Json Exception"
+												: e.getMessage());
+								Toast.makeText(getActivity(),
+										"Invalid Data-Json Exception",
+										Toast.LENGTH_LONG).show();
+							}
+						} else
+							Toast.makeText(getActivity(),
+									"Invalid Data for PayPal details",
+									Toast.LENGTH_LONG).show();
+					}
 					updateProfile(client);
 				}
 			} else
@@ -189,9 +219,10 @@ public class MyProfileFragment extends Fragment {
 					.setText(":   " + client.getCountry());
 			((TextView) mRootView.findViewById(R.id.f_my_profile_serial_value))
 					.setText(":   " + client.getHwSerialNumber());
+			float bal = client.getBalanceAmount();
 			((TextView) mRootView.findViewById(R.id.f_my_profile_balance_value))
-					.setText(":   "
-							+ Float.toString(-client.getBalanceAmount()));
+					.setText(":   " + Float.toString((bal == 0.0 ? bal : -bal))
+							+ " " + client.getCurrency());
 		}
 	}
 
@@ -267,7 +298,19 @@ public class MyProfileFragment extends Fragment {
 			client.setPhone(jsonObj.getString("phone"));
 			client.setCountry(jsonObj.getString("country"));
 			client.setBalanceAmount((float) jsonObj.getDouble("balanceAmount"));
+			client.setCurrency(jsonObj.getString("currency"));
+			client.setBalanceCheck(jsonObj.getBoolean("balanceCheck"));
 			client.setHwSerialNumber(MyApplication.androidId);
+
+			// paypal config data
+			JSONObject configJson = jsonObj
+					.getJSONObject("configurationProperty");
+			if (configJson != null) {
+				ConfigurationProperty configProperty = new ConfigurationProperty();
+				configProperty.setEnabled(configJson.getBoolean("enabled"));
+				configProperty.setValue(configJson.getString("value"));
+				client.setConfigurationProperty(configProperty);
+			}
 
 		} catch (JSONException e) {
 			Log.i(TAG, e.getMessage());

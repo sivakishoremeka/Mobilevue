@@ -3,5 +3,6 @@
     android:id="@+id/ch_gv_item_img"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/selector_gv_img_item"
     android:scaleType="centerCrop"
     android:src="@drawable/default_img" />

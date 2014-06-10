@@ -3,10 +3,13 @@ package com.mobilevue.adapter;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.BaseAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
 
 import com.mobilevue.data.ServiceDatum;
@@ -15,11 +18,13 @@ import com.mobilevue.vod.R;
 public class ChannelGridViewAdapter extends BaseAdapter {
 	private List<ServiceDatum> channelList;
 	private LayoutInflater inflater;
+	private Context mContext;
 
 	public ChannelGridViewAdapter(List<ServiceDatum> channelList,
 			Activity context) {
 		this.channelList = channelList;
 		inflater = LayoutInflater.from(context);
+		this.mContext = context;
 	}
 
 	@Override
@@ -45,8 +50,10 @@ public class ChannelGridViewAdapter extends BaseAdapter {
 		if(convertView==null){
 			holder = new ViewHolder();
 			convertView =  inflater.inflate(
-				R.layout.ch_gridview_item, null);
+				R.layout.ch_gridview_item, parent,false);
 		   holder.image = ((ImageView) convertView.findViewById(R.id.ch_gv_item_img));
+		   int imgSize = mContext.getResources().getInteger(R.integer.ch_img_size);
+			holder.image.setLayoutParams(new GridView.LayoutParams(imgSize,imgSize));
 		   convertView.setTag(holder);
 		}
 	else{

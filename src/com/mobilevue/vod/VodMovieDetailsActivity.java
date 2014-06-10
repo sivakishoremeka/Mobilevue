@@ -1,11 +1,12 @@
 package com.mobilevue.vod;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -17,6 +18,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -31,10 +33,17 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.mobilevue.data.DeviceDatum;
+import com.mobilevue.data.MediaDetailsResDatum;
+import com.mobilevue.data.PriceDetail;
 import com.mobilevue.data.ResponseObj;
 import com.mobilevue.retrofit.OBSClient;
 import com.mobilevue.utils.Utilities;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.paypal.android.sdk.payments.PayPalPayment;
+import com.paypal.android.sdk.payments.PayPalService;
+import com.paypal.android.sdk.payments.PaymentActivity;
+import com.paypal.android.sdk.payments.PaymentConfirmation;
 
 public class VodMovieDetailsActivity extends Activity {
 
@@ -49,6 +58,9 @@ public class VodMovieDetailsActivity extends Activity {
 	OBSClient mOBSClient;
 	boolean mIsReqCanceled = false;
 	String mDeviceId;
+
+	AlertDialog mConfirmDialog;
+	double mVodPrice;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +82,8 @@ public class VodMovieDetailsActivity extends Activity {
 				&& (!(eventId.equalsIgnoreCase("")) || eventId != null)) {
 			RelativeLayout rl = (RelativeLayout) findViewById(R.id.a_vod_mov_dtls_root_layout);
 			rl.setVisibility(View.INVISIBLE);
-			UpdateDetails();
+			// UpdateDetails();
+			validateDevice();
 		}
 
 	}
@@ -89,27 +102,87 @@ public class VodMovieDetailsActivity extends Activity {
 	}
 
 	public void btnOnClick(View v) {
-		AlertDialog dialog = new AlertDialog.Builder(
-				VodMovieDetailsActivity.this, AlertDialog.THEME_HOLO_LIGHT)
-				.create();
-		dialog.setIcon(R.drawable.ic_logo_confirm_dialog);
-		dialog.setTitle("Confirmation");
-		dialog.setMessage("Do you want to continue?");
-		dialog.setCancelable(false);
 
-		dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int buttonId) {
-						BookOrder();
-					}
-				});
-		dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int buttonId) {
+		// Log.d("Btn Click", ((Button) v).getText().toString());
+		final boolean isPayPalReq = mApplication.isPayPalCheck();
+		final float balance = mApplication.getBalance();
 
-					}
-				});
-		dialog.show();
+		if ((mVodPrice != 0 && (-balance < mVodPrice)) || balance>0){
+			AlertDialog.Builder builder = new AlertDialog.Builder((this),
+					AlertDialog.THEME_HOLO_LIGHT);
+			builder.setIcon(R.drawable.ic_logo_confirm_dialog);
+			builder.setTitle("Confirmation");
+			String msg = "Insufficient Balance."
+					+ (isPayPalReq == true ? "Go to PayPal ??"
+							: "Please do Payment.");
+			builder.setMessage(msg);
+			builder.setCancelable(true);
+			mConfirmDialog = builder.create();
+			mConfirmDialog.setButton(AlertDialog.BUTTON_NEGATIVE,
+					(isPayPalReq == true ? "No" : ""),
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int buttonId) {
+						}
+					});
+			mConfirmDialog.setButton(AlertDialog.BUTTON_POSITIVE,
+					(isPayPalReq == true ? "Yes" : "Ok"),
+					new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							if (isPayPalReq == true) {
+								Intent svcIntent = new Intent(
+										VodMovieDetailsActivity.this,
+										PayPalService.class);
+								svcIntent
+										.putExtra(
+												PayPalService.EXTRA_PAYPAL_CONFIGURATION,
+												mApplication.getPaypalConfig());
+								startService(svcIntent);
+								PayPalPayment paymentData = new PayPalPayment(
+										new BigDecimal(balance + mVodPrice),
+										mApplication.getCurrency(),
+										getResources().getString(
+												R.string.app_name)
+												+ " VOD-Payment",
+										PayPalPayment.PAYMENT_INTENT_SALE);
+
+								Intent actviIntent = new Intent(
+										VodMovieDetailsActivity.this,
+										PaymentActivity.class);
+
+								actviIntent.putExtra(
+										PaymentActivity.EXTRA_PAYMENT,
+										paymentData);
+
+								startActivityForResult(actviIntent,
+										mApplication.REQUEST_CODE_PAYMENT);
+							}
+						}
+					});
+			mConfirmDialog.show();
+		} else {
+			AlertDialog dialog = new AlertDialog.Builder(
+					VodMovieDetailsActivity.this, AlertDialog.THEME_HOLO_LIGHT)
+					.create();
+			dialog.setIcon(R.drawable.ic_logo_confirm_dialog);
+			dialog.setTitle("Confirmation");
+			dialog.setMessage("Do you want to continue?");
+			dialog.setCancelable(false);
+
+			dialog.setButton(DialogInterface.BUTTON_POSITIVE, "Yes",
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int buttonId) {
+							BookOrder();
+						}
+					});
+			dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No",
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int buttonId) {
+
+						}
+					});
+			dialog.show();
+		}
 	}
 
 	private void BookOrder() {
@@ -117,11 +190,20 @@ public class VodMovieDetailsActivity extends Activity {
 	}
 
 	public void UpdateDetails() {
+		if (mProgressDialog != null) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
+		}
+		mProgressDialog = new ProgressDialog(VodMovieDetailsActivity.this,
+				ProgressDialog.THEME_HOLO_DARK);
+		mProgressDialog.setMessage("Retrieving Details...");
+		mProgressDialog.setCancelable(true);
+		mProgressDialog.show();
 		mOBSClient.getMediaDetails(mediaId, eventId, mDeviceId,
 				getMovDetailsCallBack);
 	}
 
-	final Callback<Object> getMovDetailsCallBack = new Callback<Object>() {
+	final Callback<MediaDetailsResDatum> getMovDetailsCallBack = new Callback<MediaDetailsResDatum>() {
 		@Override
 		public void failure(RetrofitError retrofitError) {
 			if (!mIsReqCanceled) {
@@ -142,29 +224,23 @@ public class VodMovieDetailsActivity extends Activity {
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			} else
-				mIsReqCanceled = false;
+			}
 		}
 
 		@Override
-		public void success(Object objDetails, Response response) {
+		public void success(MediaDetailsResDatum data, Response response) {
 			if (!mIsReqCanceled) {
 				if (mProgressDialog != null) {
 					mProgressDialog.dismiss();
 					mProgressDialog = null;
 				}
-				if (response != null) {
-					String resOnSuccess = mApplication
-							.getResponseOnSuccess(response);
-					if (resOnSuccess != null) {
-						updateUI(resOnSuccess);
-					}
+				if (data != null) {
+					updateUI(data);
 				} else {
 					Toast.makeText(VodMovieDetailsActivity.this,
 							"Server Error  ", Toast.LENGTH_LONG).show();
 				}
-			} else
-				mIsReqCanceled = false;
+			}
 		}
 	};
 
@@ -275,89 +351,321 @@ public class VodMovieDetailsActivity extends Activity {
 
 	}
 
-	public void updateUI(String json) {
-		if (json != null && json.length() != 0) {
-
-			MovieDetailsObj obj = new MovieDetailsObj(json);
-
-			ImageLoader.getInstance().displayImage(obj.image,
+	public void updateUI(MediaDetailsResDatum data) {
+		if (data != null) {
+			List<PriceDetail> priceList = data.getPriceDetails();
+			if (priceList != null && priceList.size() > 0) {
+				for (PriceDetail detail : priceList) {
+					if (detail.getOptType().equalsIgnoreCase("RENT")) {
+						mVodPrice = detail.getPrice();
+						break;
+					}
+				}
+			}
+			ImageLoader.getInstance().displayImage(data.getImage(),
 					((ImageView) findViewById(R.id.a_vod_mov_dtls_iv_mov_img)));
-
 			((RatingBar) findViewById(R.id.a_vod_mov_dtls_rating_bar))
-					.setRating(Float.parseFloat(obj.rating));
-
+					.setRating(data.getRating().floatValue());
 			((TextView) findViewById(R.id.a_vod_mov_dtls_tv_mov_title))
-					.setText(obj.title);
+					.setText(data.getTitle());
 			((TextView) findViewById(R.id.a_vod_mov_dtls_tv_descr_value))
-					.setText(obj.overview);
+					.setText(data.getOverview());
 			((TextView) findViewById(R.id.a_vod_mov_dtls_tv_durn_value))
-					.setText(obj.duration);
+					.setText(data.getDuration());
 			((TextView) findViewById(R.id.a_vod_mov_dtls_tv_lang_value))
 					.setText(getResources()
 							.getStringArray(R.array.arrLangauges)[1]);
-			/*
-			 * ((TextView) findViewById(R.id.a_vod_mov_dtls_tv_lang_value))
-			 * .setText
-			 * (getResources().getStringArray(R.array.arrLangauges)[obj.language
-			 * ]);
-			 */
 			((TextView) findViewById(R.id.a_vod_mov_dtls_tv_release_value))
-					.setText(obj.releaseDate);
-			((TextView) findViewById(R.id.a_vod_mov_dtls_tv_cast_value))
-					.setText(obj.Actors);
-
+					.setText(data.getReleaseDate());
+			if (data.getActor().size() > 0) {
+				String[] arrActors = new String[data.getActor().size()];
+				data.getActor().toArray(arrActors);
+				String actors = "";
+				for (String actor : arrActors) {
+					actors += actor;
+				}
+				if (actors.length() > 0) {
+					((TextView) findViewById(R.id.a_vod_mov_dtls_tv_cast_value))
+							.setText(actors);
+				}
+			}
 			RelativeLayout rl = (RelativeLayout) findViewById(R.id.a_vod_mov_dtls_root_layout);
 			if (rl.getVisibility() == View.INVISIBLE)
 				rl.setVisibility(View.VISIBLE);
 		}
 	}
 
-	private class MovieDetailsObj {
-		public String image;
-		public String rating;
-		public String title;
-		public String overview;
-		public String duration;
-		public int language;
-		public String releaseDate;
-		public String Actors;
+	private void validateDevice() {
 
-		public MovieDetailsObj(String json) {
-			parseJson(json);
+		// Log.d("VodMovieDetailsActivity","validateDevice");
+		if (mProgressDialog != null && mProgressDialog.isShowing()) {
+			mProgressDialog.dismiss();
+			mProgressDialog = null;
 		}
 
-		private void parseJson(String json) {
-			JSONObject movieDtls;
-			try {
-				movieDtls = new JSONObject(json);
+		mProgressDialog = new ProgressDialog(this,
+				ProgressDialog.THEME_HOLO_DARK);
+		mProgressDialog.setMessage("Connecting Server...");
+		mProgressDialog.setCanceledOnTouchOutside(false);
+		mProgressDialog.setOnCancelListener(new OnCancelListener() {
 
-				String Replace = "[\\[\\]\"]";
-				String ReplaceTo = "";
-
-				title = movieDtls.getString("title").replaceAll(Replace,
-						ReplaceTo);
-				image = movieDtls.getString("image").replaceAll(Replace,
-						ReplaceTo);
-				rating = movieDtls.getString("rating").replaceAll(Replace,
-						ReplaceTo);
-				overview = movieDtls.getString("overview").replaceAll(Replace,
-						ReplaceTo);
-				duration = movieDtls.getString("duration").replaceAll(Replace,
-						ReplaceTo);
-				releaseDate = movieDtls.getString("releaseDate").replaceAll(
-						Replace, ReplaceTo);
-
-				Actors = movieDtls.getString("Actor").replaceAll(Replace,
-						ReplaceTo);
-
-				JSONArray jsonLocnArr = new JSONArray(
-						movieDtls.getString("filmLocations"));
-				JSONObject filmLocObj = (JSONObject) jsonLocnArr.get(0);
-				language = filmLocObj.getInt("languageId");
-			} catch (JSONException e) {
-				Log.e(TAG, e.getMessage());
+			public void onCancel(DialogInterface arg0) {
+				if (mProgressDialog.isShowing())
+					mProgressDialog.dismiss();
+				mProgressDialog = null;
+				mIsReqCanceled = true;
 			}
+		});
+		mProgressDialog.show();
 
+		String androidId = Settings.Secure.getString(this
+				.getApplicationContext().getContentResolver(),
+				Settings.Secure.ANDROID_ID);
+		mOBSClient.getMediaDevice(androidId, deviceCallBack);
+
+	}
+
+	final Callback<DeviceDatum> deviceCallBack = new Callback<DeviceDatum>() {
+
+		@Override
+		public void success(DeviceDatum device, Response arg1) {
+			// Log.d("VodMovieDetailsActivity","success");
+			if (!mIsReqCanceled) {
+				if (mProgressDialog != null) {
+					mProgressDialog.dismiss();
+					mProgressDialog = null;
+				}
+				if (device != null) {
+					try {
+						mApplication.setClientId(Long.toString(device
+								.getClientId()));
+						mApplication.setBalance(device.getBalanceAmount());
+						mApplication.setBalanceCheck(device.isBalanceCheck());
+						mApplication.setCurrency(device.getCurrency());
+						boolean isPayPalReq = false;
+						if (device.getPaypalConfigData() != null)
+							isPayPalReq = device.getPaypalConfigData()
+									.getEnabled();
+						isPayPalReq = device.getPaypalConfigData().getEnabled();
+						mApplication.setPayPalCheck(isPayPalReq);
+						if (isPayPalReq) {
+							String value = device.getPaypalConfigData()
+									.getValue();
+							if (value != null && value.length() > 0) {
+								try {
+									JSONObject json = new JSONObject(value);
+									if (json != null) {
+										mApplication.setPayPalClientID(json
+												.get("clientId").toString());
+									}
+								} catch (JSONException e) {
+									Log.e("VodMovieDetailsActivity",
+											(e.getMessage() == null) ? "Json Exception"
+													: e.getMessage());
+									Toast.makeText(
+											VodMovieDetailsActivity.this,
+											"Invalid Data-Json Exception",
+											Toast.LENGTH_LONG).show();
+								}
+							} else
+								Toast.makeText(VodMovieDetailsActivity.this,
+										"Invalid Data for PayPal details",
+										Toast.LENGTH_LONG).show();
+						}
+					} catch (NullPointerException npe) {
+						Log.e("VodMovieDetailsActivity",
+								(npe.getMessage() == null) ? "NPE Exception"
+										: npe.getMessage());
+						Toast.makeText(VodMovieDetailsActivity.this,
+								"Invalid Data-NPE Error", Toast.LENGTH_LONG)
+								.show();
+					} catch (Exception e) {
+						Log.e("VodMovieDetailsActivity",
+								(e.getMessage() == null) ? "Exception" : e
+										.getMessage());
+						Toast.makeText(VodMovieDetailsActivity.this,
+								"Invalid Data-Error", Toast.LENGTH_LONG).show();
+					}
+
+					UpdateDetails();
+				}
+			}
+			mIsReqCanceled = false;
+		}
+
+		@Override
+		public void failure(RetrofitError retrofitError) {
+			// Log.d("VodMovieDetailsActivity","failure");
+			if (!mIsReqCanceled) {
+				if (mProgressDialog != null) {
+					mProgressDialog.dismiss();
+					mProgressDialog = null;
+				}
+				if (retrofitError.isNetworkError()) {
+					Toast.makeText(VodMovieDetailsActivity.this,
+							getString(R.string.error_network),
+							Toast.LENGTH_LONG).show();
+				} else if (retrofitError.getResponse().getStatus() == 403) {
+					String msg = mApplication
+							.getDeveloperMessage(retrofitError);
+					msg = (msg != null && msg.length() > 0 ? msg
+							: "Internal Server Error");
+					Toast.makeText(VodMovieDetailsActivity.this, msg,
+							Toast.LENGTH_LONG).show();
+				} else {
+					Toast.makeText(
+							VodMovieDetailsActivity.this,
+							"Server Error : "
+									+ retrofitError.getResponse().getStatus(),
+							Toast.LENGTH_LONG).show();
+				}
+			}
+			mIsReqCanceled = false;
+		}
+	};
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		/** Stop PayPalIntent Service... */
+		stopService(new Intent(this, PayPalService.class));
+		if (mConfirmDialog != null && mConfirmDialog.isShowing()) {
+			mConfirmDialog.dismiss();
+		}
+		if (resultCode == Activity.RESULT_OK) {
+			PaymentConfirmation confirm = data
+					.getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
+			if (confirm != null) {
+				try {
+					Log.i("OBSPayment", confirm.toJSONObject().toString(4));
+					/** Call OBS API for verification and payment record. */
+					OBSPaymentAsyncTask task = new OBSPaymentAsyncTask();
+					task.execute(confirm.toJSONObject().toString(4));
+				} catch (JSONException e) {
+					Log.e("OBSPayment",
+							"an extremely unlikely failure occurred: ", e);
+				}
+			}
+		} else if (resultCode == Activity.RESULT_CANCELED) {
+			Log.i("OBSPayment", "The user canceled.");
+			Toast.makeText(this, "The user canceled.", Toast.LENGTH_LONG)
+					.show();
+		} else if (resultCode == PaymentActivity.RESULT_EXTRAS_INVALID) {
+			Log.i("OBSPayment",
+					"An invalid Payment or PayPalConfiguration was submitted. Please see the docs.");
+			Toast.makeText(this,
+					"An invalid Payment or PayPalConfiguration was submitted",
+					Toast.LENGTH_LONG).show();
 		}
 	}
+
+	private class OBSPaymentAsyncTask extends
+			AsyncTask<String, Void, ResponseObj> {
+		JSONObject reqJson = null;
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			if (mProgressDialog != null) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			mProgressDialog = new ProgressDialog(VodMovieDetailsActivity.this,
+					ProgressDialog.THEME_HOLO_DARK);
+			mProgressDialog.setMessage("Connecting to Server...");
+			mProgressDialog.setCanceledOnTouchOutside(false);
+			mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+				public void onCancel(DialogInterface arg0) {
+					if (mProgressDialog.isShowing())
+						mProgressDialog.dismiss();
+
+					Toast.makeText(VodMovieDetailsActivity.this,
+							"Payment verification Failed.", Toast.LENGTH_LONG)
+							.show();
+					cancel(true);
+				}
+			});
+			mProgressDialog.show();
+		}
+
+		@Override
+		protected ResponseObj doInBackground(String... arg) {
+			ResponseObj resObj = new ResponseObj();
+			try {
+				reqJson = new JSONObject(arg[0]);
+
+				if (mApplication.isNetworkAvailable()) {
+					resObj = Utilities.callExternalApiPostMethod(
+							getApplicationContext(),
+							"/payments/paypalEnquirey/"
+									+ mApplication.getClientId(), reqJson);
+				} else {
+					resObj.setFailResponse(100, "Network error.");
+				}
+			} catch (JSONException e) {
+				Log.e("VodMovieDetailsActivity-ObsPaymentCheck",
+						(e.getMessage() == null) ? "Json Exception" : e
+								.getMessage());
+				e.printStackTrace();
+				Toast.makeText(VodMovieDetailsActivity.this,
+						"Invalid data: On PayPal Payment ", Toast.LENGTH_LONG)
+						.show();
+			}
+			if (mConfirmDialog != null && mConfirmDialog.isShowing()) {
+				mConfirmDialog.dismiss();
+			}
+			return resObj;
+		}
+
+		@Override
+		protected void onPostExecute(ResponseObj resObj) {
+
+			super.onPostExecute(resObj);
+			if (mProgressDialog.isShowing()) {
+				mProgressDialog.dismiss();
+			}
+
+			if (resObj.getStatusCode() == 200) {
+				if (resObj.getsResponse().length() > 0) {
+					JSONObject json;
+					try {
+						json = new JSONObject(resObj.getsResponse());
+						json = json.getJSONObject("changes");
+						if (json != null) {
+							String mPaymentStatus = json
+									.getString("paymentStatus");
+							if (mPaymentStatus.equalsIgnoreCase("Success")) {
+								mApplication.setBalance((float) json
+										.getLong("totalBalance"));
+								Toast.makeText(VodMovieDetailsActivity.this,
+										"Payment Verification Success",
+										Toast.LENGTH_LONG).show();
+								BookOrder();
+
+							} else if (mPaymentStatus.equalsIgnoreCase("Fail")) {
+								Toast.makeText(VodMovieDetailsActivity.this,
+										"Payment Verification Failed",
+										Toast.LENGTH_LONG).show();
+							}
+						}
+
+					} catch (JSONException e) {
+						Toast.makeText(VodMovieDetailsActivity.this,
+								"Server Error", Toast.LENGTH_LONG).show();
+						Log.i("VodMovieDetailsActivity",
+								"JsonEXception at payment verification");
+					} catch (NullPointerException e) {
+						Toast.makeText(VodMovieDetailsActivity.this,
+								"Server Error  ", Toast.LENGTH_LONG).show();
+						Log.i("VodMovieDetailsActivity",
+								"Null PointerEXception at payment verification");
+					}
+				}
+			} else {
+				Toast.makeText(VodMovieDetailsActivity.this, "Server Error",
+						Toast.LENGTH_LONG).show();
+			}
+		}
+	}
+
 }

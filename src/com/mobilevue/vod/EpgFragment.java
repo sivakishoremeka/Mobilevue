@@ -68,7 +68,7 @@ public class EpgFragment extends Fragment {
 		mPrefs = getActivity().getSharedPreferences(mApplication.PREFS_FILE, 0);
 		list = (ListView) rootView.findViewById(R.id.fr_epg_lv_epg_dtls);
 		list.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-		String channelName = mPrefs.getString(IPTVActivity.CHANNEL_NAME, "");
+		String channelName = mPrefs.getString(IPTVActivity.CHANNEL_DESC, "");
 		reqestedDate = getArguments().getString(EpgFragment.ARG_SECTION_DATE);
 		isRefresh = mPrefs.getBoolean(IS_REFRESH, false);
 		mReqDetails = new EpgReqDetails(rootView, reqestedDate, channelName);
@@ -85,7 +85,7 @@ public class EpgFragment extends Fragment {
 	}
 
 	public void CheckCacheForEpgDetails(EpgReqDetails rd) {
-		String Epg_Dtls_key = rd.channelName + "_EPG_Details";
+		String Epg_Dtls_key = rd.channelDesc + "_EPG_Details";
 		String Epg_Dtls_value = mPrefs.getString(Epg_Dtls_key, "");
 		String req_date_Dtls = null;
 		boolean getServerData = false;
@@ -148,7 +148,7 @@ public class EpgFragment extends Fragment {
 		});
 		mProgressDialog.show();
 		mOBSClient
-				.getEPGDetails(rd.channelName, rd.date, getEPGDetailsCallBack);
+				.getEPGDetails(rd.channelDesc, rd.date, getEPGDetailsCallBack);
 
 	}
 
@@ -192,7 +192,7 @@ public class EpgFragment extends Fragment {
 
 					/** saving epg details to preferences */
 					mPrefsEditor = mPrefs.edit();
-					String Epg_Dtls_key = mReqDetails.channelName
+					String Epg_Dtls_key = mReqDetails.channelDesc
 							+ "_EPG_Details";
 					String Epg_Dtls_value = mPrefs.getString(Epg_Dtls_key, "");
 					JSONObject json = null, jsonReq = null;
@@ -387,24 +387,24 @@ public class EpgFragment extends Fragment {
 	public class EpgReqDetails {
 		public View rootview;
 		public String date;
-		public String channelName;
+		public String channelDesc;
 
-		public EpgReqDetails(View v, String date, String channelName) {
+		public EpgReqDetails(View v, String date, String channelDesc) {
 			this.rootview = v;
 			this.date = date;
-			this.channelName = channelName;
+			this.channelDesc = channelDesc;
 		}
 	}
 
 	public class ProgDetails {
 		public Calendar calendar;
 		public String progTitle;
-		public String channelName;
+		public String channelDesc;
 
-		public ProgDetails(Calendar cal, String title, String chName) {
+		public ProgDetails(Calendar cal, String title, String channelDesc) {
 			this.calendar = cal;
 			this.progTitle = title;
-			this.channelName = chName;
+			this.channelDesc = channelDesc;
 		}
 	}
 

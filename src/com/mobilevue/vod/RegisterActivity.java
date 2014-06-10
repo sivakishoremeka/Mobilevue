@@ -81,7 +81,7 @@ public class RegisterActivity extends Activity {
 			public void onCancel(DialogInterface arg0) {
 				if (mProgressDialog != null && mProgressDialog.isShowing())
 					mProgressDialog.dismiss();
-					mProgressDialog = null;
+				mProgressDialog = null;
 			}
 		});
 		mProgressDialog.show();
@@ -127,7 +127,7 @@ public class RegisterActivity extends Activity {
 			} catch (Exception e) {
 				Log.e("templateCallBack-success", e.getMessage());
 				Toast.makeText(RegisterActivity.this,
-						"Server Error : Country Name not Specified",
+						"Server Error : Country/City/State not Specified",
 						Toast.LENGTH_LONG).show();
 			}
 		}
@@ -248,13 +248,10 @@ public class RegisterActivity extends Activity {
 				map.put("active", "false");
 				map.put("flag", "false");
 				map.put("activationDate", "");
-				map.put("addressNo", "ghcv");
-				map.put("street", "Hyderabad");
-				map.put("addressNo", "ghcv");
+				map.put("addressNo", "");
 				map.put("street", "#23");
 				map.put("city", clientData.getCity());
 				map.put("state", clientData.getState());// "ANDHRA PRADESH");//
-														// "Akershus");//"Drenth");//
 				map.put("country", clientData.getCountry());
 				map.put("zipCode", "436346");
 				map.put("phone", clientData.getPhone());

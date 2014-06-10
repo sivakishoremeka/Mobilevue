@@ -4,7 +4,7 @@
     android:id="@+id/a_iptv_rl_root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF" >
+    android:background="#FFFFFF">
 
     <TextView
         android:id="@+id/a_iptv_tv_iptv_channels"

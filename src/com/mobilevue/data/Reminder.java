@@ -8,7 +8,7 @@ public class Reminder {
 		String _prog_name;
 		long _time;
 		int _channel_id;
-		String _channel_name;
+		String _channel_desc;
 		String _url;
 		
 		// Empty constructor
@@ -16,11 +16,11 @@ public class Reminder {
 			
 		}
 		// constructor
-		public Reminder(String prog_name, long time,int ch_id,String channel_name,String url){
+		public Reminder(String prog_name, long time,int ch_id,String channel_desc,String url){
 			this._prog_name = prog_name;
 			this._time = time;
 			this._channel_id = ch_id;
-			this._channel_name = channel_name;
+			this._channel_desc = channel_desc;
 			this._url = url;
 		}
 		public int get_channel_id() {
@@ -29,11 +29,11 @@ public class Reminder {
 		public void set_channel_id(int _channel_id) {
 			this._channel_id = _channel_id;
 		}
-		public String get_channel_name() {
-			return _channel_name;
+		public String get_channel_desc() {
+			return _channel_desc;
 		}
-		public void set_channel_name(String _channel_name) {
-			this._channel_name = _channel_name;
+		public void set_channel_desc(String _channel_desc) {
+			this._channel_desc = _channel_desc;
 		}
 		public String get_url() {
 			return _url;

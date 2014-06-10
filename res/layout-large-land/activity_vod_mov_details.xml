@@ -1,7 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/a_vod_mov_dtls_root_layout"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent"
+    android:background="#FFFFFF" >
 
     <RelativeLayout
         android:id="@+id/a_vod_mov_dtls_header"

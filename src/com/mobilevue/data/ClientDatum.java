@@ -25,8 +25,11 @@ public class ClientDatum {
 	private String addressNo;
 	private String fullname;
 	private float balanceAmount;
+	private boolean balanceCheck;
 	private String hwSerialNumber;
+	private String currency;
 	private String categoryType;
+	private ConfigurationProperty configurationProperty;
 
 	public float getBalanceAmount() {
 		return balanceAmount;
@@ -226,5 +229,30 @@ public class ClientDatum {
 	public void setFullname(String fullname) {
 		this.fullname = fullname;
 	}
+	public boolean isBalanceCheck() {
+		return balanceCheck;
+	}
+
+	public void setBalanceCheck(boolean balanceCheck) {
+		this.balanceCheck = balanceCheck;
+	}
+
+	public String getCurrency() {
+		return currency;
+	}
+
+	public void setCurrency(String currency) {
+		this.currency = currency;
+	}
+
+	public ConfigurationProperty getConfigurationProperty() {
+		return configurationProperty;
+	}
+
+	public void setConfigurationProperty(ConfigurationProperty configurationProperty) {
+		this.configurationProperty = configurationProperty;
+	}
+
+
 
 }

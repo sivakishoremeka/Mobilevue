@@ -3,13 +3,13 @@ package com.mobilevue.service;
 import java.util.Calendar;
 import java.util.List;
 
-import com.mobilevue.data.Reminder;
-import com.mobilevue.database.DatabaseHandler;
-import com.mobilevue.service.task.AlarmTask;
-
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+
+import com.mobilevue.data.Reminder;
+import com.mobilevue.database.DBHelper;
+import com.mobilevue.service.task.AlarmTask;
 
 public class ScheduleAfterBootService extends Service {
 	@Override
@@ -45,12 +45,13 @@ public class ScheduleAfterBootService extends Service {
 
 	private void backgroundThreadProcessing() {
 
-		DatabaseHandler dbHandler = new DatabaseHandler(this);
+		DBHelper dbHandler = new DBHelper(this);
 		List<Reminder> remindersList = dbHandler.getAllReminder();
 		Calendar c = Calendar.getInstance();
 		for (Reminder r : remindersList) {
 			c.setTimeInMillis(r.get_time());
-			new AlarmTask(this, c, r.get_prog_name(),r.get_channel_id(),r.get_channel_name(),r.get_url()).run();
+			new AlarmTask(this, c, r.get_prog_name(), r.get_channel_id(),
+					r.get_channel_desc(), r.get_url()).run();
 		}
 		dbHandler.deleteOldReminders();
 	}

@@ -30,16 +30,7 @@ public class MyAccountActivity extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 					long arg3) {
-
 				switch (arg2) {
-				case 9:
-					Fragment newPackageFrag = new NewPackageFragment();
-					FragmentTransaction transaction = getFragmentManager()
-							.beginTransaction();
-					transaction.replace(R.id.a_my_acc_frag_container,
-							newPackageFrag, FRAG_TAG);
-					transaction.commit();
-					break;
 				case 0:
 					Fragment myPackageFrag = new MyPakagesFragment();
 					FragmentTransaction transaction1 = getFragmentManager()
@@ -65,15 +56,6 @@ public class MyAccountActivity extends Activity {
 				.beginTransaction();
 		transaction.add(R.id.a_my_acc_frag_container, myPackageFrag, FRAG_TAG);
 		transaction.commit();
-	}
-
-	public void btnSubmit_onClick(View v) {
-		Fragment frag = getFragmentManager().findFragmentByTag(FRAG_TAG);
-		((NewPackageFragment) frag).btnSubmit_onClick();
-	}
-
-	public void btnCancel_onClick(View v) {
-
 	}
 
 }

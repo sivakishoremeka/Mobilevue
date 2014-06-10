@@ -1,30 +1,29 @@
 package com.mobilevue.vod;
 
-import java.text.ParseException;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 import android.app.ActionBar;
 import android.app.ActionBar.LayoutParams;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,21 +37,26 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mobilevue.adapter.EPGFragmentPagerAdapter;
+import com.mobilevue.data.ChannelsDatum;
 import com.mobilevue.data.Reminder;
-import com.mobilevue.data.ServiceDatum;
-import com.mobilevue.database.DatabaseHandler;
+import com.mobilevue.data.ResponseObj;
+import com.mobilevue.database.DBHelper;
 import com.mobilevue.retrofit.OBSClient;
 import com.mobilevue.service.ScheduleClient;
 import com.mobilevue.utils.Utilities;
 import com.mobilevue.vod.EpgFragment.ProgDetails;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.paypal.android.sdk.payments.PayPalPayment;
+import com.paypal.android.sdk.payments.PayPalService;
+import com.paypal.android.sdk.payments.PaymentActivity;
+import com.paypal.android.sdk.payments.PaymentConfirmation;
 
 public class IPTVActivity extends FragmentActivity {
 
 	/** This is live/Iptv activity */
 
 	public static String TAG = IPTVActivity.class.getName();
-	public final static String CHANNEL_NAME = "CHANNELNAME";
+	public final static String CHANNEL_DESC = "Channel Desc";
 	public final static String CHANNEL_URL = "URL";
 	private SharedPreferences mPrefs;
 	private Editor mPrefsEditor;
@@ -69,8 +73,9 @@ public class IPTVActivity extends FragmentActivity {
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
 	boolean mIsReqCanceled = false;
-
 	boolean requiredLiveData = false;
+
+	AlertDialog mConfirmDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -97,26 +102,73 @@ public class IPTVActivity extends FragmentActivity {
 
 				String label = ((Button) v).getText().toString();
 				if (label.trim().equalsIgnoreCase("Watch")) {
-					Intent intent = new Intent();
-					intent.putExtra("VIDEOTYPE", "LIVETV");
-					intent.putExtra(CHANNEL_URL, mChannelURL);
-					intent.putExtra("CHANNELID", mChannelId);
-					switch (MyApplication.player) {
-					case NATIVE_PLAYER:
-						intent.setClass(getApplicationContext(),
-								VideoPlayerActivity.class);
-						startActivity(intent);
-						break;
-					case MXPLAYER:
-						intent.setClass(getApplicationContext(),
-								MXPlayerActivity.class);
-						startActivity(intent);
-						break;
-					default:
-						intent.setClass(getApplicationContext(),
-								VideoPlayerActivity.class);
-						startActivity(intent);
-						break;
+
+					if (mApplication.balanceCheck == true
+							&& (mApplication.getBalance() > 0)) {
+						final boolean isPayPalChk = mApplication
+								.isPayPalCheck();
+						AlertDialog.Builder builder = new AlertDialog.Builder(
+								(IPTVActivity.this),
+								AlertDialog.THEME_HOLO_LIGHT);
+						builder.setIcon(R.drawable.ic_logo_confirm_dialog);
+						builder.setTitle("Confirmation");
+						String msg = "Insufficient Balance."
+								+ (isPayPalChk == true ? "Go to PayPal ??"
+										: "Please do Payment.");
+						builder.setMessage(msg);
+						builder.setCancelable(true);
+						mConfirmDialog = builder.create();
+						mConfirmDialog.setButton(AlertDialog.BUTTON_NEGATIVE,
+								(isPayPalChk == true ? "No" : ""),
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int buttonId) {
+									}
+								});
+						mConfirmDialog.setButton(AlertDialog.BUTTON_POSITIVE,
+								(isPayPalChk == true ? "Yes" : "Ok"),
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+										if (isPayPalChk == true) {
+											Intent svcIntent = new Intent(
+													IPTVActivity.this,
+													PayPalService.class);
+
+											svcIntent
+													.putExtra(
+															PayPalService.EXTRA_PAYPAL_CONFIGURATION,
+															mApplication
+																	.getPaypalConfig());
+
+											startService(svcIntent);
+
+											PayPalPayment paymentData = new PayPalPayment(
+													new BigDecimal(mApplication
+															.getBalance()),
+													mApplication.getCurrency(),
+													"AndroidIPTV-Payment",
+													PayPalPayment.PAYMENT_INTENT_SALE);
+
+											Intent actviIntent = new Intent(
+													IPTVActivity.this,
+													PaymentActivity.class);
+
+											actviIntent
+													.putExtra(
+															PaymentActivity.EXTRA_PAYMENT,
+															paymentData);
+
+											startActivityForResult(
+													actviIntent,
+													mApplication.REQUEST_CODE_PAYMENT);
+										}
+									}
+								});
+						mConfirmDialog.show();
+					} else {
+						startMediaPlayer();
 					}
 				} else {
 					/**
@@ -129,18 +181,17 @@ public class IPTVActivity extends FragmentActivity {
 					if (progDtls != null) {
 						scheduleClient.setAlarmForNotification(
 								progDtls.calendar, progDtls.progTitle,
-								mChannelId, progDtls.channelName, mChannelURL);
+								mChannelId, progDtls.channelDesc, mChannelURL);
 						SimpleDateFormat sdf = new SimpleDateFormat(
 								"yyyy-MM-dd HH:mm", new Locale("en"));
 						String date = sdf.format(progDtls.calendar.getTime());
 
 						// add to db
-						DatabaseHandler dbHandler = new DatabaseHandler(
-								IPTVActivity.this);
+						DBHelper dbHandler = new DBHelper(IPTVActivity.this);
 						dbHandler.deleteOldReminders();
 						dbHandler.addReminder(new Reminder(progDtls.progTitle,
 								progDtls.calendar.getTimeInMillis(),
-								mChannelId, progDtls.channelName, mChannelURL));
+								mChannelId, progDtls.channelDesc, mChannelURL));
 						Toast.makeText(IPTVActivity.this,
 								"Notification set for: " + date,
 								Toast.LENGTH_SHORT).show();
@@ -156,6 +207,27 @@ public class IPTVActivity extends FragmentActivity {
 		// Create a new service client and bind our activity to this service
 		scheduleClient = new ScheduleClient(this);
 		scheduleClient.doBindService();
+	}
+
+	protected void startMediaPlayer() {
+		Intent intent = new Intent();
+		intent.putExtra("VIDEOTYPE", "LIVETV");
+		intent.putExtra(CHANNEL_URL, mChannelURL);
+		intent.putExtra("CHANNELID", mChannelId);
+		switch (MyApplication.player) {
+		case NATIVE_PLAYER:
+			intent.setClass(getApplicationContext(), VideoPlayerActivity.class);
+			startActivity(intent);
+			break;
+		case MXPLAYER:
+			intent.setClass(getApplicationContext(), MXPlayerActivity.class);
+			startActivity(intent);
+			break;
+		default:
+			intent.setClass(getApplicationContext(), VideoPlayerActivity.class);
+			startActivity(intent);
+			break;
+		}
 	}
 
 	@Override
@@ -191,9 +263,12 @@ public class IPTVActivity extends FragmentActivity {
 			startActivity(new Intent(this, MyAccountActivity.class));
 			break;
 		case R.id.action_refresh:
-			mPrefsEditor.remove(ChannelsActivity.IPTV_CHANNELS_DETAILS);
-			mPrefsEditor.commit();
-			CheckCacheForChannelList();
+			// refresh epg data
+			mApplication.getEditor().putBoolean(EpgFragment.IS_REFRESH, true);
+			mApplication.getEditor().commit();
+			mEpgPagerAdapter = new EPGFragmentPagerAdapter(
+					IPTVActivity.this.getSupportFragmentManager());
+			mViewPager.setAdapter(mEpgPagerAdapter);
 			break;
 		default:
 			break;
@@ -202,165 +277,25 @@ public class IPTVActivity extends FragmentActivity {
 	}
 
 	private void CheckCacheForChannelList() {
-
-		String sChannelDtls = mPrefs.getString(
-				ChannelsActivity.IPTV_CHANNELS_DETAILS, "");
-		if (sChannelDtls.length() != 0) {
-			JSONObject json_ch_dtls = null;
-			String channel_details = null;
-			try {
-				json_ch_dtls = new JSONObject(mPrefs.getString(
-						ChannelsActivity.IPTV_CHANNELS_DETAILS, ""));
-				channel_details = json_ch_dtls.getString("Channels");
-				// channel_details =
-				// "[{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https:/,/spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":2,\"clientId\":34,\"channelName\":\"BrazCom\",\"image\":\"https://spark.openbillingsystem.com/images/utv.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":3,\"clientId\":34,\"channelName\":\"BrazilianC\",\"image\":\"https://spark.openbillingsystem.com/images/stmv.png\",\"url\":\"http://www.wowza.com/_h264/bigbuckbunny_450.mp4\"},{\"serviceId\":4,\"clientId\":34,\"channelName\":\"Barmedas\",\"image\":\"https://spark.openbillingsystem.com/images/wb.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"},{\"serviceId\":1,\"clientId\":34,\"channelName\":\"Albanian1\",\"image\":\"https://spark.openbillingsystem.com/images/hbo.png\",\"url\":\"http://rm-edge-4.cdn2.streamago.tv/streamagoedge/1922/815/playlist.m3u8\"}]";
-			} catch (JSONException e1) {
-				e1.printStackTrace();
-			}
-			if (channel_details.length() != 0) {
-				String sDate = "";
-
-				try {
-					sDate = (String) json_ch_dtls
-							.get(ChannelsActivity.CHANNELS_UPDATED_AT);
-					SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd",
-							new Locale("en"));
-					Calendar c = Calendar.getInstance();
-					String currDate = df.format(c.getTime());
-					Date d1 = null, d2 = null;
-					try {
-						d1 = df.parse(sDate);
-						d2 = df.parse(currDate);
-					} catch (ParseException e) {
-						e.printStackTrace();
-					}
-					if ((sDate.length() != 0) && (d1.compareTo(d2) == 0)) {
-						updateChannels(getServiceListFromJSON(channel_details));
-					} else {
-						requiredLiveData = true;
-					}
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			} else {
-				requiredLiveData = true;
-			}
-		} else {
-			requiredLiveData = true;
-		}
-		if (requiredLiveData) {
-
-			mPrefsEditor.putBoolean(EpgFragment.IS_REFRESH, true);
-			mPrefsEditor.commit();
-			GetChannelsFromServer();
+		String chListKey = getResources().getString(R.string.channels_list);
+		String sChannelsList = mPrefs.getString(chListKey, "");
+		if (sChannelsList.length() != 0) {
+			updateChannels(getChannelsListFromJSON(sChannelsList));
 		}
 	}
 
-	private void GetChannelsFromServer() {
-		if (mProgressDialog != null) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
-		}
-		mProgressDialog = new ProgressDialog(IPTVActivity.this,
-				ProgressDialog.THEME_HOLO_DARK);
-		mProgressDialog.setMessage("Retriving Detials");
-		mProgressDialog.setCanceledOnTouchOutside(false);
-		mProgressDialog.setOnCancelListener(new OnCancelListener() {
-
-			public void onCancel(DialogInterface arg0) {
-				if (mProgressDialog.isShowing())
-					mProgressDialog.dismiss();
-				mIsReqCanceled = true;
-			}
-		});
-		mProgressDialog.show();
-		mOBSClient.getPlanServices(mApplication.getClientId(),
-				getPlanServicesCallBack);
-
-	}
-
-	final Callback<List<ServiceDatum>> getPlanServicesCallBack = new Callback<List<ServiceDatum>>() {
-		@Override
-		public void failure(RetrofitError retrofitError) {
-			if (!mIsReqCanceled) {
-				if (mProgressDialog != null) {
-					mProgressDialog.dismiss();
-					mProgressDialog = null;
-				}
-				if (retrofitError.isNetworkError()) {
-					Toast.makeText(
-							IPTVActivity.this,
-							getApplicationContext().getString(
-									R.string.error_network), Toast.LENGTH_LONG)
-							.show();
-				} else if (retrofitError.getResponse().getStatus() == 403) {
-					String msg = mApplication
-							.getDeveloperMessage(retrofitError);
-					msg = (msg != null && msg.length() > 0 ? msg
-							: "Internal Server Error");
-					Toast.makeText(IPTVActivity.this, msg, Toast.LENGTH_LONG)
-							.show();
-				} else {
-					Toast.makeText(
-							IPTVActivity.this,
-							"Server Error : "
-									+ retrofitError.getResponse().getStatus(),
-							Toast.LENGTH_LONG).show();
-				}
-			} else
-				mIsReqCanceled = false;
-		}
-
-		@Override
-		public void success(List<ServiceDatum> serviceList, Response response) {
-			if (!mIsReqCanceled) {
-				if (mProgressDialog != null) {
-					mProgressDialog.dismiss();
-					mProgressDialog = null;
-				}
-				if (serviceList != null && serviceList.size() > 0) {
-
-					/** saving channel details to preferences */
-					Date date = new Date();
-					String formattedDate = Utilities.df.format(date);
-
-					JSONObject json = null;
-					try {
-						json = new JSONObject();
-						json.put(ChannelsActivity.CHANNELS_UPDATED_AT,
-								formattedDate);
-						json.put(ChannelsActivity.CHANNELS_LIST,
-								new Gson().toJson(serviceList));
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-					mPrefsEditor.putString(
-							ChannelsActivity.IPTV_CHANNELS_DETAILS,
-							json.toString());
-					mPrefsEditor.commit();
-
-					/** updating gridview **/
-					updateChannels(serviceList);
-
-				}
-			} else
-				mIsReqCanceled = false;
-		}
-	};
-
-	private void updateChannels(List<ServiceDatum> result) {
+	private void updateChannels(List<ChannelsDatum> result) {
 		int imgno = 0;
 		LinearLayout channels = (LinearLayout) findViewById(R.id.a_iptv_ll_channels);
 		channels.removeAllViews();
 
 		final Editor editor = mPrefs.edit();
-		for (final ServiceDatum data : result) {
-
-			editor.putString(data.getChannelName(), data.getUrl());
+		for (final ChannelsDatum data : result) {
+			editor.putString(data.channelDescription, data.url);
 			editor.commit();
 			imgno += 1;
-			ChannelInfo chInfo = new ChannelInfo(data.getChannelName(),
-					data.getUrl(), data.getServiceId());
+			ChannelInfo chInfo = new ChannelInfo(data.channelDescription,
+					data.url, data.serviceId);
 			final ImageButton button = new ImageButton(this);
 			LayoutParams params = new LayoutParams(Gravity.CENTER);
 			params.height = 96;
@@ -371,21 +306,20 @@ public class IPTVActivity extends FragmentActivity {
 			button.setTag(chInfo);
 			button.setFocusable(false);
 			button.setFocusableInTouchMode(false);
+			//button.setBackgroundDrawable(getResources().getDrawable(R.drawable.border2));
 			button.setImageDrawable(getResources().getDrawable(
 					R.drawable.ic_default_ch));
-			if (getIntent().getStringExtra(CHANNEL_NAME) != null) {
-				editor.putString(CHANNEL_NAME,
-						getIntent().getStringExtra(CHANNEL_NAME));
-				editor.commit();
-				mChannelURL = getIntent().getStringExtra(CHANNEL_URL);
+			if (mPrefs.getString(CHANNEL_DESC, "") != null) {
+				mChannelURL = mPrefs.getString(CHANNEL_URL, "");
 			}
-			ImageLoader.getInstance().displayImage(data.getImage(), button);
+			ImageLoader.getInstance().displayImage(data.image, button);
 
 			button.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					ChannelInfo info = (ChannelInfo) v.getTag();
-					editor.putString(CHANNEL_NAME, info.channelName);
+					editor.putString(CHANNEL_DESC, info.channelDesc);
+					editor.putString(CHANNEL_URL, info.channelURL);
 					// for not refresh data
 					editor.putBoolean(EpgFragment.IS_REFRESH, false);
 					// for not refresh data
@@ -405,20 +339,164 @@ public class IPTVActivity extends FragmentActivity {
 		mViewPager.setAdapter(mEpgPagerAdapter);
 	}
 
-	private List<ServiceDatum> getServiceListFromJSON(String json) {
-		java.lang.reflect.Type t = new TypeToken<List<ServiceDatum>>() {
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		/** Stop PayPalIntent Service... */
+		stopService(new Intent(this, PayPalService.class));
+		if (mConfirmDialog != null && mConfirmDialog.isShowing()) {
+			mConfirmDialog.dismiss();
+		}
+		if (resultCode == Activity.RESULT_OK) {
+			PaymentConfirmation confirm = data
+					.getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
+			if (confirm != null) {
+				try {
+					Log.i("OBSPayment", confirm.toJSONObject().toString(4));
+					/** Call OBS API for verification and payment record. */
+					OBSPaymentAsyncTask task = new OBSPaymentAsyncTask();
+					task.execute(confirm.toJSONObject().toString(4));
+				} catch (JSONException e) {
+					Log.e("OBSPayment",
+							"an extremely unlikely failure occurred: ", e);
+				}
+			}
+		} else if (resultCode == Activity.RESULT_CANCELED) {
+			Log.i("OBSPayment", "The user canceled.");
+			Toast.makeText(this, "The user canceled.", Toast.LENGTH_LONG)
+					.show();
+		} else if (resultCode == PaymentActivity.RESULT_EXTRAS_INVALID) {
+			Log.i("OBSPayment",
+					"An invalid Payment or PayPalConfiguration was submitted. Please see the docs.");
+			Toast.makeText(this,
+					"An invalid Payment or PayPalConfiguration was submitted",
+					Toast.LENGTH_LONG).show();
+		}
+	}
+
+	private class OBSPaymentAsyncTask extends
+			AsyncTask<String, Void, ResponseObj> {
+		JSONObject reqJson = null;
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			if (mProgressDialog != null) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			mProgressDialog = new ProgressDialog(IPTVActivity.this,
+					ProgressDialog.THEME_HOLO_DARK);
+			mProgressDialog.setMessage("Connecting to Server...");
+			mProgressDialog.setCanceledOnTouchOutside(false);
+			mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+				public void onCancel(DialogInterface arg0) {
+					if (mProgressDialog.isShowing())
+						mProgressDialog.dismiss();
+
+					Toast.makeText(IPTVActivity.this,
+							"Payment verification Failed.", Toast.LENGTH_LONG)
+							.show();
+					cancel(true);
+				}
+			});
+			mProgressDialog.show();
+		}
+
+		@Override
+		protected ResponseObj doInBackground(String... arg) {
+			ResponseObj resObj = new ResponseObj();
+			try {
+				reqJson = new JSONObject(arg[0]);
+
+				if (mApplication.isNetworkAvailable()) {
+					resObj = Utilities.callExternalApiPostMethod(
+							getApplicationContext(),
+							"/payments/paypalEnquirey/"
+									+ mApplication.getClientId(), reqJson);
+				} else {
+					resObj.setFailResponse(100, "Network error.");
+				}
+			} catch (JSONException e) {
+				Log.e("IPTVActivity-ObsPaymentCheck",
+						(e.getMessage() == null) ? "Json Exception" : e
+								.getMessage());
+				e.printStackTrace();
+				Toast.makeText(IPTVActivity.this,
+						"Invalid data: On PayPal Payment ", Toast.LENGTH_LONG)
+						.show();
+			}
+			if (mConfirmDialog != null && mConfirmDialog.isShowing()) {
+				mConfirmDialog.dismiss();
+			}
+			return resObj;
+		}
+
+		@Override
+		protected void onPostExecute(ResponseObj resObj) {
+
+			super.onPostExecute(resObj);
+			if (mProgressDialog.isShowing()) {
+				mProgressDialog.dismiss();
+			}
+
+			if (resObj.getStatusCode() == 200) {
+				if (resObj.getsResponse().length() > 0) {
+					JSONObject json;
+					try {
+						json = new JSONObject(resObj.getsResponse());
+						json = json.getJSONObject("changes");
+						if (json != null) {
+							String paymentStatus = json
+									.getString("paymentStatus");
+							if (paymentStatus.equalsIgnoreCase("Success")) {
+								mApplication.setBalance((float) json
+										.getLong("totalBalance"));
+								Toast.makeText(IPTVActivity.this,
+										"Payment Verification Success",
+										Toast.LENGTH_LONG).show();
+								startMediaPlayer();
+
+							} else if (paymentStatus.equalsIgnoreCase("Fail")) {
+								Toast.makeText(IPTVActivity.this,
+										"Payment Verification Failed",
+										Toast.LENGTH_LONG).show();
+							}
+						}
+
+					} catch (JSONException e) {
+						Toast.makeText(IPTVActivity.this, "Server Error",
+								Toast.LENGTH_LONG).show();
+						Log.i("IPTVActivity",
+								"JsonEXception at payment verification");
+					} catch (NullPointerException e) {
+						Toast.makeText(IPTVActivity.this, "Server Error  ",
+								Toast.LENGTH_LONG).show();
+						Log.i("IPTVActivity",
+								"Null PointerEXception at payment verification");
+					}
+
+				}
+			} else {
+				Toast.makeText(IPTVActivity.this, "Server Error",
+						Toast.LENGTH_LONG).show();
+			}
+		}
+	}
+
+	private List<ChannelsDatum> getChannelsListFromJSON(String json) {
+		java.lang.reflect.Type t = new TypeToken<List<ChannelsDatum>>() {
 		}.getType();
-		List<ServiceDatum> serviceList = new Gson().fromJson(json, t);
-		return serviceList;
+		List<ChannelsDatum> channelsList = new Gson().fromJson(json, t);
+		return channelsList;
 	}
 
 	private class ChannelInfo {
-		private String channelName;
+		private String channelDesc;
 		private String channelURL;
 		private int channelId;
 
-		public ChannelInfo(String channelName, String channelURL, int channelId) {
-			this.channelName = channelName;
+		public ChannelInfo(String channelDesc, String channelURL, int channelId) {
+			this.channelDesc = channelDesc;
 			this.channelURL = channelURL;
 			this.channelId = channelId;
 		}

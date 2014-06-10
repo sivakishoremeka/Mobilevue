@@ -219,13 +219,6 @@ public class VodActivity extends FragmentActivity
 		searchItem.setVisible(true);
 		MenuItem refreshItem = menu.findItem(R.id.action_refresh);
 		refreshItem.setVisible(true);
-		// MenuItem searchItem = menu.findItem(R.id.action_search);
-		// mSearchView = (SearchView) searchItem.getActionView();
-		// setupSearchView(searchItem);
-		/*
-		 * MenuItem refreshItem = menu.findItem(R.id.action_refresh);
-		 * refreshItem.setVisible(true);
-		 */
 		return true;
 	}
 
@@ -253,19 +246,4 @@ public class VodActivity extends FragmentActivity
 		}
 		return true;
 	}
-
-	/*
-	 * private void setupSearchView(MenuItem searchItem) {
-	 * mSearchView.setOnQueryTextListener(this); }
-	 * 
-	 * protected boolean isAlwaysExpanded() { return false; }
-	 * 
-	 * @Override public boolean onQueryTextChange(String arg0) { return false; }
-	 * 
-	 * @Override public boolean onQueryTextSubmit(String movieName) {
-	 * mSearchView.clearFocus(); listView.clearChoices(); mPrefs =
-	 * getSharedPreferences(mApplication.PREFS_FILE, 0); mPrefsEditor =
-	 * mPrefs.edit(); mPrefsEditor.putString(CATEGORY, movieName);
-	 * mPrefsEditor.commit(); setPageCountAndGetDetails(); return false; }
-	 */
 }
