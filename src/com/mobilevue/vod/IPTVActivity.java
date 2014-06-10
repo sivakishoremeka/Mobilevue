@@ -148,7 +148,9 @@ public class IPTVActivity extends FragmentActivity {
 													new BigDecimal(mApplication
 															.getBalance()),
 													mApplication.getCurrency(),
-													"AndroidIPTV-Payment",
+													getResources().getString(
+															R.string.app_name)
+															+ " -Payment",
 													PayPalPayment.PAYMENT_INTENT_SALE);
 
 											Intent actviIntent = new Intent(
@@ -306,7 +308,7 @@ public class IPTVActivity extends FragmentActivity {
 			button.setTag(chInfo);
 			button.setFocusable(false);
 			button.setFocusableInTouchMode(false);
-			//button.setBackgroundDrawable(getResources().getDrawable(R.drawable.border2));
+			// button.setBackgroundDrawable(getResources().getDrawable(R.drawable.border2));
 			button.setImageDrawable(getResources().getDrawable(
 					R.drawable.ic_default_ch));
 			if (mPrefs.getString(CHANNEL_DESC, "") != null) {

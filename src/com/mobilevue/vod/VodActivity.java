@@ -152,7 +152,7 @@ public class VodActivity extends FragmentActivity
 		}
 		mProgressDialog = new ProgressDialog(VodActivity.this,
 				ProgressDialog.THEME_HOLO_DARK);
-		mProgressDialog.setMessage("Retriving Detials");
+		mProgressDialog.setMessage("Retriving Detials...");
 		mProgressDialog.setCanceledOnTouchOutside(false);
 		mProgressDialog.setOnCancelListener(new OnCancelListener() {
 

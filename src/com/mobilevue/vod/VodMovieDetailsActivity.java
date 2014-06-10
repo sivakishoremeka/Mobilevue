@@ -571,7 +571,7 @@ public class VodMovieDetailsActivity extends Activity {
 			}
 			mProgressDialog = new ProgressDialog(VodMovieDetailsActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Connecting to Server...");
+			mProgressDialog.setMessage("Connecting Server...");
 			mProgressDialog.setCanceledOnTouchOutside(false);
 			mProgressDialog.setOnCancelListener(new OnCancelListener() {
 

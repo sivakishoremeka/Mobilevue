@@ -161,7 +161,7 @@ public class ChannelsActivity extends Activity implements
 		}
 		mProgressDialog = new ProgressDialog(this,
 				ProgressDialog.THEME_HOLO_DARK);
-		mProgressDialog.setMessage("Connectiong to Server...");
+		mProgressDialog.setMessage("Connecting Server...");
 		mProgressDialog.setCanceledOnTouchOutside(false);
 		mProgressDialog.setOnCancelListener(new OnCancelListener() {
 			@Override

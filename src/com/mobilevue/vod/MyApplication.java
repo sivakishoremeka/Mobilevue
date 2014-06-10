@@ -38,6 +38,7 @@ import android.util.Log;
 import com.mobilevue.data.ServiceDatum;
 import com.mobilevue.database.DBHelper;
 import com.mobilevue.imagehandler.AuthImageDownloader;
+import com.mobilevue.retrofit.CustomUrlConnectionClient;
 import com.mobilevue.retrofit.OBSClient;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -144,7 +145,7 @@ public class MyApplication extends Application {
 				.setEndpoint(API_URL).setLogLevel(RestAdapter.LogLevel.FULL)
 				// need to remove this on build
 				.setClient(
-						new com.mobilevue.retrofit.CustomUrlConnectionClient(
+						new CustomUrlConnectionClient(
 								tenentId, basicAuth, contentType)).build();
 		return restAdapter.create(OBSClient.class);
 	}

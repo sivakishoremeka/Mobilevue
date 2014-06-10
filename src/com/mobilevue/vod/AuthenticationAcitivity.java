@@ -92,7 +92,8 @@ public class AuthenticationAcitivity extends Activity {
 					AuthenticationAcitivity.this.finish();
 					startActivity(intent);
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 
 		@Override
@@ -105,7 +106,8 @@ public class AuthenticationAcitivity extends Activity {
 						"Server Error : "
 								+ retrofitError.getResponse().getStatus(),
 						Toast.LENGTH_LONG).show();
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 	};
 
@@ -116,63 +118,71 @@ public class AuthenticationAcitivity extends Activity {
 			if (!mIsReqCanceled) {
 				if (device != null) {
 					try {
-					/** on success save client id and check for active plans */
-					mApplication
-							.setClientId(Long.toString(device.getClientId()));
-					mApplication.setBalance(device.getBalanceAmount());
-					mApplication.setBalanceCheck(device.isBalanceCheck());
-					mApplication.setCurrency(device.getCurrency());
-					boolean isPayPalReq = false;
-					if (device.getPaypalConfigData() != null)
-						isPayPalReq = device.getPaypalConfigData()
-								.getEnabled();
-					mApplication.setPayPalCheck(isPayPalReq);
-					if (isPayPalReq) {
-						String value = device.getPaypalConfigData()
-								.getValue();
-						if (value != null && value.length() > 0) {
-							JSONObject json = new JSONObject(value);
-							try {
-								if (json != null) {
-									mApplication.setPayPalClientID(json
-											.get("clientId").toString());
+						/** on success save client id and check for active plans */
+						mApplication.setClientId(Long.toString(device
+								.getClientId()));
+						mApplication.setBalance(device.getBalanceAmount());
+						mApplication.setBalanceCheck(device.isBalanceCheck());
+						mApplication.setCurrency(device.getCurrency());
+						boolean isPayPalReq = false;
+						if (device.getPaypalConfigData() != null)
+							isPayPalReq = device.getPaypalConfigData()
+									.getEnabled();
+						mApplication.setPayPalCheck(isPayPalReq);
+						if (isPayPalReq) {
+							String value = device.getPaypalConfigData()
+									.getValue();
+							if (value != null && value.length() > 0) {
+								JSONObject json = new JSONObject(value);
+								try {
+									if (json != null) {
+										mApplication.setPayPalClientID(json
+												.get("clientId").toString());
+									}
+								} catch (NullPointerException npe) {
+									Log.e("AuthenticationAcitivity",
+											(npe.getMessage() == null) ? "NPE Exception"
+													: npe.getMessage());
+									Toast.makeText(
+											AuthenticationAcitivity.this,
+											"Invalid Data for PayPal details",
+											Toast.LENGTH_LONG).show();
 								}
-							} catch (NullPointerException npe) {
-								Log.e("AuthenticationAcitivity",
-										(npe.getMessage() == null) ? "NPE Exception"
-												: npe.getMessage());
-								Toast.makeText(
-										AuthenticationAcitivity.this,
+							} else
+								Toast.makeText(AuthenticationAcitivity.this,
 										"Invalid Data for PayPal details",
 										Toast.LENGTH_LONG).show();
-							}
-						} else
-							Toast.makeText(AuthenticationAcitivity.this,
-									"Invalid Data for PayPal details",
-									Toast.LENGTH_LONG).show();
-					}
-					mOBSClient.getActivePlans(mApplication.getClientId(),
-							activePlansCallBack);
-					}catch(NullPointerException npe){
-						Log.e("AuthenticationAcitivity", (npe.getMessage()==null)?"NPE Exception":npe.getMessage());
-						Toast.makeText(AuthenticationAcitivity.this, "Invalid Data-NPE Exception", Toast.LENGTH_LONG).show();
-					} 
-					catch (JSONException e) {
-						Log.e("AuthenticationAcitivity", (e.getMessage()==null)?"Json Exception":e.getMessage());
-						Toast.makeText(AuthenticationAcitivity.this, "Invalid Data-Json Exception", Toast.LENGTH_LONG).show();
+						}
+						mOBSClient.getActivePlans(mApplication.getClientId(),
+								activePlansCallBack);
+					} catch (NullPointerException npe) {
+						Log.e("AuthenticationAcitivity",
+								(npe.getMessage() == null) ? "NPE Exception"
+										: npe.getMessage());
+						Toast.makeText(AuthenticationAcitivity.this,
+								"Invalid Data-NPE Exception", Toast.LENGTH_LONG)
+								.show();
+					} catch (JSONException e) {
+						Log.e("AuthenticationAcitivity",
+								(e.getMessage() == null) ? "Json Exception" : e
+										.getMessage());
+						Toast.makeText(AuthenticationAcitivity.this,
+								"Invalid Data-Json Exception",
+								Toast.LENGTH_LONG).show();
 					}
 				} else {
 					Toast.makeText(AuthenticationAcitivity.this,
 							"Server Error  :Device details not exists",
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 
 		@Override
 		public void failure(RetrofitError retrofitError) {
 			if (!mIsReqCanceled) {
-				mIsFailed =true;
+				mIsFailed = true;
 				if (mProgressBar.isShown()) {
 					mProgressBar.setVisibility(View.INVISIBLE);
 				}
@@ -198,34 +208,38 @@ public class AuthenticationAcitivity extends Activity {
 									+ retrofitError.getResponse().getStatus(),
 							Toast.LENGTH_LONG).show();
 				}
-			}
+			} else
+				mIsReqCanceled = false;
 		}
 	};
 
-	public void  Refresh_OnClick(View v){
+	public void Refresh_OnClick(View v) {
 		mBtnRefresh.setVisibility(View.INVISIBLE);
 		validateDevice();
 	}
+
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			if(mIsFailed){
+			if (mIsFailed) {
 				AuthenticationAcitivity.this.finish();
-			}else{
-			AlertDialog mConfirmDialog = mApplication.getConfirmDialog(this);
-			mConfirmDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
-					new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							if (mProgressBar.isShown()) {
-								mProgressBar.setVisibility(View.INVISIBLE);
+			} else {
+				AlertDialog mConfirmDialog = mApplication
+						.getConfirmDialog(this);
+				mConfirmDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								if (mProgressBar.isShown()) {
+									mProgressBar.setVisibility(View.INVISIBLE);
+								}
+								mIsReqCanceled = true;
+								AuthenticationAcitivity.this.finish();
 							}
-							mIsReqCanceled = true;
-							AuthenticationAcitivity.this.finish();
-						}
-					});
-			mConfirmDialog.show();
+						});
+				mConfirmDialog.show();
 			}
 		}
 		return super.onKeyDown(keyCode, event);

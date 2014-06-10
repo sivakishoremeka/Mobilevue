@@ -70,7 +70,7 @@ public class PlanActivity extends Activity {
 		}
 		mProgressDialog = new ProgressDialog(PlanActivity.this,
 				ProgressDialog.THEME_HOLO_DARK);
-		mProgressDialog.setMessage("Connecting Server");
+		mProgressDialog.setMessage("Connecting Server...");
 		mProgressDialog.setCanceledOnTouchOutside(false);
 		mProgressDialog.setOnCancelListener(new OnCancelListener() {
 
@@ -201,7 +201,7 @@ public class PlanActivity extends Activity {
 			}
 			mProgressDialog = new ProgressDialog(PlanActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Processing Order");
+			mProgressDialog.setMessage("Processing Order...");
 			mProgressDialog.setCanceledOnTouchOutside(false);
 			mProgressDialog.setOnCancelListener(new OnCancelListener() {
 
@@ -275,7 +275,7 @@ public class PlanActivity extends Activity {
 
 		mProgressDialog = new ProgressDialog(this,
 				ProgressDialog.THEME_HOLO_DARK);
-		mProgressDialog.setMessage("Connectiong to Server...");
+		mProgressDialog.setMessage("Connecting Server...");
 		mProgressDialog.setCanceledOnTouchOutside(false);
 		mProgressDialog.setOnCancelListener(new OnCancelListener() {
 

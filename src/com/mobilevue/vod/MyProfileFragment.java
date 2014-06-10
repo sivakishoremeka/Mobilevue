@@ -38,6 +38,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.mobilevue.data.ClientDatum;
 import com.mobilevue.data.ConfigurationProperty;
+import com.mobilevue.retrofit.CustomUrlConnectionClient;
 import com.mobilevue.retrofit.OBSClient;
 
 public class MyProfileFragment extends Fragment {
@@ -63,7 +64,7 @@ public class MyProfileFragment extends Fragment {
 				.setLogLevel(RestAdapter.LogLevel.NONE)
 				.setConverter(new JSONConverter())
 				.setClient(
-						new com.mobilevue.retrofit.CustomUrlConnectionClient(
+						new CustomUrlConnectionClient(
 								mApplication.tenentId, mApplication.basicAuth,
 								mApplication.contentType)).build();
 		mOBSClient = restAdapter.create(OBSClient.class);

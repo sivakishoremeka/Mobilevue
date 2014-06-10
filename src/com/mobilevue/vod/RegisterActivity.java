@@ -75,7 +75,7 @@ public class RegisterActivity extends Activity {
 		}
 		mProgressDialog = new ProgressDialog(RegisterActivity.this,
 				ProgressDialog.THEME_HOLO_DARK);
-		mProgressDialog.setMessage("Connecting Server");
+		mProgressDialog.setMessage("Connecting Server...");
 		mProgressDialog.setCanceledOnTouchOutside(false);
 		mProgressDialog.setOnCancelListener(new OnCancelListener() {
 			public void onCancel(DialogInterface arg0) {
@@ -205,7 +205,7 @@ public class RegisterActivity extends Activity {
 			}
 			mProgressDialog = new ProgressDialog(RegisterActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Registering Details");
+			mProgressDialog.setMessage("Registering Details...");
 			mProgressDialog.setCanceledOnTouchOutside(false);
 			mProgressDialog.setOnCancelListener(new OnCancelListener() {
 

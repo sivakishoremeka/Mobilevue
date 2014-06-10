@@ -128,7 +128,7 @@ public class VideoPlayerActivity extends Activity implements
 			}
 			mProgressDialog = new ProgressDialog(VideoPlayerActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Connecting to server...");
+			mProgressDialog.setMessage("Connecting Server...");
 			mProgressDialog.setCancelable(true);
 			mProgressDialog.setCanceledOnTouchOutside(false);
 			mProgressDialog.show();
@@ -304,7 +304,7 @@ public class VideoPlayerActivity extends Activity implements
 			}
 			mProgressDialog = new ProgressDialog(VideoPlayerActivity.this,
 					ProgressDialog.THEME_HOLO_DARK);
-			mProgressDialog.setMessage("Connecting to server...");
+			mProgressDialog.setMessage("Connecting Server...");
 			mProgressDialog.setCancelable(true);
 			mProgressDialog.setCanceledOnTouchOutside(false);
 			mProgressDialog.show();
@@ -366,6 +366,7 @@ public class VideoPlayerActivity extends Activity implements
 
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra) {
+		stopThread = true;
 		if (mProgressDialog != null && mProgressDialog.isShowing()) {
 			mProgressDialog.dismiss();
 			mProgressDialog = null;
