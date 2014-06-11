@@ -5,6 +5,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -19,9 +22,12 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -37,6 +43,12 @@ public class RegisterActivity extends Activity {
 	public static String TAG = RegisterActivity.class.getName();
 	private final static String NETWORK_ERROR = "Network error.";
 	private ProgressDialog mProgressDialog;
+
+	// login
+	EditText et_login_EmailId;
+	EditText et_password;
+
+	// register
 	EditText et_MobileNumber;
 	EditText et_FirstName;
 	EditText et_LastName;
@@ -48,6 +60,7 @@ public class RegisterActivity extends Activity {
 	/** Boolean check for which request is processing */
 	boolean mIsClientRegistered = false;
 	boolean mIsHWAlocated = false;
+	boolean mIsAutoSignupSuccess = false;
 	MyApplication mApplication = null;
 	OBSClient mOBSClient;
 	boolean mIsReqCanceled = false;
@@ -59,6 +72,20 @@ public class RegisterActivity extends Activity {
 
 		mApplication = ((MyApplication) getApplicationContext());
 		mOBSClient = mApplication.getOBSClient(this);
+	}
+
+	public void textRegister_onClick(View v) {
+		LinearLayout container = (LinearLayout) findViewById(R.id.a_reg_ll_container);
+		LayoutInflater inflater = this.getLayoutInflater();
+		LinearLayout registerLayout = (LinearLayout) inflater.inflate(
+				R.layout.a_reg_registration_layout, null);
+
+		int width = getResources().getInteger(R.integer.Register_layout_width);
+		int height = getResources()
+				.getInteger(R.integer.Register_layout_height);
+		registerLayout.setLayoutParams(new LayoutParams(width, height));// R.integer.Register_layout_width,R.integer.Register_layout_height));
+		container.removeAllViews();
+		container.addView(registerLayout);
 
 		et_MobileNumber = (EditText) findViewById(R.id.a_reg_et_mobile_no);
 		et_FirstName = (EditText) findViewById(R.id.a_reg_et_first_name);
@@ -66,6 +93,42 @@ public class RegisterActivity extends Activity {
 		et_EmailId = (EditText) findViewById(R.id.a_reg_et_email_id);
 
 		getCountries();
+	}
+
+	public void textLogin_onClick(View v) {
+		LinearLayout container = (LinearLayout) findViewById(R.id.a_reg_ll_container);
+		LayoutInflater inflater = this.getLayoutInflater();
+		LinearLayout loginLayout = (LinearLayout) inflater.inflate(
+				R.layout.a_reg_login_layout, null);
+		int width = getResources().getInteger(R.integer.login_layout_width);
+		int height = getResources().getInteger(R.integer.login_layout_height);
+		loginLayout.setLayoutParams(new LayoutParams(width, height));// R.integer.login_layout_width,R.integer.login_layout_height));
+		container.removeAllViews();
+		container.addView(loginLayout);
+	}
+
+	public void btnLogin_onClick(View v) {
+
+		// et_LastName = (EditText) findViewById(R.id.a_reg_et_last_name);
+		String sEmailId = ((EditText) findViewById(R.id.a_reg_et_login_email_id))
+				.getText().toString().trim();
+		String sPassword = ((EditText) findViewById(R.id.a_reg_et_password))
+				.getText().toString();
+
+		String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
+		if (sPassword.length() <= 0) {
+			Toast.makeText(RegisterActivity.this, "Please enter Password",
+					Toast.LENGTH_LONG).show();
+		} else if (sEmailId.matches(emailPattern)) {
+			SelfCareUserDatum data = new SelfCareUserDatum();
+			data.email_id = sEmailId;
+			data.password = sPassword;
+			DoSelfCareLoginAsyncTask task2 = new DoSelfCareLoginAsyncTask();
+			task2.execute(data);
+		} else {
+			Toast.makeText(RegisterActivity.this,
+					"Please enter valid Email Id", Toast.LENGTH_LONG).show();
+		}
 	}
 
 	private void getCountries() {
@@ -133,7 +196,7 @@ public class RegisterActivity extends Activity {
 		}
 	};
 
-	public void btnSubmit_onClick(View v) {
+	public void btnRegister_onClick(View v) {
 
 		String email = et_EmailId.getText().toString().trim();
 		String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
@@ -287,8 +350,166 @@ public class RegisterActivity extends Activity {
 					map.put("status", "");
 					resObj = Utilities.callExternalApiPostMethod(
 							getApplicationContext(), map);
-					if (resObj.getStatusCode() == 200)
+					if (resObj.getStatusCode() == 200) {
 						mIsHWAlocated = true;
+					}
+				} else {
+					resObj.setFailResponse(100, NETWORK_ERROR);
+				}
+				if (resObj.getStatusCode() == 200) {
+					/** Selfcare user auto signup */
+					if (mApplication.isNetworkAvailable()) {
+						HashMap<String, String> map = new HashMap<String, String>();
+						map.put("TagURL", "/selfcare");
+						map.put("userName", clientData.getEmail());
+						map.put("uniqueReference", clientData.getEmail());
+						resObj = Utilities.callExternalApiPostMethod(
+								getApplicationContext(), map);
+						if (resObj.getStatusCode() == 200) {
+							mIsAutoSignupSuccess = true;
+						} else {
+							resObj.setFailResponse(100, NETWORK_ERROR);
+						}
+					}
+					/** Selfcare user auto signup */
+				}
+			}
+			return resObj;
+		}
+
+		@Override
+		protected void onPostExecute(ResponseObj resObj) {
+
+			super.onPostExecute(resObj);
+			if (mProgressDialog != null) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+
+			if (resObj.getStatusCode() == 200 || mIsHWAlocated) {
+				Intent intent = new Intent(RegisterActivity.this,
+						PlanActivity.class);
+				RegisterActivity.this.finish();
+				startActivity(intent);
+			} else {
+				Toast.makeText(RegisterActivity.this,
+						"Server Error : " + resObj.getsErrorMessage(),
+						Toast.LENGTH_LONG).show();
+			}
+		}
+	}
+
+	/**
+	 * Async Task For Handling selfcare validation
+	 **/
+
+	private class DoSelfCareLoginAsyncTask extends
+			AsyncTask<SelfCareUserDatum, Void, ResponseObj> {
+		SelfCareUserDatum userData;
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			if (mProgressDialog != null) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			mProgressDialog = new ProgressDialog(RegisterActivity.this,
+					ProgressDialog.THEME_HOLO_DARK);
+			mProgressDialog.setMessage("Connecting to Server...");
+			mProgressDialog.setCanceledOnTouchOutside(false);
+			mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+				public void onCancel(DialogInterface arg0) {
+					if (mProgressDialog.isShowing())
+						mProgressDialog.dismiss();
+					cancel(true);
+				}
+			});
+			mProgressDialog.show();
+		}
+
+		@Override
+		protected ResponseObj doInBackground(SelfCareUserDatum... arg0) {
+			ResponseObj resObj = new ResponseObj();
+			userData = (SelfCareUserDatum) arg0[0];
+			if (mApplication.isNetworkAvailable()) {
+				HashMap<String, String> map = new HashMap<String, String>();
+				// https://192.168.1.104:7070/obsplatform/api/v1/selfcare/login?username="10@gmail.com"&password="wnrodihw"
+				map.put("TagURL", "/selfcare/login?username="
+						+ userData.email_id + "&password=" + userData.password);
+				resObj = Utilities.callExternalApiPostMethod(
+						getApplicationContext(), map);
+				String result = resObj.toString();
+				String result2 = result;
+			} else {
+				resObj.setFailResponse(100, NETWORK_ERROR);
+			}
+			if (resObj.getStatusCode() == 200) {
+
+				// gather client details..
+				// {"clientData":{"balanceAmount":1440,"currency":"INR","balanceCheck":false}",
+				// "paypalConfigData":{"name":"Is_Paypal","enabled":true,"value":"{\"clientId\" :AXND_hChmLdQyk_zr8fBoWc75_h2ixtuc6F6i9BOmIZOaSynNRSToc_2otSR,\"secretCode\" : \"EBUikxDpbaVroBsJV8StIpMpFQAUr5h-RkhFrJKscZJKU2zaSkgQK2KTbMSv\"}","id":17}}
+				boolean isPayPalReq = false;
+				JSONObject jResObj;
+				try {
+					jResObj = new JSONObject(resObj.getsResponse());
+
+					JSONObject jClientData = jResObj
+							.getJSONObject("clientData");
+
+					mApplication.setClientId(jClientData.getString("id"));
+					mApplication.setBalance(Float.parseFloat(jClientData
+							.getString("balanceAmount")));
+					mApplication.setBalanceCheck(jClientData
+							.getBoolean("balanceCheck"));
+					mApplication.setCurrency(jClientData.getString("currency"));
+
+					JSONObject jPayPalData = jResObj
+							.getJSONObject("paypalConfigData");
+					isPayPalReq = jPayPalData.getBoolean("enabled");
+					mApplication.setPayPalCheck(isPayPalReq);
+					if (isPayPalReq) {
+						String value = jPayPalData.getString("value");
+						if (value != null && value.length() > 0) {
+							JSONObject json = new JSONObject(value);
+							if (json != null) {
+								mApplication.setPayPalClientID(json.get(
+										"clientId").toString());
+							}
+						} else
+							Toast.makeText(RegisterActivity.this,
+									"Invalid Data for PayPal details",
+									Toast.LENGTH_LONG).show();
+					}
+				} catch (JSONException e) {
+					resObj.setFailResponse(100, "Json Error");
+					e.printStackTrace();
+					return resObj;
+				}
+				if (mApplication.isNetworkAvailable()) {
+					HashMap<String, String> map = new HashMap<String, String>();
+					map.put("TagURL",
+							"/ownedhardware/" + mApplication.getClientId());
+					map.put("itemType", "1");
+					map.put("dateFormat", "dd MMMM yyyy");
+					String androidId = Settings.Secure.getString(
+							getApplicationContext().getContentResolver(),
+							Settings.Secure.ANDROID_ID);
+					map.put("serialNumber", androidId);
+					map.put("provisioningSerialNumber", "PROVISIONINGDATA");
+					Date date = new Date();
+					SimpleDateFormat df = new SimpleDateFormat("dd MMMM yyyy",
+							new Locale("en"));
+					String formattedDate = df.format(date);
+					map.put("allocationDate", formattedDate);
+					map.put("locale", "en");
+					map.put("status", "");
+					resObj = Utilities.callExternalApiPostMethod(
+							getApplicationContext(), map);
+					if (resObj.getStatusCode() == 200) {
+						mIsHWAlocated = true;
+					}
 				} else {
 					resObj.setFailResponse(100, NETWORK_ERROR);
 				}
@@ -300,13 +521,15 @@ public class RegisterActivity extends Activity {
 		protected void onPostExecute(ResponseObj resObj) {
 
 			super.onPostExecute(resObj);
-			if (mProgressDialog.isShowing()) {
+			if (mProgressDialog != null) {
 				mProgressDialog.dismiss();
+				mProgressDialog = null;
 			}
 
 			if (resObj.getStatusCode() == 200) {
+
 				Intent intent = new Intent(RegisterActivity.this,
-						PlanActivity.class);
+						MainActivity.class);
 				RegisterActivity.this.finish();
 				startActivity(intent);
 			} else {
@@ -315,6 +538,12 @@ public class RegisterActivity extends Activity {
 						Toast.LENGTH_LONG).show();
 			}
 		}
+	}
+
+	private class SelfCareUserDatum {
+
+		String email_id;
+		String password;
 	}
 
 	@Override

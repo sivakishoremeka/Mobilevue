@@ -21,9 +21,9 @@
     <string name="app_name">Mobilevue</string>
     <string name="balance">Balance</string>
     <string name="balance_updated_at">Balance Updated At</string>
-    <string name="basic_auth_">Basic YWRtaW46b2JzQDEyMw==</string><!-- Spark  admin/obs@123 -->
+    <string name="basic_auth">Basic YWRtaW46b2JzQDEyMw==</string><!-- Spark  admin/obs@123 -->
     <string name="basic_auth_b">Basic YmlsbGluZzpwYXNzd29yZA==</string><!-- Peter  billing/password -->
-    <string name="basic_auth">Basic YnVsZXVzOmwyOWUyMDMxYQ==</string><!--buleus:l29e2031a -->
+    <string name="basic_auth_">Basic YnVsZXVzOmwyOWUyMDMxYQ==</string><!--buleus:l29e2031a -->
     <string name="cast_crew">Cast &amp; Crew</string>
     <string name="channels_list">channels list</string>
      <string name="channels_updated_at">channels updated at</string>
@@ -57,16 +57,18 @@
     <string name="reg_acc">Register your account</string>
     <string name="release">Release</string>
     <string name="rental">Rental :</string>
+    <string name="reg_existing_user">Existing User? <b><u>Login</u></b> here</string>
+    <string name="reg_new_user">New User? <b><u>Register</u></b> here</string>
     <string name="reg_note">Mobile TV allows user with Mobile Phones, Smart Phones &amp; Tablets
          to enjoy premium digital TV signals on their devices.</string>
     <string name="search">Search</string>
     <string name="sel_country">Select Country </string>
     <string name="sel_pkg">Select Package</string>
     <string name="serialno">Serial No</string>
-    <string name="server_url_spark">https://41.76.90.173:8181/obsplatform/api/v1</string><!-- demo server -->  <!-- Spark -->
+    <string name="server_url">https://41.76.90.173:8181/obsplatform/api/v1</string><!-- demo server -->  <!-- Spark -->
     <string name="server_url_">https://188.138.84.29:8443/obsplatform/api/v1</string><!-- Yusuf -->
-    <string name="server_url">https://provisioning.storm-media.net:8443/obsplatform/api/v1</string> <!-- strom -->
-     <string name="server_url_local">https://192.168.1.103:8443/obsplatform/api/v1</string><!-- local -->
+    <string name="server_url_ciprian">https://provisioning.storm-media.net:8443/obsplatform/api/v1</string> <!-- strom -->
+     <string name="server_url_loc">https://192.168.1.100:8443/obsplatform/api/v1</string><!-- local -->
      <string name="server_url_cristi">https://195.154.179.160:8443/obsplatform/api/v1</string><!-- cristi -->
     <string name="tenent_id">default</string>
     <string name="user_name">User Name</string>
