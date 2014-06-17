@@ -33,7 +33,7 @@
                     android:layout_width="240dp"
                     android:layout_height="260dp"
                     android:layout_gravity="center_horizontal"
-                    android:background="@drawable/img_bg_reg_forum"
+                   android:background="@drawable/img_bg_reg_forum"
                     android:orientation="vertical" >
 
                     <TextView

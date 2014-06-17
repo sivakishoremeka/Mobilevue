@@ -73,7 +73,7 @@ public class MyApplication extends Application {
 	public static PayPalConfiguration config = null;
 
 	/** PayPal configurations */
-	private static final String CONFIG_ENVIRONMENT = PayPalConfiguration.ENVIRONMENT_PRODUCTION;
+	private static final String CONFIG_ENVIRONMENT = PayPalConfiguration.ENVIRONMENT_SANDBOX;
 	// note that these credentials will differ between live & sandbox
 	// environments.
 	public static final int REQUEST_CODE_PAYMENT = 1;
@@ -142,7 +142,7 @@ public class MyApplication extends Application {
 
 	public OBSClient getOBSClient(Context context) {
 		RestAdapter restAdapter = new RestAdapter.Builder()
-				.setEndpoint(API_URL).setLogLevel(RestAdapter.LogLevel.FULL)
+				.setEndpoint(API_URL).setLogLevel(RestAdapter.LogLevel.NONE)
 				// need to remove this on build
 				.setClient(
 						new CustomUrlConnectionClient(

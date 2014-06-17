@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="390dp"
-    android:layout_height="460dp"
+    android:layout_height="wrap_content"
     android:layout_gravity="center_horizontal"
     android:background="@drawable/img_bg_reg_forum"
     android:orientation="vertical" >
@@ -70,6 +70,19 @@
         android:ems="10"
         android:hint="@string/email_id"
         android:inputType="textEmailAddress"
+        android:paddingLeft="10dp"
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/a_reg_et_pwd"
+        android:layout_width="300dp"
+        android:layout_height="35dp"
+         android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="18dp"
+        android:background="@drawable/img_et_reg"
+        android:ems="10"
+        android:hint="@string/password"
+        android:inputType="textPassword"
         android:paddingLeft="10dp"
         android:textSize="18sp" />
 

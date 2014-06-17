@@ -257,8 +257,12 @@ public class VideoPlayerActivity extends Activity implements
 					controller.hide();
 				player.release();
 				player = null;
+				threadHandler.removeMessages(1);
+				threadHandler.removeMessages(0);
 				finish();
 			} else {
+				threadHandler.removeMessages(1);
+				threadHandler.removeMessages(0);
 				finish();
 			}
 		} else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
@@ -367,18 +371,20 @@ public class VideoPlayerActivity extends Activity implements
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra) {
 		stopThread = true;
+		 Message msg = new Message();
+         msg.what = 0;
 		if (mProgressDialog != null && mProgressDialog.isShowing()) {
 			mProgressDialog.dismiss();
 			mProgressDialog = null;
 		}
 		if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == -2147483648) {
-
+			 threadHandler.sendMessage(msg);
 			Toast.makeText(
 					getApplicationContext(),
 					"Incorrect URL or Unsupported Media Format.Media player closed.",
 					Toast.LENGTH_LONG).show();
 		} else if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == -1004) {
-
+			threadHandler.sendMessage(msg);
 			Toast.makeText(
 					getApplicationContext(),
 					"Invalid Stream for this channel... Please try other channel",
@@ -414,6 +420,8 @@ public class VideoPlayerActivity extends Activity implements
 				player = null;
 			}
 		}
+		threadHandler.removeMessages(1);
+		threadHandler.removeMessages(0);
 		super.onStop();
 	}
 
@@ -427,7 +435,8 @@ public class VideoPlayerActivity extends Activity implements
 				player = null;
 			}
 		}
-
+		threadHandler.removeMessages(1);
+		threadHandler.removeMessages(0);
 	}
 	
 	public class BufferrChk extends Thread{

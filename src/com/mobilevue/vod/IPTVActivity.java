@@ -367,9 +367,9 @@ public class IPTVActivity extends FragmentActivity {
 					.show();
 		} else if (resultCode == PaymentActivity.RESULT_EXTRAS_INVALID) {
 			Log.i("OBSPayment",
-					"An invalid Payment or PayPalConfiguration was submitted. Please see the docs.");
+					"An Invalid Payment or PayPalConfiguration was submitted. Please see the docs.");
 			Toast.makeText(this,
-					"An invalid Payment or PayPalConfiguration was submitted",
+					"An Invalid Payment or PayPalConfiguration was submitted",
 					Toast.LENGTH_LONG).show();
 		}
 	}

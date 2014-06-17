@@ -42,11 +42,14 @@ public class RegisterActivity extends Activity {
 
 	public static String TAG = RegisterActivity.class.getName();
 	private final static String NETWORK_ERROR = "Network error.";
+	// Get and store logical density of display
+	private static float SCALE ;
 	private ProgressDialog mProgressDialog;
 
 	// login
 	EditText et_login_EmailId;
-	EditText et_password;
+	EditText et_Password;
+	
 
 	// register
 	EditText et_MobileNumber;
@@ -69,7 +72,7 @@ public class RegisterActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_register);
-
+		SCALE = this.getResources().getDisplayMetrics().density;
 		mApplication = ((MyApplication) getApplicationContext());
 		mOBSClient = mApplication.getOBSClient(this);
 	}
@@ -79,19 +82,14 @@ public class RegisterActivity extends Activity {
 		LayoutInflater inflater = this.getLayoutInflater();
 		LinearLayout registerLayout = (LinearLayout) inflater.inflate(
 				R.layout.a_reg_registration_layout, null);
-
-		int width = getResources().getInteger(R.integer.Register_layout_width);
-		int height = getResources()
-				.getInteger(R.integer.Register_layout_height);
-		registerLayout.setLayoutParams(new LayoutParams(width, height));// R.integer.Register_layout_width,R.integer.Register_layout_height));
+		registerLayout.setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
 		container.removeAllViews();
 		container.addView(registerLayout);
-
 		et_MobileNumber = (EditText) findViewById(R.id.a_reg_et_mobile_no);
 		et_FirstName = (EditText) findViewById(R.id.a_reg_et_first_name);
 		et_LastName = (EditText) findViewById(R.id.a_reg_et_last_name);
 		et_EmailId = (EditText) findViewById(R.id.a_reg_et_email_id);
-
+		et_Password = (EditText) findViewById(R.id.a_reg_et_pwd);
 		getCountries();
 	}
 
@@ -100,9 +98,7 @@ public class RegisterActivity extends Activity {
 		LayoutInflater inflater = this.getLayoutInflater();
 		LinearLayout loginLayout = (LinearLayout) inflater.inflate(
 				R.layout.a_reg_login_layout, null);
-		int width = getResources().getInteger(R.integer.login_layout_width);
-		int height = getResources().getInteger(R.integer.login_layout_height);
-		loginLayout.setLayoutParams(new LayoutParams(width, height));// R.integer.login_layout_width,R.integer.login_layout_height));
+		loginLayout.setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
 		container.removeAllViews();
 		container.addView(loginLayout);
 	}
@@ -218,6 +214,7 @@ public class RegisterActivity extends Activity {
 			client.setState(mState);
 			client.setCity(mCity);
 			client.setEmail(et_EmailId.getText().toString());
+			client.password = et_Password.getText().toString();
 			DoOnBackgroundAsyncTask task = new DoOnBackgroundAsyncTask();
 			task.execute(client);
 		} else {
@@ -360,9 +357,11 @@ public class RegisterActivity extends Activity {
 					/** Selfcare user auto signup */
 					if (mApplication.isNetworkAvailable()) {
 						HashMap<String, String> map = new HashMap<String, String>();
-						map.put("TagURL", "/selfcare");
+						// {userName: rahman3,uniqueReference:rahman3@gmail.com,password:syedmujeeburrahman1238rahman}
+						map.put("TagURL", "/selfcare/password");
 						map.put("userName", clientData.getEmail());
 						map.put("uniqueReference", clientData.getEmail());
+						map.put("password", clientData.password);
 						resObj = Utilities.callExternalApiPostMethod(
 								getApplicationContext(), map);
 						if (resObj.getStatusCode() == 200) {
@@ -440,8 +439,6 @@ public class RegisterActivity extends Activity {
 						+ userData.email_id + "&password=" + userData.password);
 				resObj = Utilities.callExternalApiPostMethod(
 						getApplicationContext(), map);
-				String result = resObj.toString();
-				String result2 = result;
 			} else {
 				resObj.setFailResponse(100, NETWORK_ERROR);
 			}
@@ -483,9 +480,11 @@ public class RegisterActivity extends Activity {
 									Toast.LENGTH_LONG).show();
 					}
 				} catch (JSONException e) {
-					resObj.setFailResponse(100, "Json Error");
 					e.printStackTrace();
-					return resObj;
+					if(resObj.getStatusCode() != 200){
+						resObj.setFailResponse(100, "Json Error");
+						return resObj;
+					}
 				}
 				if (mApplication.isNetworkAvailable()) {
 					HashMap<String, String> map = new HashMap<String, String>();

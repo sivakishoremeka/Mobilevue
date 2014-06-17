@@ -58,4 +58,21 @@ public class MyAccountActivity extends Activity {
 		transaction.commit();
 	}
 
+	public void btnSubmit_onClick(View v) {
+		Fragment frag = getFragmentManager().findFragmentByTag(FRAG_TAG);
+		if (frag instanceof MyPakagesFragment) {
+			((MyPakagesFragment) frag).btnSubmit_onClick(v);
+		}
+
+	}
+
+	@Override
+	public void onBackPressed() {
+		Fragment frag = getFragmentManager().findFragmentByTag(FRAG_TAG);
+		if (frag instanceof MyPakagesFragment) {
+			((MyPakagesFragment) frag).onBackPressed();
+		} else
+			super.onBackPressed();
+	}
+
 }

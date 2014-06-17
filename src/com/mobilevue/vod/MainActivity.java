@@ -81,4 +81,10 @@ public class MainActivity extends Activity {
 		}
 		return super.onKeyDown(keyCode, event);
 	}
+	
+	/*@Override
+	protected void onUserLeaveHint() {
+		finish();
+		super.onUserLeaveHint();
+	}*/
 }
