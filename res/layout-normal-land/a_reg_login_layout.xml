@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="230dp"
-    android:layout_height="240dp"
+    android:layout_height="wrap_content"
     android:layout_gravity="center_horizontal"
     android:background="@drawable/img_bg_reg_forum"
     android:orientation="vertical" >
@@ -13,7 +13,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="6dp"
         android:layout_marginTop="6dp"
-        android:text="User Login"
+        android:text="@string/user_login"
         android:textColor="#5A5A5A"
         android:textSize="12sp"
         android:textStyle="bold" />
@@ -25,7 +25,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
         android:background="@drawable/img_et_reg"
-        android:hint="Email Id"
+       android:text="@string/email_id"
         android:inputType="textEmailAddress"
         android:paddingLeft="12dp"
         android:textSize="12sp" />
@@ -37,7 +37,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
         android:background="@drawable/img_et_reg"
-        android:hint="Password"
+        android:text="@string/password"
         android:inputType="textPassword"
         android:paddingLeft="12dp"
         android:textSize="12sp" />
@@ -60,7 +60,7 @@
             android:onClick="btnCancel_onClick" />
 
         <Button
-            android:id="@+id/a_reg_btn_login"
+            android:id="@+id/a_reg_btn_submit"
             android:layout_width="100dp"
             android:layout_height="27dp"
             android:layout_marginLeft="3dp"

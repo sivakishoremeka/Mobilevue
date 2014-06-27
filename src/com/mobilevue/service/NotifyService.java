@@ -72,7 +72,7 @@ public class NotifyService extends Service {
 	 */
 	private void showNotification(Intent intent) {
 		// This is the 'title' of the notification
-		CharSequence title = "Mobilvue";
+		CharSequence title =  getResources().getString(R.string.app_name);
 		// This is the icon to use on the notification
 		int icon = R.drawable.ic_logo_confirm_dialog;
 		// This is the scrolling text of the notification

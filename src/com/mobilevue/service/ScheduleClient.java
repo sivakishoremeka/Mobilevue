@@ -67,6 +67,7 @@ public class ScheduleClient {
 			String chName, String url) {
 		mBoundService.setAlarm(c, progName, chId, chName, url);
 	}
+	
 
 	/**
 	 * When you have finished with the service call this method to stop it

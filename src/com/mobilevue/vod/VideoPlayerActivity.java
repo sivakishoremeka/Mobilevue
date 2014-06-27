@@ -2,8 +2,13 @@ package com.mobilevue.vod;
 
 import java.io.IOException;
 
+import com.mobilevue.service.DoBGTasksService;
+import com.mobilevue.vod.MyApplication.SetAppState;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -77,7 +82,49 @@ public class VideoPlayerActivity extends Activity implements
 		SurfaceHolder videoHolder = videoSurface.getHolder();
 		videoHolder.addCallback(this);
 	}
+	@Override
+	protected void onStart() {
 
+		// Log.d(TAG, "OnStart");
+		MyApplication.startCount++;
+		if (!MyApplication.isActive) {
+			// Log.d(TAG, "SendIntent");
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_ACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStart();
+	}
+
+	@Override
+	protected void onStop() {
+		// Log.d(TAG, "onStop");
+		MyApplication.stopCount++;
+		if (MyApplication.stopCount == MyApplication.startCount) {
+			// Log.d("sendIntent", "SendIntent");
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_INACTIVE.ordinal());
+			startService(intent);
+		}
+		
+		videoSurface.setVisibility(View.GONE);
+		stopThread = true;
+		if (player != null) {
+			if (player.isPlaying()) {
+				player.stop();
+				player.release();
+				player = null;
+			}
+		}
+		threadHandler.removeMessages(1);
+		threadHandler.removeMessages(0);
+		super.onStop();
+		
+		
+	}
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		controller.show();
@@ -152,9 +199,9 @@ public class VideoPlayerActivity extends Activity implements
 	@Override
 	public void onPrepared(MediaPlayer mp) {
 		controller.setMediaPlayer(this);
-		RelativeLayout rlayout = (RelativeLayout) findViewById(R.id.video_container);
+		/*RelativeLayout rlayout = (RelativeLayout) findViewById(R.id.video_container);
 		rlayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-		controller.setAnchorView(rlayout);
+		controller.setAnchorView(rlayout);*/
 		controller
 				.setAnchorView((RelativeLayout) findViewById(R.id.video_container));
 		if (mProgressDialog != null && mProgressDialog.isShowing()) {
@@ -268,7 +315,7 @@ public class VideoPlayerActivity extends Activity implements
 		} else if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
 				|| keyCode == KeyEvent.KEYCODE_VOLUME_UP
 				|| keyCode == KeyEvent.KEYCODE_VOLUME_MUTE) {
-			AudioManager audio = (AudioManager) getSystemService(VideoPlayerActivity.this.AUDIO_SERVICE);
+			AudioManager audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 			switch (keyCode) {
 			case KeyEvent.KEYCODE_VOLUME_UP:
 				audio.adjustStreamVolume(AudioManager.STREAM_MUSIC,
@@ -390,8 +437,8 @@ public class VideoPlayerActivity extends Activity implements
 					"Invalid Stream for this channel... Please try other channel",
 					Toast.LENGTH_LONG).show();
 		} else {
-			controller.mHandler.removeMessages(controller.SHOW_PROGRESS);
-			controller.mHandler.removeMessages(controller.FADE_OUT);
+			controller.mHandler.removeMessages(VideoControllerView.SHOW_PROGRESS);
+			controller.mHandler.removeMessages(VideoControllerView.FADE_OUT);
 			changeChannel(mUri, mChannelId);
 		}
 		return true;
@@ -409,7 +456,7 @@ public class VideoPlayerActivity extends Activity implements
 		super.onPause();
 	}
 
-	@Override
+	/*@Override
 	protected void onStop() {
 		videoSurface.setVisibility(View.GONE);
 		stopThread = true;
@@ -423,7 +470,7 @@ public class VideoPlayerActivity extends Activity implements
 		threadHandler.removeMessages(1);
 		threadHandler.removeMessages(0);
 		super.onStop();
-	}
+	}*/
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {

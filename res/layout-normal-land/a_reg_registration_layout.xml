@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="230dp"
-    android:layout_height="280dp"
+    android:layout_height="wrap_content"
     android:layout_gravity="center_horizontal"
     android:background="@drawable/img_bg_reg_forum"
     android:orientation="vertical" >
@@ -70,7 +70,7 @@
         android:background="@drawable/img_et_reg"
         android:ems="10"
         android:hint="@string/email_id"
-        android:inputType="text"
+        android:inputType="textEmailAddress"
         android:paddingLeft="12dp"
         android:textSize="9sp" />
 

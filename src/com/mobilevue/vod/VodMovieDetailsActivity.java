@@ -38,7 +38,9 @@ import com.mobilevue.data.MediaDetailsResDatum;
 import com.mobilevue.data.PriceDetail;
 import com.mobilevue.data.ResponseObj;
 import com.mobilevue.retrofit.OBSClient;
+import com.mobilevue.service.DoBGTasksService;
 import com.mobilevue.utils.Utilities;
+import com.mobilevue.vod.MyApplication.SetAppState;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.paypal.android.sdk.payments.PayPalPayment;
 import com.paypal.android.sdk.payments.PayPalService;
@@ -73,7 +75,7 @@ public class VodMovieDetailsActivity extends Activity {
 		eventId = b.getString("EventId");
 
 		mApplication = ((MyApplication) getApplicationContext());
-		mOBSClient = mApplication.getOBSClient(this);
+		mOBSClient = mApplication.getOBSClient();
 
 		mDeviceId = Settings.Secure.getString(
 				mApplication.getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -88,6 +90,35 @@ public class VodMovieDetailsActivity extends Activity {
 
 	}
 
+	@Override
+	protected void onStart() {
+
+		// Log.d(TAG, "OnStart");
+		MyApplication.startCount++;
+		if (!MyApplication.isActive) {
+			// Log.d(TAG, "SendIntent");
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_ACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStart();
+	}
+
+	@Override
+	protected void onStop() {
+		// Log.d(TAG, "onStop");
+		MyApplication.stopCount++;
+		if (MyApplication.stopCount == MyApplication.startCount) {
+			// Log.d("sendIntent", "SendIntent");
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_INACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStop();
+	}
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -155,7 +186,7 @@ public class VodMovieDetailsActivity extends Activity {
 										paymentData);
 
 								startActivityForResult(actviIntent,
-										mApplication.REQUEST_CODE_PAYMENT);
+										MyApplication.REQUEST_CODE_PAYMENT);
 							}
 						}
 					});
@@ -245,7 +276,6 @@ public class VodMovieDetailsActivity extends Activity {
 	};
 
 	private class doBackGround extends AsyncTask<String, Void, ResponseObj> {
-		private String taskName = "";
 
 		@Override
 		protected void onPreExecute() {
@@ -263,7 +293,6 @@ public class VodMovieDetailsActivity extends Activity {
 
 		@Override
 		protected ResponseObj doInBackground(String... params) {
-			taskName = params[0];
 			ResponseObj resObj = new ResponseObj();
 			if (Utilities.isNetworkAvailable(VodMovieDetailsActivity.this
 					.getApplicationContext())) {
@@ -299,6 +328,7 @@ public class VodMovieDetailsActivity extends Activity {
 				if (mProgressDialog.isShowing()) {
 					mProgressDialog.dismiss();
 				}
+				if(MyApplication.isActive){
 				Intent intent = new Intent();
 				try {
 					intent.putExtra("URL",
@@ -329,6 +359,10 @@ public class VodMovieDetailsActivity extends Activity {
 				}
 
 				finish();
+				}
+				else{
+					Toast.makeText(VodMovieDetailsActivity.this , getResources().getString(R.string.status_err_msg), Toast.LENGTH_LONG).show();
+				}
 			} else {
 				if (mProgressDialog.isShowing()) {
 					mProgressDialog.dismiss();
@@ -420,7 +454,7 @@ public class VodMovieDetailsActivity extends Activity {
 
 		String androidId = Settings.Secure.getString(this
 				.getApplicationContext().getContentResolver(),
-				Settings.Secure.ANDROID_ID);
+			Settings.Secure.ANDROID_ID);
 		mOBSClient.getMediaDevice(androidId, deviceCallBack);
 
 	}

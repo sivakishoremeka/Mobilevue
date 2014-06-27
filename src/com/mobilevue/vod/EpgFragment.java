@@ -63,7 +63,7 @@ public class EpgFragment extends Fragment {
 				container, false);
 
 		mApplication = ((MyApplication) getActivity().getApplicationContext());
-		mOBSClient = mApplication.getOBSClient(getActivity());
+		mOBSClient = mApplication.getOBSClient();
 
 		mPrefs = getActivity().getSharedPreferences(mApplication.PREFS_FILE, 0);
 		list = (ListView) rootView.findViewById(R.id.fr_epg_lv_epg_dtls);

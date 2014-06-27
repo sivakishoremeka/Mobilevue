@@ -12,8 +12,11 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.mobilevue.adapter.MainMenuAdapter;
+import com.mobilevue.service.DoBGTasksService;
+import com.mobilevue.vod.MyApplication.SetAppState;
 
 public class MainActivity extends Activity {
 
@@ -24,6 +27,7 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
 		listView = (ListView) findViewById(R.id.a_main_lv_menu);
 		MainMenuAdapter menuAdapter = new MainMenuAdapter(this);
 		listView.setAdapter(menuAdapter);
@@ -44,6 +48,38 @@ public class MainActivity extends Activity {
 				}
 			}
 		});
+	}
+
+	@Override
+	protected void onStart() {
+
+		// Log.d(TAG, "OnStart");
+		MyApplication.startCount++;
+		if (!MyApplication.isActive) {
+			// Log.d(TAG, "SendIntent");
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_ACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStart();
+	}
+
+	@Override
+	protected void onStop() {
+		// Log.d(TAG, "onStop");
+		MyApplication.stopCount++;
+		if(MyApplication.toast!=null)
+			MyApplication.toast.cancel();	
+		if (MyApplication.stopCount == MyApplication.startCount && MyApplication.isActive) {
+			// Log.d("sendIntent", "SendIntent");
+			
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_INACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStop();
 	}
 
 	@Override
@@ -78,13 +114,12 @@ public class MainActivity extends Activity {
 						}
 					});
 			mConfirmDialog.show();
+		} else if (keyCode == KeyEvent.KEYCODE_HOME) {
+			Toast.makeText(this, "Home button pressed", Toast.LENGTH_LONG)
+					.show();
+			return super.onKeyDown(keyCode, event);
 		}
 		return super.onKeyDown(keyCode, event);
 	}
-	
-	/*@Override
-	protected void onUserLeaveHint() {
-		finish();
-		super.onUserLeaveHint();
-	}*/
+
 }

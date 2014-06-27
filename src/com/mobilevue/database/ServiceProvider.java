@@ -102,11 +102,11 @@ public class ServiceProvider extends ContentProvider {
 									R.string.channels_updated_at), "");
 					if (sDate.length() != 0) {
 						Calendar c = Calendar.getInstance();
-						String currDate = mApplication.df.format(c.getTime());
+						String currDate = MyApplication.df.format(c.getTime());
 						Date d1 = null, d2 = null;
 
-						d1 = mApplication.df.parse(sDate);
-						d2 = mApplication.df.parse(currDate);
+						d1 = MyApplication.df.parse(sDate);
+						d2 = MyApplication.df.parse(currDate);
 
 						if (d1.compareTo(d2) == 0) {
 							mIsLiveDataReq = false;
@@ -148,11 +148,11 @@ public class ServiceProvider extends ContentProvider {
 									R.string.channels_category_updated_at), "");
 					if (sDate.length() != 0) {
 						Calendar c = Calendar.getInstance();
-						String currDate = mApplication.df.format(c.getTime());
+						String currDate = MyApplication.df.format(c.getTime());
 						Date d1 = null, d2 = null;
 
-						d1 = mApplication.df.parse(sDate);
-						d2 = mApplication.df.parse(currDate);
+						d1 = MyApplication.df.parse(sDate);
+						d2 = MyApplication.df.parse(currDate);
 
 						if (d1.compareTo(d2) == 0) {
 							mIsLiveDataReq = false;
@@ -192,11 +192,11 @@ public class ServiceProvider extends ContentProvider {
 							"");
 					if (sDate.length() != 0) {
 						Calendar c = Calendar.getInstance();
-						String currDate = mApplication.df.format(c.getTime());
+						String currDate = MyApplication.df.format(c.getTime());
 						Date d1 = null, d2 = null;
 
-						d1 = mApplication.df.parse(sDate);
-						d2 = mApplication.df.parse(currDate);
+						d1 = MyApplication.df.parse(sDate);
+						d2 = MyApplication.df.parse(currDate);
 
 						if (d1.compareTo(d2) == 0) {
 							mIsLiveDataReq = false;

@@ -184,20 +184,20 @@ public class MyPakagesFragment extends Fragment {
 		}
 
 		if (PREPAID_PLANS.equalsIgnoreCase(planType)) {
-			OBSClient mOBSClient = mApplication.getOBSClient(mActivity);
+			OBSClient mOBSClient = mApplication.getOBSClient();
 			mOBSClient.getPrepaidPlans(getPrepaidPlansCallBack);
 		} else if (MY_PLANS.equalsIgnoreCase(planType)) {
 			OBSClient mOBSClient = null;
 			RestAdapter restAdapter = new RestAdapter.Builder()
-					.setEndpoint(mApplication.API_URL)
+					.setEndpoint(MyApplication.API_URL)
 					.setLogLevel(RestAdapter.LogLevel.FULL)
 					/** Need to change Log level to NONe */
 					.setConverter(new JSONConverter())
 					.setClient(
 							new com.mobilevue.retrofit.CustomUrlConnectionClient(
-									mApplication.tenentId,
-									mApplication.basicAuth,
-									mApplication.contentType)).build();
+									MyApplication.tenentId,
+									MyApplication.basicAuth,
+									MyApplication.contentType)).build();
 			mOBSClient = restAdapter.create(OBSClient.class);
 			mOBSClient.getClinetPackageDetails(mApplication.getClientId(),
 					getMyPlansCallBack);
@@ -629,7 +629,7 @@ public class MyPakagesFragment extends Fragment {
 		String androidId = Settings.Secure.getString(getActivity()
 				.getApplicationContext().getContentResolver(),
 				Settings.Secure.ANDROID_ID);
-		OBSClient mOBSClient = mApplication.getOBSClient(getActivity());
+		OBSClient mOBSClient = mApplication.getOBSClient();
 		mOBSClient.getMediaDevice(androidId, deviceCallBack);
 	}
 

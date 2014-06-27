@@ -45,7 +45,7 @@ public class CategoryFragment extends Fragment {
 				container, false);
 
 		mApplication = ((MyApplication) getActivity().getApplicationContext());
-		mOBSClient = mApplication.getOBSClient(getActivity());
+		mOBSClient = mApplication.getOBSClient();
 
 		mPrefs = getActivity().getSharedPreferences(mApplication.PREFS_FILE, 0);
 		String category = mPrefs.getString("CATEGORY", "RELEASE");

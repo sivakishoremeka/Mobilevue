@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.Callback;
+import retrofit.http.Body;
 import retrofit.http.GET;
+import retrofit.http.PUT;
 import retrofit.http.Path;
 import retrofit.http.Query;
 
@@ -13,11 +15,13 @@ import com.mobilevue.data.ClientDatum;
 import com.mobilevue.data.DeviceDatum;
 import com.mobilevue.data.EPGData;
 import com.mobilevue.data.MediaDetailRes;
+import com.mobilevue.data.MediaDetailsResDatum;
 import com.mobilevue.data.OrderDatum;
 import com.mobilevue.data.PlanDatum;
+import com.mobilevue.data.ResourceIdentifier;
 import com.mobilevue.data.ServiceDatum;
+import com.mobilevue.data.StatusReqDatum;
 import com.mobilevue.data.TemplateDatum;
-import com.mobilevue.data.MediaDetailsResDatum;
 
 public interface OBSClient {
 
@@ -64,4 +68,8 @@ public interface OBSClient {
 	@GET("/orders/{clientId}/orders")
 	void getClinetPackageDetails(@Path("clientId") String clientId,
 			Callback<List<OrderDatum>> cb);
+	
+	@PUT("/mediadevices/{device}")
+	ResourceIdentifier updateAppStatus(@Path("device") String device,@Body StatusReqDatum request);
+	
 }

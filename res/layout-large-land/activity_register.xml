@@ -31,7 +31,7 @@
 
                 <LinearLayout
                     android:layout_width="240dp"
-                    android:layout_height="260dp"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                    android:background="@drawable/img_bg_reg_forum"
                     android:orientation="vertical" >
@@ -43,7 +43,7 @@
                         android:layout_gravity="center_horizontal"
                         android:layout_marginBottom="10dp"
                         android:layout_marginTop="10dp"
-                        android:text="User Login"
+                        android:text="@string/user_login"
                         android:textColor="#5A5A5A"
                         android:textSize="16sp"
                         android:textStyle="bold" />
@@ -55,11 +55,10 @@
                         android:layout_gravity="center_horizontal"
                         android:layout_marginBottom="13dp"
                         android:background="@drawable/img_et_reg"
-                        android:hint="Email Id"
+                        android:hint="@string/email_id"
                         android:inputType="textEmailAddress"
                         android:paddingLeft="10dp"
                         android:textSize="14sp" >
-
                         <requestFocus />
                     </EditText>
 
@@ -71,7 +70,7 @@
                         android:layout_marginBottom="9dp"
                         android:background="@drawable/img_et_reg"
                         android:ems="10"
-                        android:hint="Password"
+                        android:hint="@string/password"
                         android:inputType="textPassword"
                         android:paddingLeft="10dp"
                         android:textSize="14sp" />

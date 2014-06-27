@@ -22,7 +22,8 @@
     <string name="balance_updated_at">Balance Updated At</string>
     <string name="basic_auth">Basic YWRtaW46b2JzQDEyMw==</string><!-- Spark  admin/obs@123 -->
     <string name="basic_auth_b">Basic YmlsbGluZzpwYXNzd29yZA==</string><!-- Peter  billing/password -->
-    <string name="basic_auth_cip">Basic YnVsZXVzOmwyOWUyMDMxYQ==</string><!--buleus:l29e2031a -->
+    <string name="basic_auth_storm">Basic YnVsZXVzOmwyOWUyMDMxYQ==</string><!--buleus:l29e2031a -->
+    <string name="basic_auth_cristi">Basic YmJjcmlzdGk6bHBLb2ppNzg5</string><!-- cristi  bbcristi:lpKoji789 -->
     <string name="cast_crew">Cast &amp; Crew</string>
     <string name="channels_list">channels list</string>
      <string name="channels_updated_at">channels updated at</string>
@@ -69,14 +70,16 @@
     <string name="sel_country">Select Country </string>
     <string name="sel_pkg">Select Package</string>
     <string name="serialno">Serial No</string>
-    <string name="server_url">https://41.76.90.173:8181/obsplatform/api/v1</string><!-- demo server -->  <!-- Spark -->
+    <string name="server_url_spark">https://41.76.90.173:8181/obsplatform/api/v1</string><!-- demo server -->  <!-- Spark -->
     <string name="server_url_">https://188.138.84.29:8443/obsplatform/api/v1</string><!-- Yusuf -->
-    <string name="server_url_ciprian">https://provisioning.storm-media.net:8443/obsplatform/api/v1</string> <!-- strom -->
-     <string name="server_url_lo">https://192.168.1.111:8443/obsplatform/api/v1</string><!-- local -->
+    <string name="server_url_storm">https://provisioning.storm-media.net:8443/obsplatform/api/v1</string> <!-- strom -->
+     <string name="server_url">https://192.168.123.164:8443/obsplatform/api/v1</string><!-- local -->
      <string name="server_url_cristi">https://195.154.179.160:8443/obsplatform/api/v1</string><!-- cristi -->
+     <string name="status_err_msg">Some Media Devices are Active.Please Inactive those Devices.</string>
      <string name="subscribe">Subscribe</string>
     <string name="tenent_id">default</string>
     <string name="user_name">User Name</string>
+    <string name="user_login">User Login</string>
     <string name="user_reg">User Registration</string>
     <string name="valid_till">Valid Till</string>
     <string name="vod">VOD</string>

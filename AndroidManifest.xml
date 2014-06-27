@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mobilevue.vod"
-    android:versionCode="20"
-    android:versionName="1.3.4" >
+    android:versionCode="21"
+    android:versionName="1.3.5" >
 
     <uses-sdk
         android:minSdkVersion="11"
         android:targetSdkVersion="19" />
 
-     
-      <!-- for card.io card scanning -->
+    <!-- for card.io card scanning -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    
-    <uses-feature android:name="android.hardware.camera" android:required="false" />
-    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+
+    <uses-feature
+        android:name="android.hardware.camera" android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus" android:required="false" />
 
     <!-- for most things, including card.io & paypal -->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
@@ -65,7 +67,7 @@
         <activity
             android:name="com.mobilevue.vod.ChannelsActivity"
             android:label=""
-           android:launchMode="singleTop"
+            android:launchMode="singleTop"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="landscape" >
             <meta-data
@@ -132,6 +134,8 @@
 
         <service android:name="com.mobilevue.service.ScheduleService" />
         <service android:name="com.mobilevue.service.NotifyService" />
+         <service android:name="com.mobilevue.service.DoBGTasksService"
+              android:exported="false"/>
 
         <receiver android:name="com.mobilevue.receiver.BootReceiver" >
             <intent-filter>
@@ -145,8 +149,8 @@
             android:name="com.mobilevue.database.ServiceProvider"
             android:authorities="com.mobilevue.database.ServiceProvider"
             android:exported="false" />
-        
-         <!-- paypal -->
+
+        <!-- paypal -->
         <service
             android:name="com.paypal.android.sdk.payments.PayPalService"
             android:exported="false" />
@@ -158,8 +162,7 @@
         <activity android:name="com.paypal.android.sdk.payments.PayPalFuturePaymentActivity" />
         <activity android:name="com.paypal.android.sdk.payments.FuturePaymentConsentActivity" />
         <activity android:name="com.paypal.android.sdk.payments.FuturePaymentInfoActivity" />
-        
-          <activity
+        <activity
             android:name="io.card.payment.CardIOActivity"
             android:configChanges="keyboardHidden|orientation" />
         <activity android:name="io.card.payment.DataEntryActivity" />

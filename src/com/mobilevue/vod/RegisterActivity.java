@@ -42,8 +42,6 @@ public class RegisterActivity extends Activity {
 
 	public static String TAG = RegisterActivity.class.getName();
 	private final static String NETWORK_ERROR = "Network error.";
-	// Get and store logical density of display
-	private static float SCALE ;
 	private ProgressDialog mProgressDialog;
 
 	// login
@@ -72,9 +70,8 @@ public class RegisterActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_register);
-		SCALE = this.getResources().getDisplayMetrics().density;
 		mApplication = ((MyApplication) getApplicationContext());
-		mOBSClient = mApplication.getOBSClient(this);
+		mOBSClient = mApplication.getOBSClient();
 	}
 
 	public void textRegister_onClick(View v) {
@@ -205,7 +202,10 @@ public class RegisterActivity extends Activity {
 		} else if (et_LastName.getText().toString().length() <= 0) {
 			Toast.makeText(RegisterActivity.this, "Please enter Last Name",
 					Toast.LENGTH_LONG).show();
-		} else if (email.matches(emailPattern)) {
+		}if (et_Password.getText().toString().length() <= 0) {
+			Toast.makeText(RegisterActivity.this, "Please enter Password",
+					Toast.LENGTH_LONG).show();
+		}else if (email.matches(emailPattern)) {
 			ClientDatum client = new ClientDatum();
 			client.setPhone(et_MobileNumber.getText().toString());
 			client.setFirstname(et_FirstName.getText().toString());
@@ -337,7 +337,7 @@ public class RegisterActivity extends Activity {
 							getApplicationContext().getContentResolver(),
 							Settings.Secure.ANDROID_ID);
 					map.put("serialNumber", androidId);
-					map.put("provisioningSerialNumber", "PROVISIONINGDATA");
+					map.put("provisioningSerialNumber",androidId);//map.put("provisioningSerialNumber", "PROVISIONINGDATA");
 					Date date = new Date();
 					SimpleDateFormat df = new SimpleDateFormat("dd MMMM yyyy",
 							new Locale("en"));
@@ -367,7 +367,7 @@ public class RegisterActivity extends Activity {
 						if (resObj.getStatusCode() == 200) {
 							mIsAutoSignupSuccess = true;
 						} else {
-							resObj.setFailResponse(100, NETWORK_ERROR);
+							resObj.setFailResponse(900, NETWORK_ERROR);
 						}
 					}
 					/** Selfcare user auto signup */
@@ -496,7 +496,7 @@ public class RegisterActivity extends Activity {
 							getApplicationContext().getContentResolver(),
 							Settings.Secure.ANDROID_ID);
 					map.put("serialNumber", androidId);
-					map.put("provisioningSerialNumber", "PROVISIONINGDATA");
+					map.put("provisioningSerialNumber",androidId);
 					Date date = new Date();
 					SimpleDateFormat df = new SimpleDateFormat("dd MMMM yyyy",
 							new Locale("en"));

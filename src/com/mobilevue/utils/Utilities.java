@@ -66,7 +66,8 @@ public class Utilities {
 		}
 		try {
 			HttpGet httpGet = new HttpGet(url.toString());
-			httpGet.setHeader("X-Mifos-Platform-TenantId", "default");
+			// httpGet.setHeader("X-Mifos-Platform-TenantId", "default");
+			httpGet.setHeader("X-Obs-Platform-TenantId", "default");
 			httpGet.setHeader("Authorization",
 					context.getString(R.string.basic_auth));
 			httpGet.setHeader("Content-Type", "application/json");
@@ -130,7 +131,7 @@ public class Utilities {
 		try {
 
 			HttpPost httpPost = new HttpPost(url);
-			httpPost.setHeader("X-Mifos-Platform-TenantId", "default");
+			httpPost.setHeader("X-Obs-Platform-TenantId", "default");
 			httpPost.setHeader("Authorization",
 					context.getString(R.string.basic_auth));
 			httpPost.setHeader("Content-Type", "application/json");
@@ -195,7 +196,7 @@ public class Utilities {
 		}
 		return resObj;
 	}
-	
+
 	public static ResponseObj callExternalApiPutMethod(Context context,
 			HashMap<String, String> param) {
 		ResponseObj resObj = new ResponseObj();
@@ -208,7 +209,7 @@ public class Utilities {
 		try {
 
 			HttpPut httpPut = new HttpPut(url);
-			httpPut.setHeader("X-Mifos-Platform-TenantId", "default");
+			httpPut.setHeader("X-Obs-Platform-TenantId", "default");
 			httpPut.setHeader("Authorization",
 					context.getString(R.string.basic_auth));
 			httpPut.setHeader("Content-Type", "application/json");
@@ -284,7 +285,7 @@ public class Utilities {
 		try {
 
 			HttpPost httpPost = new HttpPost(url);
-			httpPost.setHeader("X-Mifos-Platform-TenantId", "default");
+			httpPost.setHeader("X-Obs-Platform-TenantId", "default");
 			httpPost.setHeader("Authorization",
 					context.getString(R.string.basic_auth));
 			httpPost.setHeader("Content-Type", "application/json");

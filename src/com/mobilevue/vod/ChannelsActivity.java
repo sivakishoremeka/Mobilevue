@@ -38,6 +38,8 @@ import com.mobilevue.data.ServiceDatum;
 import com.mobilevue.database.DBHelper;
 import com.mobilevue.database.ServiceProvider;
 import com.mobilevue.retrofit.OBSClient;
+import com.mobilevue.service.DoBGTasksService;
+import com.mobilevue.vod.MyApplication.SetAppState;
 import com.mobilevue.vod.MyApplication.SortBy;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -69,10 +71,42 @@ public class ChannelsActivity extends Activity implements
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		mApplication = ((MyApplication) getApplicationContext());
-		mOBSClient = mApplication.getOBSClient(this);
+		mOBSClient = mApplication.getOBSClient();
 		mSearchString = null;
 
 		getServices();
+	}
+
+	@Override
+	protected void onStart() {
+		Log.d(TAG, "OnStart");
+		MyApplication.startCount++;
+		if (!MyApplication.isActive) {
+			Log.d(TAG, "SendIntent");
+
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_ACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStart();
+	}
+
+	@Override
+	protected void onStop() {
+		Log.d(TAG, "onStop");
+		MyApplication.stopCount++;
+
+		if(MyApplication.toast!=null)
+			MyApplication.toast.cancel();	
+		
+		if (MyApplication.stopCount == MyApplication.startCount && MyApplication.isActive) {
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_INACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStop();
 	}
 
 	@Override
@@ -223,7 +257,7 @@ public class ChannelsActivity extends Activity implements
 		} else if (loader.getId() == SortBy.DEFAULT.ordinal()
 				&& mSortBy == SortBy.DEFAULT.ordinal()) {
 			int svcIdIdx = cursor.getColumnIndexOrThrow(DBHelper.SERVICE_ID);
-			int cIdIdx = cursor.getColumnIndexOrThrow(DBHelper.CLIENT_ID);
+			// int cIdIdx = cursor.getColumnIndexOrThrow(DBHelper.CLIENT_ID);
 			int chNameIdx = cursor.getColumnIndexOrThrow(DBHelper.CHANNEL_NAME);
 			int chDescIdx = cursor.getColumnIndexOrThrow(DBHelper.CHANNEL_DESC);
 			int imgIdx = cursor.getColumnIndexOrThrow(DBHelper.IMAGE);
@@ -240,18 +274,17 @@ public class ChannelsActivity extends Activity implements
 				service.setUrl(cursor.getString(urlIdx));
 				serviceList.add(service);
 			}
-			if(serviceList.size()>0){
-			updateChannelsForZapping(serviceList);
-			updateChannels(serviceList);
-		}}
+			if (serviceList.size() > 0) {
+				updateChannelsForZapping(serviceList);
+				updateChannels(serviceList);
+			}
+		}
 	}
-
-	
 
 	private void updateChannels(final List<ServiceDatum> list) {
 		if (list != null) {
 			LayoutInflater inflater = LayoutInflater.from(this);
-		
+
 			final GridView gridView = (GridView) inflater.inflate(
 					R.layout.a_ch_gridview, null);
 			gridView.setAdapter(new ChannelGridViewAdapter(list,
@@ -263,15 +296,20 @@ public class ChannelsActivity extends Activity implements
 				public void onItemClick(AdapterView<?> parent, View imageVw,
 						int position, long arg3) {
 					ServiceDatum service = list.get(position);
-					mApplication.getEditor().putString(IPTVActivity.CHANNEL_DESC, service.getChannelDescription());
-					mApplication.getEditor().putString(IPTVActivity.CHANNEL_URL, service.getUrl());
+					mApplication.getEditor().putString(
+							IPTVActivity.CHANNEL_DESC,
+							service.getChannelDescription());
+					mApplication.getEditor().putString(
+							IPTVActivity.CHANNEL_URL, service.getUrl());
 					mApplication.getEditor().commit();
 					startActivity(new Intent(ChannelsActivity.this,
-							IPTVActivity.class));				}
+							IPTVActivity.class));
+				}
 			});
 			LinearLayout layout = (LinearLayout) findViewById(R.id.a_ch_parent_layout);
 			layout.removeAllViews();
-			layout.addView(gridView,new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT));
+			layout.addView(gridView, new LayoutParams(
+					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		}
 	}
 
@@ -286,7 +324,7 @@ public class ChannelsActivity extends Activity implements
 				List<ChannelsDatum> channelsList = new ArrayList<ChannelsDatum>();
 				LayoutInflater inflater = LayoutInflater.from(this);
 				ScrollView scrollView = (ScrollView) inflater.inflate(
-						R.layout.a_ch_scrollview,null );
+						R.layout.a_ch_scrollview, null);
 
 				cursor.moveToFirst();
 				LinearLayout parent = (LinearLayout) scrollView
@@ -306,7 +344,6 @@ public class ChannelsActivity extends Activity implements
 							.findViewById(R.id.a_ch_group_name);
 
 					boolean isChildExist = false;
-					
 
 					if (mSortBy == SortBy.CATEGORY.ordinal()) {
 						groupName = cursor.getString(cursor
@@ -362,21 +399,27 @@ public class ChannelsActivity extends Activity implements
 						childCursor.moveToFirst();
 						ImageLoader imgLoader = com.nostra13.universalimageloader.core.ImageLoader
 								.getInstance();
-						int imgSize = getResources().getInteger(R.integer.ch_img_size);
+						int imgSize = getResources().getInteger(
+								R.integer.ch_img_size);
 						LayoutParams params = new LayoutParams(imgSize, imgSize);
 						do {
-							int svcIdIdx = childCursor.getColumnIndexOrThrow(DBHelper.SERVICE_ID);
-							int chDescIdx = childCursor.getColumnIndexOrThrow(DBHelper.CHANNEL_DESC);
-							int imgIdx = childCursor.getColumnIndexOrThrow(DBHelper.IMAGE);
-							int urlIdx = childCursor.getColumnIndexOrThrow(DBHelper.URL);
-							
-								ChannelsDatum channel = new ChannelsDatum();
-								channel.serviceId= Integer.parseInt(childCursor
-										.getString(svcIdIdx));
-								channel.channelDescription = childCursor.getString(chDescIdx);
-								channel.image = childCursor.getString(imgIdx);
-								channel.url = childCursor.getString(urlIdx);
-								channelsList.add(channel);
+							int svcIdIdx = childCursor
+									.getColumnIndexOrThrow(DBHelper.SERVICE_ID);
+							int chDescIdx = childCursor
+									.getColumnIndexOrThrow(DBHelper.CHANNEL_DESC);
+							int imgIdx = childCursor
+									.getColumnIndexOrThrow(DBHelper.IMAGE);
+							int urlIdx = childCursor
+									.getColumnIndexOrThrow(DBHelper.URL);
+
+							ChannelsDatum channel = new ChannelsDatum();
+							channel.serviceId = Integer.parseInt(childCursor
+									.getString(svcIdIdx));
+							channel.channelDescription = childCursor
+									.getString(chDescIdx);
+							channel.image = childCursor.getString(imgIdx);
+							channel.url = childCursor.getString(urlIdx);
+							channelsList.add(channel);
 							ImageView iv = (ImageView) inflater.inflate(
 									R.layout.ch_gridview_item, null);
 							iv.setLayoutParams(params);
@@ -388,11 +431,17 @@ public class ChannelsActivity extends Activity implements
 							iv.setOnClickListener(new OnClickListener() {
 								@Override
 								public void onClick(View v) {
-									ChannelTag chTag= (ChannelTag) v.getTag();
-									mApplication.getEditor().putString(IPTVActivity.CHANNEL_DESC, chTag.desc);
-									mApplication.getEditor().putString(IPTVActivity.CHANNEL_URL, chTag.url);
+									ChannelTag chTag = (ChannelTag) v.getTag();
+									mApplication.getEditor().putString(
+											IPTVActivity.CHANNEL_DESC,
+											chTag.desc);
+									mApplication.getEditor()
+											.putString(
+													IPTVActivity.CHANNEL_URL,
+													chTag.url);
 									mApplication.getEditor().commit();
-									startActivity(new Intent(ChannelsActivity.this,
+									startActivity(new Intent(
+											ChannelsActivity.this,
 											IPTVActivity.class));
 								}
 							});
@@ -409,9 +458,10 @@ public class ChannelsActivity extends Activity implements
 				} while (cursor.moveToNext());
 				LinearLayout layout = (LinearLayout) findViewById(R.id.a_ch_parent_layout);
 				layout.removeAllViews();
-				layout.addView(scrollView,new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT));
-				if(channelsList.size()>0)
-				updateChannelsForZapping(channelsList);
+				layout.addView(scrollView, new LayoutParams(
+						LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+				if (channelsList.size() > 0)
+					updateChannelsForZapping(channelsList);
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "Cursor Exception");
@@ -419,42 +469,44 @@ public class ChannelsActivity extends Activity implements
 		cursor.close();
 	}
 
-	
 	private void updateChannelsForZapping(List list) {
 		Object obj = list.get(0);
 		List<ChannelsDatum> channelsList = null;
-		if(obj instanceof ServiceDatum){
+		if (obj instanceof ServiceDatum) {
 			List<ServiceDatum> serviceList = list;
-			 channelsList = new ArrayList<ChannelsDatum>();
-			ChannelsDatum cdata =null;
-			for(ServiceDatum sdata :serviceList ){
+			channelsList = new ArrayList<ChannelsDatum>();
+			ChannelsDatum cdata = null;
+			for (ServiceDatum sdata : serviceList) {
 				cdata = new ChannelsDatum();
-				cdata.serviceId = sdata.getServiceId();	
+				cdata.serviceId = sdata.getServiceId();
 				cdata.channelDescription = sdata.getChannelDescription();
-				cdata.url =sdata.getUrl();
+				cdata.url = sdata.getUrl();
 				cdata.image = sdata.getImage();
 				channelsList.add(cdata);
 			}
+		} else if (obj instanceof ChannelsDatum) {
+			channelsList = list;
 		}
-		else if(obj instanceof ChannelsDatum){
-			 channelsList = list;
-		}
-		if(channelsList.size()>0){
+		if (channelsList.size() > 0) {
 			String sJsonChannels = new Gson().toJson(channelsList);
-			//update channels data in prefs
-			mApplication.getEditor().putString(getResources().getString(R.string.channels_list),sJsonChannels);
+			// update channels data in prefs
+			mApplication.getEditor().putString(
+					getResources().getString(R.string.channels_list),
+					sJsonChannels);
 			mApplication.getEditor().commit();
-		}	
+		}
 	}
+
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		// TODO Auto-generated method stub
 	}
-	
+
 	@Override
 	protected void onDestroy() {
-		//Log.e("ChannelsActivity-onDestroy","clearing the channelsList");
-		mApplication.getEditor().remove(getResources().getString(R.string.channels_list));
+		// Log.e("ChannelsActivity-onDestroy","clearing the channelsList");
+		mApplication.getEditor().remove(
+				getResources().getString(R.string.channels_list));
 		mApplication.getEditor().commit();
 		super.onDestroy();
 	}

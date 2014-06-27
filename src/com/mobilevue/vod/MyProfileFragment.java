@@ -25,6 +25,7 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -60,13 +61,13 @@ public class MyProfileFragment extends Fragment {
 		mActivity = getActivity();
 		mApplication = ((MyApplication) mActivity.getApplicationContext());
 		RestAdapter restAdapter = new RestAdapter.Builder()
-				.setEndpoint(mApplication.API_URL)
+				.setEndpoint(MyApplication.API_URL)
 				.setLogLevel(RestAdapter.LogLevel.NONE)
 				.setConverter(new JSONConverter())
 				.setClient(
 						new CustomUrlConnectionClient(
-								mApplication.tenentId, mApplication.basicAuth,
-								mApplication.contentType)).build();
+								MyApplication.tenentId, MyApplication.basicAuth,
+								MyApplication.contentType)).build();
 		mOBSClient = restAdapter.create(OBSClient.class);
 		CLIENT_DATA = mApplication.getResources().getString(
 				R.string.client_data);
@@ -218,8 +219,13 @@ public class MyProfileFragment extends Fragment {
 					.setText(":   " + client.getPhone());
 			((TextView) mRootView.findViewById(R.id.f_my_profile_country_value))
 					.setText(":   " + client.getCountry());
+			
+			String androidId = Settings.Secure.getString(getActivity()
+					.getApplicationContext().getContentResolver(),
+					Settings.Secure.ANDROID_ID);
+			
 			((TextView) mRootView.findViewById(R.id.f_my_profile_serial_value))
-					.setText(":   " + client.getHwSerialNumber());
+					.setText(":   " + androidId);//client.getHwSerialNumber());
 			float bal = client.getBalanceAmount();
 			((TextView) mRootView.findViewById(R.id.f_my_profile_balance_value))
 					.setText(":   " + Float.toString((bal == 0.0 ? bal : -bal))
@@ -301,7 +307,7 @@ public class MyProfileFragment extends Fragment {
 			client.setBalanceAmount((float) jsonObj.getDouble("balanceAmount"));
 			client.setCurrency(jsonObj.getString("currency"));
 			client.setBalanceCheck(jsonObj.getBoolean("balanceCheck"));
-			client.setHwSerialNumber(MyApplication.androidId);
+			//client.setHwSerialNumber(MyApplication.androidId);
 
 			// paypal config data
 			JSONObject configJson = jsonObj

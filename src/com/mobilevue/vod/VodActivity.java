@@ -33,6 +33,8 @@ import com.mobilevue.adapter.MyFragmentPagerAdapter;
 import com.mobilevue.adapter.VodCategoryAdapter;
 import com.mobilevue.data.MediaDetailRes;
 import com.mobilevue.retrofit.OBSClient;
+import com.mobilevue.service.DoBGTasksService;
+import com.mobilevue.vod.MyApplication.SetAppState;
 
 public class VodActivity extends FragmentActivity
 // implements
@@ -64,7 +66,7 @@ public class VodActivity extends FragmentActivity
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		mApplication = ((MyApplication) getApplicationContext());
-		mOBSClient = mApplication.getOBSClient(this);
+		mOBSClient = mApplication.getOBSClient();
 
 		mPrefs = getSharedPreferences(mApplication.PREFS_FILE, 0);
 		mPrefsEditor = mPrefs.edit();
@@ -122,6 +124,36 @@ public class VodActivity extends FragmentActivity
 		});
 	}
 
+	
+	@Override
+	protected void onStart() {
+
+		// Log.d(TAG, "OnStart");
+		MyApplication.startCount++;
+		if (!MyApplication.isActive) {
+			// Log.d(TAG, "SendIntent");
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_ACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStart();
+	}
+
+	@Override
+	protected void onStop() {
+		// Log.d(TAG, "onStop");
+		MyApplication.stopCount++;
+		if (MyApplication.stopCount == MyApplication.startCount) {
+			// Log.d("sendIntent", "SendIntent");
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_INACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStop();
+	}
+	
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
@@ -143,8 +175,8 @@ public class VodActivity extends FragmentActivity
 		mPrefs = getSharedPreferences(mApplication.PREFS_FILE, 0);
 		String category = mPrefs.getString(CATEGORY, "");
 
-		String deviceId = Settings.Secure.getString(getApplicationContext()
-				.getContentResolver(), Settings.Secure.ANDROID_ID);
+		//String deviceId = Settings.Secure.getString(getApplicationContext()
+		//		.getContentResolver(), Settings.Secure.ANDROID_ID);
 
 		if (mProgressDialog != null) {
 			mProgressDialog.dismiss();
@@ -164,8 +196,11 @@ public class VodActivity extends FragmentActivity
 		});
 		mProgressDialog.show();
 
+		String androidId = Settings.Secure.getString(
+				getApplicationContext().getContentResolver(),
+				Settings.Secure.ANDROID_ID);
 		mOBSClient.getPageCountAndMediaDetails(category.equals("") ? "RELEASE"
-				: category, "0", deviceId, getPageCountAndDetailsCallBack);
+				: category, "0", androidId, getPageCountAndDetailsCallBack);
 	}
 
 	final Callback<MediaDetailRes> getPageCountAndDetailsCallBack = new Callback<MediaDetailRes>() {

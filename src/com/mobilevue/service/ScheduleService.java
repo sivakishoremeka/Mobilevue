@@ -2,13 +2,13 @@ package com.mobilevue.service;
 
 import java.util.Calendar;
 
-import com.mobilevue.service.task.AlarmTask;
-
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+
+import com.mobilevue.service.task.AlarmTask;
 
 public class ScheduleService extends Service {
 
@@ -49,4 +49,5 @@ public class ScheduleService extends Service {
 		// to carry on responding
 		new AlarmTask(this, c, progName, chId, chName, url).run();
 	}
+	
 }

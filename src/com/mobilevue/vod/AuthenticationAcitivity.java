@@ -42,12 +42,13 @@ public class AuthenticationAcitivity extends Activity {
 		setContentView(R.layout.activity_authentication);
 		setTitle("");
 		mApplication = ((MyApplication) getApplicationContext());
-		mOBSClient = mApplication.getOBSClient(this);
+		mOBSClient = mApplication.getOBSClient();
 		mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
 		mBtnRefresh = (Button) findViewById(R.id.btn_refresh);
 		validateDevice();
 	}
 
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.menu, menu);

@@ -42,9 +42,11 @@ import com.mobilevue.data.Reminder;
 import com.mobilevue.data.ResponseObj;
 import com.mobilevue.database.DBHelper;
 import com.mobilevue.retrofit.OBSClient;
+import com.mobilevue.service.DoBGTasksService;
 import com.mobilevue.service.ScheduleClient;
 import com.mobilevue.utils.Utilities;
 import com.mobilevue.vod.EpgFragment.ProgDetails;
+import com.mobilevue.vod.MyApplication.SetAppState;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.paypal.android.sdk.payments.PayPalPayment;
 import com.paypal.android.sdk.payments.PayPalService;
@@ -86,7 +88,7 @@ public class IPTVActivity extends FragmentActivity {
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
 		mApplication = ((MyApplication) getApplicationContext());
-		mOBSClient = mApplication.getOBSClient(this);
+		mOBSClient = mApplication.getOBSClient();
 
 		mPrefs = mApplication.getPrefs();
 		// for not refresh data
@@ -164,7 +166,7 @@ public class IPTVActivity extends FragmentActivity {
 
 											startActivityForResult(
 													actviIntent,
-													mApplication.REQUEST_CODE_PAYMENT);
+													MyApplication.REQUEST_CODE_PAYMENT);
 										}
 									}
 								});
@@ -212,6 +214,8 @@ public class IPTVActivity extends FragmentActivity {
 	}
 
 	protected void startMediaPlayer() {
+		
+		if(MyApplication.isActive){
 		Intent intent = new Intent();
 		intent.putExtra("VIDEOTYPE", "LIVETV");
 		intent.putExtra(CHANNEL_URL, mChannelURL);
@@ -230,9 +234,46 @@ public class IPTVActivity extends FragmentActivity {
 			startActivity(intent);
 			break;
 		}
+		}
+		else{
+			Toast.makeText(this, getResources().getString(R.string.status_err_msg), Toast.LENGTH_LONG).show();
+		}
+	}
+	
+	@Override
+	protected void onStart() {
+
+		// Log.d(TAG, "OnStart");
+		MyApplication.startCount++;
+		if (!MyApplication.isActive) {
+			// Log.d(TAG, "SendIntent");
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_ACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStart();
 	}
 
 	@Override
+	protected void onStop() {
+		// Log.d(TAG, "onStop");
+		MyApplication.stopCount++;
+		if (MyApplication.stopCount == MyApplication.startCount) {
+			// Log.d("sendIntent", "SendIntent");
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_INACTIVE.ordinal());
+			startService(intent);
+		}
+		
+		if (scheduleClient != null)
+			scheduleClient.doUnbindService();
+		super.onStop();
+	}
+
+
+	/*@Override
 	protected void onStop() {
 		// When our activity is stopped ensure we also stop the connection to
 		// the service
@@ -241,7 +282,7 @@ public class IPTVActivity extends FragmentActivity {
 			scheduleClient.doUnbindService();
 		super.onStop();
 	}
-
+*/
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.nav_menu, menu);

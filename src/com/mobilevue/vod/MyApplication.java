@@ -32,8 +32,8 @@ import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.provider.Settings;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.mobilevue.data.ServiceDatum;
 import com.mobilevue.database.DBHelper;
@@ -62,15 +62,20 @@ public class MyApplication extends Application {
 			new Locale("en"));
 	private float balance = 0;
 	private String currency = null;
-	public static String androidId;
+	//public static String androidId;
 	private String clientId = null;
 	public boolean balanceCheck = false;
 	private boolean payPalCheck = false;
-
 	private String payPalClientID = null;
 	public boolean D = true; // need to delete this variable
 	public static Player player = Player.NATIVE_PLAYER;
 	public static PayPalConfiguration config = null;
+	
+	//app background check
+	public static int startCount = 0 ;
+	public static int stopCount = 0 ;
+	public static boolean isActive = false;
+	public static Toast toast = null;
 
 	/** PayPal configurations */
 	private static final String CONFIG_ENVIRONMENT = PayPalConfiguration.ENVIRONMENT_SANDBOX;
@@ -117,8 +122,8 @@ public class MyApplication extends Application {
 
 		prefs = getSharedPreferences(PREFS_FILE, 0);
 		editor = prefs.edit();
-		androidId = Settings.Secure.getString(getApplicationContext()
-				.getContentResolver(), Settings.Secure.ANDROID_ID);
+		//androidId = Settings.Secure.getString(getApplicationContext()
+		//		.getContentResolver(), Settings.Secure.ANDROID_ID);
 	}
 
 	public boolean isNetworkAvailable() {
@@ -140,9 +145,9 @@ public class MyApplication extends Application {
 		return false;
 	}
 
-	public OBSClient getOBSClient(Context context) {
+	public OBSClient getOBSClient() {
 		RestAdapter restAdapter = new RestAdapter.Builder()
-				.setEndpoint(API_URL).setLogLevel(RestAdapter.LogLevel.NONE)
+				.setEndpoint(API_URL).setLogLevel(RestAdapter.LogLevel.FULL)
 				// need to remove this on build
 				.setClient(
 						new CustomUrlConnectionClient(
@@ -167,7 +172,7 @@ public class MyApplication extends Application {
 	}
 
 	public void PullnInsertServices(SQLiteDatabase db) {
-		OBSClient mOBSClient = getOBSClient(this);
+		OBSClient mOBSClient = getOBSClient();
 		prefs = getPrefs();
 		editor = getEditor();
 		db.delete(DBHelper.TABLE_SERVICES, null, null);
@@ -177,7 +182,7 @@ public class MyApplication extends Application {
 		if (serviceList != null && serviceList.size() > 0) {
 			/** saving channel details to preferences */
 			Date date = new Date();
-			String formattedDate = this.df.format(date);
+			String formattedDate = MyApplication.df.format(date);
 			editor.putString(
 					getResources().getString(R.string.channels_updated_at),
 					formattedDate);
@@ -221,7 +226,7 @@ public class MyApplication extends Application {
 											// " ASC", null);
 		if (cursor.getCount() > 0) {
 			Date date = new Date();
-			String formattedDate = this.df.format(date);
+			String formattedDate = MyApplication.df.format(date);
 			editor.putString(
 					getResources().getString(
 							R.string.channels_category_updated_at),
@@ -259,7 +264,7 @@ public class MyApplication extends Application {
 											// null);
 		if (cursor.getCount() > 0) {
 			Date date = new Date();
-			String formattedDate = this.df.format(date);
+			String formattedDate = MyApplication.df.format(date);
 			editor.putString(
 					getResources().getString(
 							R.string.channels_sub_category_updated_at),
@@ -292,7 +297,11 @@ public class MyApplication extends Application {
 	}
 
 	public enum SortBy {
-		DEFAULT, CATEGORY, LANGUAGE,
+		DEFAULT, CATEGORY, LANGUAGE
+	}
+	
+	public enum SetAppState {
+		SET_ACTIVE,SET_INACTIVE
 	}
 
 	public String getResponseOnSuccess(Response response) {
@@ -423,5 +432,14 @@ public class MyApplication extends Application {
 		return config;
 
 	}
+
+/*	public String getDeviceId() {
+		String deviceId = getPrefs().getString("DeviceId", "");
+		if(deviceId==null ||deviceId.length()==0)
+		{ deviceId = DeviceID.generateID(getApplicationContext());
+		  getEditor().putString("DeviceId", deviceId).commit();
+		}
+		return deviceId;
+	}*/
 
 }

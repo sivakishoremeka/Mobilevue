@@ -111,7 +111,7 @@
             android:layout_marginRight="6dp"
             android:layout_weight="1"
             android:background="@drawable/selector_btn_submit"
-            android:onClick="btnSubmit_onClick" />
+            android:onClick="btnRegister_onClick" />
     </LinearLayout>
 
     <TextView

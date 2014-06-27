@@ -201,8 +201,8 @@ public class VideoControllerView extends FrameLayout {
 		LinearLayout channels = (LinearLayout) v
 				.findViewById(R.id.a_video_ll_channels);
 
-		final Editor editor = ((MyApplication) mContext.getApplicationContext())
-				.getEditor();
+		/*final Editor editor = ((MyApplication) mContext.getApplicationContext())
+				.getEditor();*/
 		for (final ChannelsDatum data : list) {
 
 			// editor.putString(data.getChannelName(), data.getUrl());

@@ -3,6 +3,7 @@ package com.mobilevue.vod;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -10,6 +11,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import com.mobilevue.adapter.MyAccountMenuAdapter;
+import com.mobilevue.service.DoBGTasksService;
+import com.mobilevue.vod.MyApplication.SetAppState;
 
 public class MyAccountActivity extends Activity {
 
@@ -58,6 +61,35 @@ public class MyAccountActivity extends Activity {
 		transaction.commit();
 	}
 
+	@Override
+	protected void onStart() {
+
+		// Log.d(TAG, "OnStart");
+		MyApplication.startCount++;
+		if (!MyApplication.isActive) {
+			// Log.d(TAG, "SendIntent");
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_ACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStart();
+	}
+
+	@Override
+	protected void onStop() {
+		// Log.d(TAG, "onStop");
+		MyApplication.stopCount++;
+		if (MyApplication.stopCount == MyApplication.startCount) {
+			// Log.d("sendIntent", "SendIntent");
+			Intent intent = new Intent(this, DoBGTasksService.class);
+			intent.putExtra(DoBGTasksService.App_State_Req,
+					SetAppState.SET_INACTIVE.ordinal());
+			startService(intent);
+		}
+		super.onStop();
+	}
+	
 	public void btnSubmit_onClick(View v) {
 		Fragment frag = getFragmentManager().findFragmentByTag(FRAG_TAG);
 		if (frag instanceof MyPakagesFragment) {

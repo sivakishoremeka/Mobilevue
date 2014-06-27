@@ -105,7 +105,8 @@ public class CustomUrlConnectionClient implements Client {
 	void prepareRequest(HttpURLConnection connection, Request request)
 			throws IOException {
 		connection.setRequestMethod(request.getMethod());
-		connection.setRequestProperty("X-Mifos-Platform-TenantId", tenentId);
+		//connection.setRequestProperty("X-Mifos-Platform-TenantId", tenentId);
+		connection.setRequestProperty("X-Obs-Platform-TenantId", tenentId);
 		connection.setRequestProperty(
 				"Authorization",
 				basicAuth);
