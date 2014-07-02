@@ -40,7 +40,7 @@ import com.mobilevue.utils.Utilities;
 
 public class RegisterActivity extends Activity {
 
-	public static String TAG = RegisterActivity.class.getName();
+	//public static String TAG = RegisterActivity.class.getName();
 	private final static String NETWORK_ERROR = "Network error.";
 	private ProgressDialog mProgressDialog;
 

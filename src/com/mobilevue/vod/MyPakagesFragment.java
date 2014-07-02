@@ -190,7 +190,7 @@ public class MyPakagesFragment extends Fragment {
 			OBSClient mOBSClient = null;
 			RestAdapter restAdapter = new RestAdapter.Builder()
 					.setEndpoint(MyApplication.API_URL)
-					.setLogLevel(RestAdapter.LogLevel.FULL)
+					.setLogLevel(RestAdapter.LogLevel.NONE)
 					/** Need to change Log level to NONe */
 					.setConverter(new JSONConverter())
 					.setClient(

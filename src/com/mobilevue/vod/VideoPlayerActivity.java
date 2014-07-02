@@ -2,13 +2,9 @@ package com.mobilevue.vod;
 
 import java.io.IOException;
 
-import com.mobilevue.service.DoBGTasksService;
-import com.mobilevue.vod.MyApplication.SetAppState;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -43,36 +39,36 @@ public class VideoPlayerActivity extends Activity implements
 
 	public boolean stopThread = true;
 	public int currentPosition = 0;
-	public int  lastPosition = 0;
+	public int lastPosition = 0;
 	BufferrChk bChk = null;
 	private Handler threadHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            if (msg.what == 1) {
-                if (mProgressDialog != null && !mProgressDialog.isShowing()){
-                	mProgressDialog = new ProgressDialog(VideoPlayerActivity.this,
-        					ProgressDialog.THEME_HOLO_DARK);
-        			mProgressDialog.setMessage("Buffering...");
-        			mProgressDialog.setCancelable(true);
-        			mProgressDialog.setCanceledOnTouchOutside(false);
-        			mProgressDialog.show();}
-                else if (mProgressDialog == null)
-                	{
-                	mProgressDialog = new ProgressDialog(VideoPlayerActivity.this,
-        					ProgressDialog.THEME_HOLO_DARK);
-        			mProgressDialog.setMessage("Buffering...");
-        			mProgressDialog.setCancelable(true);
-        			mProgressDialog.setCanceledOnTouchOutside(false);
-        			mProgressDialog.show();
-                	}
-            } else
-            	if (mProgressDialog != null && mProgressDialog.isShowing()) {
-    				mProgressDialog.dismiss();
-    				mProgressDialog = null;
-    				stopThread = true;
-    			}
-        }
-    };
-    
+		public void handleMessage(Message msg) {
+			if (msg.what == 1) {
+				if (mProgressDialog != null && !mProgressDialog.isShowing()) {
+					mProgressDialog = new ProgressDialog(
+							VideoPlayerActivity.this,
+							ProgressDialog.THEME_HOLO_DARK);
+					mProgressDialog.setMessage("Buffering...");
+					mProgressDialog.setCancelable(true);
+					mProgressDialog.setCanceledOnTouchOutside(false);
+					mProgressDialog.show();
+				} else if (mProgressDialog == null) {
+					mProgressDialog = new ProgressDialog(
+							VideoPlayerActivity.this,
+							ProgressDialog.THEME_HOLO_DARK);
+					mProgressDialog.setMessage("Buffering...");
+					mProgressDialog.setCancelable(true);
+					mProgressDialog.setCanceledOnTouchOutside(false);
+					mProgressDialog.show();
+				}
+			} else if (mProgressDialog != null && mProgressDialog.isShowing()) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+				stopThread = true;
+			}
+		}
+	};
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -82,49 +78,7 @@ public class VideoPlayerActivity extends Activity implements
 		SurfaceHolder videoHolder = videoSurface.getHolder();
 		videoHolder.addCallback(this);
 	}
-	@Override
-	protected void onStart() {
 
-		// Log.d(TAG, "OnStart");
-		MyApplication.startCount++;
-		if (!MyApplication.isActive) {
-			// Log.d(TAG, "SendIntent");
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_ACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStart();
-	}
-
-	@Override
-	protected void onStop() {
-		// Log.d(TAG, "onStop");
-		MyApplication.stopCount++;
-		if (MyApplication.stopCount == MyApplication.startCount) {
-			// Log.d("sendIntent", "SendIntent");
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_INACTIVE.ordinal());
-			startService(intent);
-		}
-		
-		videoSurface.setVisibility(View.GONE);
-		stopThread = true;
-		if (player != null) {
-			if (player.isPlaying()) {
-				player.stop();
-				player.release();
-				player = null;
-			}
-		}
-		threadHandler.removeMessages(1);
-		threadHandler.removeMessages(0);
-		super.onStop();
-		
-		
-	}
-	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		controller.show();
@@ -199,9 +153,12 @@ public class VideoPlayerActivity extends Activity implements
 	@Override
 	public void onPrepared(MediaPlayer mp) {
 		controller.setMediaPlayer(this);
-		/*RelativeLayout rlayout = (RelativeLayout) findViewById(R.id.video_container);
-		rlayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-		controller.setAnchorView(rlayout);*/
+		/*
+		 * RelativeLayout rlayout = (RelativeLayout)
+		 * findViewById(R.id.video_container);
+		 * rlayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+		 * controller.setAnchorView(rlayout);
+		 */
 		controller
 				.setAnchorView((RelativeLayout) findViewById(R.id.video_container));
 		if (mProgressDialog != null && mProgressDialog.isShowing()) {
@@ -387,30 +344,24 @@ public class VideoPlayerActivity extends Activity implements
 
 	@Override
 	public boolean onInfo(MediaPlayer mp, int what, int extra) {
-/*
-		if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START
-				|| what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
-
-			if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
-				if (mProgressDialog != null && mProgressDialog.isShowing()) {
-					mProgressDialog.dismiss();
-					mProgressDialog = null;
-				}
-				mProgressDialog = new ProgressDialog(VideoPlayerActivity.this,
-						ProgressDialog.THEME_HOLO_DARK);
-				mProgressDialog.setMessage("Connecting to server...");
-				mProgressDialog.setCancelable(true);
-				mProgressDialog.setCanceledOnTouchOutside(false);
-				mProgressDialog.show();
-
-			} else {
-				if (mProgressDialog != null && mProgressDialog.isShowing()) {
-					mProgressDialog.dismiss();
-					mProgressDialog = null;
-				}
-			}
-			return true;
-		}*/
+		/*
+		 * if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START || what ==
+		 * MediaPlayer.MEDIA_INFO_BUFFERING_END) {
+		 * 
+		 * if (what == MediaPlayer.MEDIA_INFO_BUFFERING_START) { if
+		 * (mProgressDialog != null && mProgressDialog.isShowing()) {
+		 * mProgressDialog.dismiss(); mProgressDialog = null; } mProgressDialog
+		 * = new ProgressDialog(VideoPlayerActivity.this,
+		 * ProgressDialog.THEME_HOLO_DARK);
+		 * mProgressDialog.setMessage("Connecting to server...");
+		 * mProgressDialog.setCancelable(true);
+		 * mProgressDialog.setCanceledOnTouchOutside(false);
+		 * mProgressDialog.show();
+		 * 
+		 * } else { if (mProgressDialog != null && mProgressDialog.isShowing())
+		 * { mProgressDialog.dismiss(); mProgressDialog = null; } } return true;
+		 * }
+		 */
 		return false;
 
 	}
@@ -418,14 +369,14 @@ public class VideoPlayerActivity extends Activity implements
 	@Override
 	public boolean onError(MediaPlayer mp, int what, int extra) {
 		stopThread = true;
-		 Message msg = new Message();
-         msg.what = 0;
+		Message msg = new Message();
+		msg.what = 0;
 		if (mProgressDialog != null && mProgressDialog.isShowing()) {
 			mProgressDialog.dismiss();
 			mProgressDialog = null;
 		}
 		if (what == MediaPlayer.MEDIA_ERROR_UNKNOWN && extra == -2147483648) {
-			 threadHandler.sendMessage(msg);
+			threadHandler.sendMessage(msg);
 			Toast.makeText(
 					getApplicationContext(),
 					"Incorrect URL or Unsupported Media Format.Media player closed.",
@@ -437,7 +388,8 @@ public class VideoPlayerActivity extends Activity implements
 					"Invalid Stream for this channel... Please try other channel",
 					Toast.LENGTH_LONG).show();
 		} else {
-			controller.mHandler.removeMessages(VideoControllerView.SHOW_PROGRESS);
+			controller.mHandler
+					.removeMessages(VideoControllerView.SHOW_PROGRESS);
 			controller.mHandler.removeMessages(VideoControllerView.FADE_OUT);
 			changeChannel(mUri, mChannelId);
 		}
@@ -456,7 +408,7 @@ public class VideoPlayerActivity extends Activity implements
 		super.onPause();
 	}
 
-	/*@Override
+	@Override
 	protected void onStop() {
 		videoSurface.setVisibility(View.GONE);
 		stopThread = true;
@@ -470,7 +422,7 @@ public class VideoPlayerActivity extends Activity implements
 		threadHandler.removeMessages(1);
 		threadHandler.removeMessages(0);
 		super.onStop();
-	}*/
+	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
@@ -485,47 +437,47 @@ public class VideoPlayerActivity extends Activity implements
 		threadHandler.removeMessages(1);
 		threadHandler.removeMessages(0);
 	}
-	
-	public class BufferrChk extends Thread{
-    @Override
-    public void run() {
-        try {
-            while (player != null) {
- 
-                if(stopThread)
-                {
-                    currentPosition = 0;
-                    lastPosition = 0;
-                    break;
-                }
- 
-                currentPosition = player.getCurrentPosition();
-                lastPosition = player.getDuration();
-                Message msg = new Message();
-                if (currentPosition != lastPosition || currentPosition > lastPosition)
-                    msg.what = 0;
-                else
-                    msg.what = 1;
-                lastPosition = currentPosition;
-                threadHandler.sendMessage(msg);
- 
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    System.out.println("interrupt exeption" + e);
-                }
- 
-            }
- 
-        }
- 
-        catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            System.out.println("My exeption" + e);
-        }
- 
-    }
+
+	public class BufferrChk extends Thread {
+		@Override
+		public void run() {
+			try {
+				while (player != null) {
+
+					if (stopThread) {
+						currentPosition = 0;
+						lastPosition = 0;
+						break;
+					}
+
+					currentPosition = player.getCurrentPosition();
+					lastPosition = player.getDuration();
+					Message msg = new Message();
+					if (currentPosition != lastPosition
+							|| currentPosition > lastPosition)
+						msg.what = 0;
+					else
+						msg.what = 1;
+					lastPosition = currentPosition;
+					threadHandler.sendMessage(msg);
+
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+						System.out.println("interrupt exeption" + e);
+					}
+
+				}
+
+			}
+
+			catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				System.out.println("My exeption" + e);
+			}
+
+		}
 	}
 }

@@ -15,12 +15,10 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.mobilevue.adapter.MainMenuAdapter;
-import com.mobilevue.service.DoBGTasksService;
-import com.mobilevue.vod.MyApplication.SetAppState;
 
 public class MainActivity extends Activity {
 
-	private static final String TAG = MainActivity.class.getName();
+	// private static final String TAG = MainActivity.class.getName();
 	ListView listView;
 
 	@Override
@@ -48,38 +46,6 @@ public class MainActivity extends Activity {
 				}
 			}
 		});
-	}
-
-	@Override
-	protected void onStart() {
-
-		// Log.d(TAG, "OnStart");
-		MyApplication.startCount++;
-		if (!MyApplication.isActive) {
-			// Log.d(TAG, "SendIntent");
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_ACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStart();
-	}
-
-	@Override
-	protected void onStop() {
-		// Log.d(TAG, "onStop");
-		MyApplication.stopCount++;
-		if(MyApplication.toast!=null)
-			MyApplication.toast.cancel();	
-		if (MyApplication.stopCount == MyApplication.startCount && MyApplication.isActive) {
-			// Log.d("sendIntent", "SendIntent");
-			
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_INACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStop();
 	}
 
 	@Override

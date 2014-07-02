@@ -41,7 +41,7 @@ import com.mobilevue.retrofit.OBSClient;
 
 public class EpgFragment extends Fragment {
 
-	private static final String TAG = "EpgFragment";
+	//private static final String TAG = "EpgFragment";
 	public final static String IS_REFRESH = "isRefresh";
 	private ProgressDialog mProgressDialog;
 	private SharedPreferences mPrefs;

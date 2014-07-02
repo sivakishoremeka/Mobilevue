@@ -33,7 +33,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.mobilevue.data.ServiceDatum;
 import com.mobilevue.database.DBHelper;
@@ -50,7 +49,7 @@ import com.paypal.android.sdk.payments.PayPalConfiguration;
 mailTo = "shiva@openbillingsystem.com", // my email here
 mode = ReportingInteractionMode.TOAST, resToastText = R.string.crash_toast_text)
 public class MyApplication extends Application {
-	public static String TAG = MyApplication.class.getName();
+	//public static String TAG = MyApplication.class.getName();
 	public final String PREFS_FILE = "PREFS_FILE";
 	public SharedPreferences prefs;
 	public Editor editor;
@@ -67,18 +66,12 @@ public class MyApplication extends Application {
 	public boolean balanceCheck = false;
 	private boolean payPalCheck = false;
 	private String payPalClientID = null;
-	public boolean D = true; // need to delete this variable
+	//public boolean D = true; // need to delete this variable
 	public static Player player = Player.NATIVE_PLAYER;
 	public static PayPalConfiguration config = null;
 	
-	//app background check
-	public static int startCount = 0 ;
-	public static int stopCount = 0 ;
-	public static boolean isActive = false;
-	public static Toast toast = null;
-
 	/** PayPal configurations */
-	private static final String CONFIG_ENVIRONMENT = PayPalConfiguration.ENVIRONMENT_SANDBOX;
+	private static final String CONFIG_ENVIRONMENT = PayPalConfiguration.ENVIRONMENT_PRODUCTION;
 	// note that these credentials will differ between live & sandbox
 	// environments.
 	public static final int REQUEST_CODE_PAYMENT = 1;
@@ -147,7 +140,7 @@ public class MyApplication extends Application {
 
 	public OBSClient getOBSClient() {
 		RestAdapter restAdapter = new RestAdapter.Builder()
-				.setEndpoint(API_URL).setLogLevel(RestAdapter.LogLevel.FULL)
+				.setEndpoint(API_URL).setLogLevel(RestAdapter.LogLevel.NONE)
 				// need to remove this on build
 				.setClient(
 						new CustomUrlConnectionClient(
@@ -300,15 +293,11 @@ public class MyApplication extends Application {
 		DEFAULT, CATEGORY, LANGUAGE
 	}
 	
-	public enum SetAppState {
-		SET_ACTIVE,SET_INACTIVE
-	}
-
 	public String getResponseOnSuccess(Response response) {
 		try {
 			return getJSONfromInputStream(response.getBody().in());
 		} catch (Exception e) {
-			Log.i(TAG, e.getMessage());
+			Log.i("MyApplication-getResponseOnSuccess", e.getMessage());
 			return "Internal Server Error";
 		}
 	}
@@ -322,7 +311,7 @@ public class MyApplication extends Application {
 				res.append(msg);
 			}
 		} catch (Exception e) {
-			Log.i(TAG, e.getMessage());
+			Log.i("MyApplication-getJSONfromInputStream", e.getMessage());
 		}
 		if (res.length() > 0) {
 			return res.toString();
@@ -339,7 +328,7 @@ public class MyApplication extends Application {
 					.getString("developerMessage");
 		} catch (Exception e) {
 			msg = "Internal Server Error";
-			Log.i(TAG, e.getMessage());
+			Log.i("MyApplication-getDeveloperMessage", e.getMessage());
 		}
 		return msg;
 	}

@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -38,9 +39,7 @@ import com.mobilevue.data.MediaDetailsResDatum;
 import com.mobilevue.data.PriceDetail;
 import com.mobilevue.data.ResponseObj;
 import com.mobilevue.retrofit.OBSClient;
-import com.mobilevue.service.DoBGTasksService;
 import com.mobilevue.utils.Utilities;
-import com.mobilevue.vod.MyApplication.SetAppState;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.paypal.android.sdk.payments.PayPalPayment;
 import com.paypal.android.sdk.payments.PayPalService;
@@ -49,7 +48,7 @@ import com.paypal.android.sdk.payments.PaymentConfirmation;
 
 public class VodMovieDetailsActivity extends Activity {
 
-	public static String TAG = VodMovieDetailsActivity.class.getName();
+	// public static String TAG = VodMovieDetailsActivity.class.getName();
 	private final static String NETWORK_ERROR = "NETWORK_ERROR";
 	private final static String BOOK_ORDER = "BOOK_ORDER";
 	private ProgressDialog mProgressDialog;
@@ -91,40 +90,29 @@ public class VodMovieDetailsActivity extends Activity {
 	}
 
 	@Override
-	protected void onStart() {
-
-		// Log.d(TAG, "OnStart");
-		MyApplication.startCount++;
-		if (!MyApplication.isActive) {
-			// Log.d(TAG, "SendIntent");
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_ACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStart();
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.nav_menu, menu);
+		return true;
 	}
 
-	@Override
-	protected void onStop() {
-		// Log.d(TAG, "onStop");
-		MyApplication.stopCount++;
-		if (MyApplication.stopCount == MyApplication.startCount) {
-			// Log.d("sendIntent", "SendIntent");
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_INACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStop();
-	}
-	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 
 		switch (item.getItemId()) {
 		case android.R.id.home:
 			NavUtils.navigateUpFromSameTask(this);
+			break;
+		case R.id.action_home:
+			startActivity(new Intent(VodMovieDetailsActivity.this,
+					MainActivity.class)
+					.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+			break;
+		case R.id.action_account:
+			startActivity(new Intent(this, MyAccountActivity.class));
+			break;
+		case R.id.action_refresh:
+			// refresh data
+			UpdateDetails();
 			break;
 		default:
 			break;
@@ -138,7 +126,7 @@ public class VodMovieDetailsActivity extends Activity {
 		final boolean isPayPalReq = mApplication.isPayPalCheck();
 		final float balance = mApplication.getBalance();
 
-		if ((mVodPrice != 0 && (-balance < mVodPrice)) || balance>0){
+		if ((mVodPrice != 0 && (-balance < mVodPrice)) || balance > 0) {
 			AlertDialog.Builder builder = new AlertDialog.Builder((this),
 					AlertDialog.THEME_HOLO_LIGHT);
 			builder.setIcon(R.drawable.ic_logo_confirm_dialog);
@@ -328,7 +316,7 @@ public class VodMovieDetailsActivity extends Activity {
 				if (mProgressDialog.isShowing()) {
 					mProgressDialog.dismiss();
 				}
-				if(MyApplication.isActive){
+
 				Intent intent = new Intent();
 				try {
 					intent.putExtra("URL",
@@ -359,10 +347,7 @@ public class VodMovieDetailsActivity extends Activity {
 				}
 
 				finish();
-				}
-				else{
-					Toast.makeText(VodMovieDetailsActivity.this , getResources().getString(R.string.status_err_msg), Toast.LENGTH_LONG).show();
-				}
+
 			} else {
 				if (mProgressDialog.isShowing()) {
 					mProgressDialog.dismiss();
@@ -454,7 +439,7 @@ public class VodMovieDetailsActivity extends Activity {
 
 		String androidId = Settings.Secure.getString(this
 				.getApplicationContext().getContentResolver(),
-			Settings.Secure.ANDROID_ID);
+				Settings.Secure.ANDROID_ID);
 		mOBSClient.getMediaDevice(androidId, deviceCallBack);
 
 	}

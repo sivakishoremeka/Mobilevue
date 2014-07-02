@@ -38,15 +38,13 @@ import com.mobilevue.data.ServiceDatum;
 import com.mobilevue.database.DBHelper;
 import com.mobilevue.database.ServiceProvider;
 import com.mobilevue.retrofit.OBSClient;
-import com.mobilevue.service.DoBGTasksService;
-import com.mobilevue.vod.MyApplication.SetAppState;
 import com.mobilevue.vod.MyApplication.SortBy;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class ChannelsActivity extends Activity implements
 		LoaderCallbacks<Cursor> {
 
-	private final String TAG = ChannelsActivity.this.getClass().getName();
+	// private final String TAG = ChannelsActivity.this.getClass().getName();
 	private ProgressDialog mProgressDialog;
 
 	MyApplication mApplication = null;
@@ -75,38 +73,6 @@ public class ChannelsActivity extends Activity implements
 		mSearchString = null;
 
 		getServices();
-	}
-
-	@Override
-	protected void onStart() {
-		Log.d(TAG, "OnStart");
-		MyApplication.startCount++;
-		if (!MyApplication.isActive) {
-			Log.d(TAG, "SendIntent");
-
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_ACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStart();
-	}
-
-	@Override
-	protected void onStop() {
-		Log.d(TAG, "onStop");
-		MyApplication.stopCount++;
-
-		if(MyApplication.toast!=null)
-			MyApplication.toast.cancel();	
-		
-		if (MyApplication.stopCount == MyApplication.startCount && MyApplication.isActive) {
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_INACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStop();
 	}
 
 	@Override
@@ -464,7 +430,7 @@ public class ChannelsActivity extends Activity implements
 					updateChannelsForZapping(channelsList);
 			}
 		} catch (Exception e) {
-			Log.e(TAG, "Cursor Exception");
+			Log.e("ChannelsActivity", "Cursor Exception");
 		}
 		cursor.close();
 	}

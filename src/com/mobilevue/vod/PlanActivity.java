@@ -34,13 +34,11 @@ import com.mobilevue.data.DeviceDatum;
 import com.mobilevue.data.PlanDatum;
 import com.mobilevue.data.ResponseObj;
 import com.mobilevue.retrofit.OBSClient;
-import com.mobilevue.service.DoBGTasksService;
 import com.mobilevue.utils.Utilities;
-import com.mobilevue.vod.MyApplication.SetAppState;
 
 public class PlanActivity extends Activity {
 
-	public static String TAG = PlanActivity.class.getName();
+	// public static String TAG = PlanActivity.class.getName();
 	private final static String NETWORK_ERROR = "Network error.";
 	private ProgressDialog mProgressDialog;
 
@@ -63,35 +61,6 @@ public class PlanActivity extends Activity {
 		mOBSClient = mApplication.getOBSClient();
 
 		fetchAndBuildPlanList();
-	}
-	
-	@Override
-	protected void onStart() {
-
-		// Log.d(TAG, "OnStart");
-		MyApplication.startCount++;
-		if (!MyApplication.isActive) {
-			// Log.d(TAG, "SendIntent");
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_ACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStart();
-	}
-
-	@Override
-	protected void onStop() {
-		// Log.d(TAG, "onStop");
-		MyApplication.stopCount++;
-		if (MyApplication.stopCount == MyApplication.startCount) {
-			// Log.d("sendIntent", "SendIntent");
-			Intent intent = new Intent(this, DoBGTasksService.class);
-			intent.putExtra(DoBGTasksService.App_State_Req,
-					SetAppState.SET_INACTIVE.ordinal());
-			startService(intent);
-		}
-		super.onStop();
 	}
 
 	public void fetchAndBuildPlanList() {

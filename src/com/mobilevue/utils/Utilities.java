@@ -36,7 +36,7 @@ import com.mobilevue.vod.R;
 
 public class Utilities {
 
-	private static final String TAG = "Utilities";
+	// private static final String TAG = "Utilities";
 	public static String tenentId;
 	public static String basicAuth;
 	public static String contentType;
@@ -146,8 +146,8 @@ public class Utilities {
 					"application/json"));
 			httpPost.setEntity(se);
 
-			Log.d("ApiPostMethod : URL", httpPost.getURI().toString());
-			Log.d("ApiPostMethod : ", json.toString());
+			// Log.d("ApiPostMethod : URL", httpPost.getURI().toString());
+			// Log.d("ApiPostMethod : ", json.toString());
 
 			HttpResponse response = client.execute(httpPost);
 			StatusLine statusLine = response.getStatusLine();
@@ -224,8 +224,8 @@ public class Utilities {
 					"application/json"));
 			httpPut.setEntity(se);
 
-			Log.d("ApiPutMethod : URL", httpPut.getURI().toString());
-			Log.d("ApiPutMethod : ", json.toString());
+			// Log.d("ApiPutMethod : URL", httpPut.getURI().toString());
+			// Log.d("ApiPutMethod : ", json.toString());
 
 			HttpResponse response = client.execute(httpPut);
 			StatusLine statusLine = response.getStatusLine();
