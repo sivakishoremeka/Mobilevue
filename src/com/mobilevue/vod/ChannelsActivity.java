@@ -72,7 +72,14 @@ public class ChannelsActivity extends Activity implements
 		mOBSClient = mApplication.getOBSClient();
 		mSearchString = null;
 
+		// getServices();
+	}
+
+	@Override
+	protected void onResume() {
+		mIsRefresh = false;
 		getServices();
+		super.onResume();
 	}
 
 	@Override

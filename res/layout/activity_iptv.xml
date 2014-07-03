@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/tools"
-     android:id="@+id/a_iptv_rl_root_layout"
+    android:id="@+id/a_iptv_rl_root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF" >
@@ -45,7 +45,7 @@
                 android:background="#66FF7c00"
                 android:gravity="center"
                 android:textColor="#fff"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/a_iptv_tv_Prog_name"
@@ -64,6 +64,7 @@
                 android:scrollbars="vertical"
                 android:textSize="13sp"
                 android:textStyle="bold" />
+
             <TextView
                 android:id="@+id/a_iptv_tv_prog_end_time"
                 android:layout_width="wrap_content"
@@ -87,15 +88,16 @@
                 android:id="@+id/a_iptv_btn_watch_remind"
                 android:layout_width="80dp"
                 android:layout_height="25dp"
-                android:layout_marginTop="6dp"
-                android:gravity="center"
                 android:layout_gravity="center"
+                android:layout_marginTop="6dp"
                 android:background="@drawable/selector_vod_mov_dtls_btn_hd"
+                android:gravity="center"
                 android:text="@string/watch"
                 android:textColor="#FFFFFF"
                 android:textSize="12sp"
                 android:textStyle="bold" />
         </LinearLayout>
+
         <View
             android:layout_width="0dp"
             android:layout_height="fill_parent"
@@ -127,12 +129,15 @@
         android:layout_height="2dp"
         android:layout_above="@+id/a_iptv_hsv_channels"
         android:background="#FF7c00" />
+
     <HorizontalScrollView
         android:id="@+id/a_iptv_hsv_channels"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-         android:gravity="center_horizontal"
-        android:layout_above="@+id/a_iptv_iv_btm_line2">
+        android:layout_above="@+id/a_iptv_iv_btm_line2"
+        android:gravity="center_horizontal"
+        android:scrollbarDefaultDelayBeforeFade="3000" >
+
         <LinearLayout
             android:id="@+id/a_iptv_ll_channels"
             android:layout_width="wrap_content"

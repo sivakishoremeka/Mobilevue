@@ -57,7 +57,7 @@ public class MyAccountActivity extends Activity {
 		transaction.add(R.id.a_my_acc_frag_container, myPackageFrag, FRAG_TAG);
 		transaction.commit();
 	}
-
+	
 	public void btnSubmit_onClick(View v) {
 		Fragment frag = getFragmentManager().findFragmentByTag(FRAG_TAG);
 		if (frag instanceof MyPakagesFragment) {

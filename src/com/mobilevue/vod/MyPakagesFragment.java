@@ -52,7 +52,9 @@ import com.mobilevue.data.OrderDatum;
 import com.mobilevue.data.PlanDatum;
 import com.mobilevue.data.ResponseObj;
 import com.mobilevue.retrofit.OBSClient;
+import com.mobilevue.service.DoBGTasksService;
 import com.mobilevue.utils.Utilities;
+import com.mobilevue.vod.MyApplication.DoBGTasks;
 
 public class MyPakagesFragment extends Fragment {
 	public static String TAG = MyPakagesFragment.class.getName();
@@ -334,6 +336,7 @@ public class MyPakagesFragment extends Fragment {
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		menu.clear();
 		inflater.inflate(R.menu.nav_menu, menu);
 		MenuItem refreshItem = menu.findItem(R.id.action_refresh);
 		refreshItem.setVisible(true);
@@ -682,10 +685,13 @@ public class MyPakagesFragment extends Fragment {
 								Toast.LENGTH_LONG).show();
 					}
 				}
-
-				UpdateUI();
 				Toast.makeText(mActivity, "Plan Change Success",
 						Toast.LENGTH_LONG).show();
+				Intent intent = new Intent(mActivity, DoBGTasksService.class);
+				intent.putExtra(DoBGTasksService.TASK_ID,
+						DoBGTasks.UPDATESERVICES.ordinal());
+				mActivity.startService(intent);
+				UpdateUI();
 			}
 
 		}

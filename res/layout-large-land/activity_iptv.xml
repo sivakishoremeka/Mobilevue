@@ -4,7 +4,7 @@
     android:id="@+id/a_iptv_rl_root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="#FFFFFF" >
 
     <TextView
         android:id="@+id/a_iptv_tv_iptv_channels"
@@ -137,7 +137,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/a_iptv_iv_btm_line2"
-        android:gravity="center_horizontal" >
+        android:gravity="center_horizontal"
+        android:scrollbarDefaultDelayBeforeFade="3000" >
 
         <LinearLayout
             android:id="@+id/a_iptv_ll_channels"

@@ -205,7 +205,6 @@ public class MyApplication extends Application {
 			} finally {
 				// End the transaction
 				db.endTransaction();
-
 			}
 		}
 	}
@@ -291,6 +290,10 @@ public class MyApplication extends Application {
 
 	public enum SortBy {
 		DEFAULT, CATEGORY, LANGUAGE
+	}
+	
+	public enum DoBGTasks {
+		UPDATESERVICES,UPDATECLIENT_CONFIGS
 	}
 	
 	public String getResponseOnSuccess(Response response) {

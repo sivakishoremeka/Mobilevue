@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Locale;
 
 import android.content.Context;
-import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
@@ -35,6 +34,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -198,11 +198,24 @@ public class VideoControllerView extends FrameLayout {
 
 	private void updateChannels(View v, List<ChannelsDatum> list) {
 		int imgno = 0;
+		//delaying fadeout the channel bar on touch
+		HorizontalScrollView hsv = (HorizontalScrollView) v
+		.findViewById(R.id.a_videoplayer_hsw_channels);
+		hsv.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				Message msg = mHandler.obtainMessage(FADE_OUT);
+				mHandler.removeMessages(FADE_OUT);
+				mHandler.sendMessageDelayed(msg,10000);
+				return false;
+			}
+		});
 		LinearLayout channels = (LinearLayout) v
 				.findViewById(R.id.a_video_ll_channels);
-
-		/*final Editor editor = ((MyApplication) mContext.getApplicationContext())
-				.getEditor();*/
+		/*
+		 * final Editor editor = ((MyApplication)
+		 * mContext.getApplicationContext()) .getEditor();
+		 */
 		for (final ChannelsDatum data : list) {
 
 			// editor.putString(data.getChannelName(), data.getUrl());
@@ -231,6 +244,11 @@ public class VideoControllerView extends FrameLayout {
 					if (VideoPlayerActivity.mChannelId != info.channelId)
 						mPlayer.changeChannel(Uri.parse(info.channelURL),
 								info.channelId);
+					
+					//delaying fadeout the channel bar
+					Message msg = mHandler.obtainMessage(FADE_OUT);
+					mHandler.removeMessages(FADE_OUT);
+					mHandler.sendMessageDelayed(msg,20000);
 				}
 			});
 			channels.addView(button);
