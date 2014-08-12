@@ -15,7 +15,7 @@ public class MyAccountActivity extends Activity {
 
 	// private static final String TAG = MyAccountActivity.class.getName();
 	ListView listView;
-	private static final String FRAG_TAG = "My Fragment";
+	static final String FRAG_TAG = "My Fragment";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +65,15 @@ public class MyAccountActivity extends Activity {
 		}
 
 	}
+	
+	public void ChangePwd_onClick(View v) {
+		Fragment frag = getFragmentManager().findFragmentByTag(FRAG_TAG);
+		if (frag instanceof MyProfileFragment) {
+			((MyProfileFragment) frag).ChangePwd_onClick(v);
+		}
+
+	}
+	
 
 	@Override
 	public void onBackPressed() {

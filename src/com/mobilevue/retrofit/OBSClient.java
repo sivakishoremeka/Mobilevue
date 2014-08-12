@@ -6,25 +6,40 @@ import java.util.List;
 import retrofit.Callback;
 import retrofit.http.Body;
 import retrofit.http.GET;
+import retrofit.http.POST;
 import retrofit.http.PUT;
 import retrofit.http.Path;
 import retrofit.http.Query;
 
 import com.mobilevue.data.ActivePlanDatum;
 import com.mobilevue.data.ClientDatum;
+import com.mobilevue.data.ClientnConfigDatum;
 import com.mobilevue.data.DeviceDatum;
 import com.mobilevue.data.EPGData;
 import com.mobilevue.data.MediaDetailRes;
 import com.mobilevue.data.MediaDetailsResDatum;
 import com.mobilevue.data.OrderDatum;
 import com.mobilevue.data.PlanDatum;
-import com.mobilevue.data.ResourceIdentifier;
+import com.mobilevue.data.ResForgetPwd;
+import com.mobilevue.data.ResetPwdDatum;
+import com.mobilevue.data.SenderMailId;
 import com.mobilevue.data.ServiceDatum;
-import com.mobilevue.data.StatusReqDatum;
 import com.mobilevue.data.TemplateDatum;
 
 public interface OBSClient {
 
+	/**
+	 * getClientConfigDataSync get method used to get clientData n configData
+	 * Synchronously
+	 */
+	@GET("/mediadevices/client/{clientId}")
+	ClientnConfigDatum getClientnConfigDataSync(
+			@Path("clientId") String clientId);
+
+	/**
+	 * getMediaDevice get method used to get client details based on device id
+	 * Async'ly
+	 */
 	@GET("/mediadevices/{device}")
 	void getMediaDevice(@Path("device") String device, Callback<DeviceDatum> cb);
 
@@ -68,8 +83,26 @@ public interface OBSClient {
 	@GET("/orders/{clientId}/orders")
 	void getClinetPackageDetails(@Path("clientId") String clientId,
 			Callback<List<OrderDatum>> cb);
-	
+
+	/**
+	 * getMediaDevice put method used to update the device status for the client
+	 * Async'ly
+	 *//*
 	@PUT("/mediadevices/{device}")
-	ResourceIdentifier updateAppStatus(@Path("device") String device,@Body StatusReqDatum request);
-	
+	ResourceIdentifier updateAppStatus(@Path("device") String device,
+			@Body StatusReqDatum request);
+*/
+	/**
+	 * sendPasswordToMail post method used to initiate the server process of
+	 * sending mail to specified MailId Sync'ly. Usage: DoBGTasksService
+	 */
+	@POST("/selfcare/forgotpassword")
+	ResForgetPwd sendPasswordToMail(@Body SenderMailId senderMailId);
+
+	/**
+	 * changePassword put method used to reset the password the server process
+	 * of sending mail to specified MailId Sync'ly. Usage: DoBGTasksService
+	 */
+	@PUT("/selfcare/resetpassword")
+	ResForgetPwd resetPassword(@Body ResetPwdDatum restPwdData);
 }

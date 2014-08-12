@@ -40,6 +40,7 @@ public class VideoPlayerActivity extends Activity implements
 	public boolean stopThread = true;
 	public int currentPosition = 0;
 	public int lastPosition = 0;
+	public int MediaServerDiedCount = 0;
 	BufferrChk bChk = null;
 	private Handler threadHandler = new Handler() {
 		public void handleMessage(Message msg) {
@@ -100,6 +101,7 @@ public class VideoPlayerActivity extends Activity implements
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
+		MediaServerDiedCount = 0;
 		player = new MediaPlayer();
 		player.reset();
 		mUri = Uri.parse(getIntent().getStringExtra("URL"));
@@ -387,6 +389,32 @@ public class VideoPlayerActivity extends Activity implements
 					getApplicationContext(),
 					"Invalid Stream for this channel... Please try other channel",
 					Toast.LENGTH_LONG).show();
+		} else if (what == MediaPlayer.MEDIA_ERROR_SERVER_DIED) {
+			// threadHandler.sendMessage(msg);
+			MediaServerDiedCount++;
+			if(MediaServerDiedCount<2){
+			Toast.makeText(getApplicationContext(),
+					"Server or Network Error.Please wait Connecting...",
+					Toast.LENGTH_LONG).show();
+
+			reinitializeplayer();
+			}
+			else{
+				stopThread = true;
+				if (player != null) {
+					if (player.isPlaying()) {
+						player.stop();
+						player.release();
+						player = null;
+					}
+				}
+				threadHandler.removeMessages(1);
+				threadHandler.removeMessages(0);
+				Toast.makeText(getApplicationContext(),
+						"Server or Network Error.Please try again.",
+						Toast.LENGTH_LONG).show();
+				finish();
+			}
 		} else {
 			controller.mHandler
 					.removeMessages(VideoControllerView.SHOW_PROGRESS);
@@ -436,6 +464,59 @@ public class VideoPlayerActivity extends Activity implements
 		}
 		threadHandler.removeMessages(1);
 		threadHandler.removeMessages(0);
+	}
+
+	private void reinitializeplayer() {
+		if (player != null) {
+			if (player.isPlaying())
+				player.stop();
+			player.release();
+			player = null;
+		}
+		MediaServerDiedCount = 0;
+		player = new MediaPlayer();
+		String videoType = getIntent().getStringExtra("VIDEOTYPE");
+		if (videoType.equalsIgnoreCase("LIVETV")) {
+			isLiveController = true;
+			VideoControllerView.sDefaultTimeout = 3000;
+		} else if (videoType.equalsIgnoreCase("VOD")) {
+			isLiveController = false;
+			VideoControllerView.sDefaultTimeout = 3000;
+		}
+		controller = new VideoControllerView(this, (!isLiveController));
+		try {
+			player.setDisplay(videoSurface.getHolder());
+			player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+			player.setVolume(1.0f, 1.0f);
+			// For the Data to take from previous activity
+			player.setDataSource(this, mUri);
+			player.setOnPreparedListener(this);
+			player.setOnInfoListener(this);
+			player.setOnErrorListener(this);
+
+			if (mProgressDialog != null && mProgressDialog.isShowing()) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			mProgressDialog = new ProgressDialog(VideoPlayerActivity.this,
+					ProgressDialog.THEME_HOLO_DARK);
+			mProgressDialog.setMessage("Connecting Server...");
+			mProgressDialog.setCancelable(true);
+			mProgressDialog.setCanceledOnTouchOutside(false);
+			mProgressDialog.show();
+
+			player.prepareAsync();
+		} catch (IllegalArgumentException e) {
+			Log.e(TAG, e.getMessage());
+		} catch (SecurityException e) {
+			Log.e(TAG, e.getMessage());
+		} catch (IllegalStateException e) {
+			Log.e(TAG, e.getMessage());
+		} catch (IOException e) {
+			Log.e(TAG, e.getMessage());
+		} catch (Exception e) {
+			Log.e(TAG, e.getMessage());
+		}
 	}
 
 	public class BufferrChk extends Thread {

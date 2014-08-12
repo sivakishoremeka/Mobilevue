@@ -33,21 +33,23 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.mobilevue.data.ClientDatum;
 import com.mobilevue.data.RegClientRespDatum;
+import com.mobilevue.data.ResForgetPwd;
 import com.mobilevue.data.ResponseObj;
+import com.mobilevue.data.SenderMailId;
 import com.mobilevue.data.TemplateDatum;
 import com.mobilevue.retrofit.OBSClient;
 import com.mobilevue.utils.Utilities;
 
-public class RegisterActivity extends Activity {
+public class RegisterActivity extends Activity implements
+		ForgetPwdDialogFragment.PwdSubmitClickListener {
 
-	//public static String TAG = RegisterActivity.class.getName();
+	// public static String TAG = RegisterActivity.class.getName();
 	private final static String NETWORK_ERROR = "Network error.";
 	private ProgressDialog mProgressDialog;
 
 	// login
 	EditText et_login_EmailId;
 	EditText et_Password;
-	
 
 	// register
 	EditText et_MobileNumber;
@@ -74,12 +76,18 @@ public class RegisterActivity extends Activity {
 		mOBSClient = mApplication.getOBSClient();
 	}
 
+	public void textForgetPwd_onClick(View v) {
+		showDialog();
+	}
+
 	public void textRegister_onClick(View v) {
 		LinearLayout container = (LinearLayout) findViewById(R.id.a_reg_ll_container);
 		LayoutInflater inflater = this.getLayoutInflater();
 		LinearLayout registerLayout = (LinearLayout) inflater.inflate(
 				R.layout.a_reg_registration_layout, null);
-		registerLayout.setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
+		registerLayout.setLayoutParams(new LayoutParams(
+				android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+				android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
 		container.removeAllViews();
 		container.addView(registerLayout);
 		et_MobileNumber = (EditText) findViewById(R.id.a_reg_et_mobile_no);
@@ -95,7 +103,9 @@ public class RegisterActivity extends Activity {
 		LayoutInflater inflater = this.getLayoutInflater();
 		LinearLayout loginLayout = (LinearLayout) inflater.inflate(
 				R.layout.a_reg_login_layout, null);
-		loginLayout.setLayoutParams(new LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
+		loginLayout.setLayoutParams(new LayoutParams(
+				android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+				android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
 		container.removeAllViews();
 		container.addView(loginLayout);
 	}
@@ -202,10 +212,11 @@ public class RegisterActivity extends Activity {
 		} else if (et_LastName.getText().toString().length() <= 0) {
 			Toast.makeText(RegisterActivity.this, "Please enter Last Name",
 					Toast.LENGTH_LONG).show();
-		}if (et_Password.getText().toString().length() <= 0) {
+		}
+		if (et_Password.getText().toString().length() <= 0) {
 			Toast.makeText(RegisterActivity.this, "Please enter Password",
 					Toast.LENGTH_LONG).show();
-		}else if (email.matches(emailPattern)) {
+		} else if (email.matches(emailPattern)) {
 			ClientDatum client = new ClientDatum();
 			client.setPhone(et_MobileNumber.getText().toString());
 			client.setFirstname(et_FirstName.getText().toString());
@@ -337,7 +348,8 @@ public class RegisterActivity extends Activity {
 							getApplicationContext().getContentResolver(),
 							Settings.Secure.ANDROID_ID);
 					map.put("serialNumber", androidId);
-					map.put("provisioningSerialNumber",androidId);//map.put("provisioningSerialNumber", "PROVISIONINGDATA");
+					map.put("provisioningSerialNumber", androidId);// map.put("provisioningSerialNumber",
+																	// "PROVISIONINGDATA");
 					Date date = new Date();
 					SimpleDateFormat df = new SimpleDateFormat("dd MMMM yyyy",
 							new Locale("en"));
@@ -357,7 +369,8 @@ public class RegisterActivity extends Activity {
 					/** Selfcare user auto signup */
 					if (mApplication.isNetworkAvailable()) {
 						HashMap<String, String> map = new HashMap<String, String>();
-						// {userName: rahman3,uniqueReference:rahman3@gmail.com,password:syedmujeeburrahman1238rahman}
+						// {userName:
+						// rahman3,uniqueReference:rahman3@gmail.com,password:syedmujeeburrahman1238rahman}
 						map.put("TagURL", "/selfcare/password");
 						map.put("userName", clientData.getEmail());
 						map.put("uniqueReference", clientData.getEmail());
@@ -481,7 +494,7 @@ public class RegisterActivity extends Activity {
 					}
 				} catch (JSONException e) {
 					e.printStackTrace();
-					if(resObj.getStatusCode() != 200){
+					if (resObj.getStatusCode() != 200) {
 						resObj.setFailResponse(100, "Json Error");
 						return resObj;
 					}
@@ -496,7 +509,7 @@ public class RegisterActivity extends Activity {
 							getApplicationContext().getContentResolver(),
 							Settings.Secure.ANDROID_ID);
 					map.put("serialNumber", androidId);
-					map.put("provisioningSerialNumber",androidId);
+					map.put("provisioningSerialNumber", androidId);
 					Date date = new Date();
 					SimpleDateFormat df = new SimpleDateFormat("dd MMMM yyyy",
 							new Locale("en"));
@@ -556,4 +569,91 @@ public class RegisterActivity extends Activity {
 				RegClientRespDatum.class);
 		return response;
 	}
+
+	@Override
+	public void onPwdSubmitClickListener(String mailId) {
+		new PwdSenderTask().execute(mailId);
+	}
+
+	private class PwdSenderTask extends
+			AsyncTask<String, Void, ResForgetPwd> {
+
+		retrofit.RetrofitError error = null;
+		int status = -1;
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			if (mProgressDialog != null) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			mProgressDialog = new ProgressDialog(RegisterActivity.this,
+					ProgressDialog.THEME_HOLO_DARK);
+			mProgressDialog.setMessage("Please wait...");
+			mProgressDialog.setCanceledOnTouchOutside(false);
+			mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+				public void onCancel(DialogInterface arg0) {
+					if (mProgressDialog.isShowing())
+						mProgressDialog.dismiss();
+					cancel(true);
+				}
+			});
+			mProgressDialog.show();
+		}
+
+		@Override
+		protected ResForgetPwd doInBackground(String... arg0) {
+
+			String mailId = arg0[0];
+			ResForgetPwd result = null;
+			if (mApplication.isNetworkAvailable()) {
+				OBSClient mOBSClient = mApplication.getOBSClient();
+
+				if (mailId != null && mailId.length() != 0) {
+					try {
+						result = mOBSClient
+								.sendPasswordToMail(new SenderMailId(mailId));
+					} catch (Exception e) {
+						error = ((retrofit.RetrofitError) e);
+						status = error.getResponse().getStatus();
+					}
+				}
+			} else {
+				Toast.makeText(RegisterActivity.this, "Communication Error.",
+						Toast.LENGTH_LONG).show();
+			}
+
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(ResForgetPwd result) {
+			if (mProgressDialog != null) {
+				if (mProgressDialog.isShowing())
+					mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			if (result != null || status == -1) {
+
+				Toast.makeText(RegisterActivity.this,
+						getResources().getString(R.string.password_mail),
+						Toast.LENGTH_LONG).show();
+			} else {
+				final String toastMsg = (status == 403 ? mApplication
+						.getDeveloperMessage(error)
+						: "Server Communication Error");// errMsg;
+				Toast.makeText(RegisterActivity.this, toastMsg,
+						Toast.LENGTH_LONG).show();
+			}
+		}
+	}
+
+	void showDialog() {
+		// Create the fragment and show it as a dialog.
+		ForgetPwdDialogFragment newFragment = new ForgetPwdDialogFragment();
+		newFragment.show(getFragmentManager(), "dialog");
+	}
+
 }

@@ -24,6 +24,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -39,10 +40,14 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.mobilevue.data.ClientDatum;
 import com.mobilevue.data.ConfigurationProperty;
+import com.mobilevue.data.ResForgetPwd;
+import com.mobilevue.data.ResetPwdDatum;
 import com.mobilevue.retrofit.CustomUrlConnectionClient;
 import com.mobilevue.retrofit.OBSClient;
+import com.mobilevue.vod.ChangePwdDialogFragment.ChgPwdSubmitClickListener;
 
-public class MyProfileFragment extends Fragment {
+public class MyProfileFragment extends Fragment implements
+		ChgPwdSubmitClickListener {
 	public static String TAG = MyProfileFragment.class.getName();
 	private ProgressDialog mProgressDialog;
 	MyApplication mApplication = null;
@@ -65,8 +70,8 @@ public class MyProfileFragment extends Fragment {
 				.setLogLevel(RestAdapter.LogLevel.NONE)
 				.setConverter(new JSONConverter())
 				.setClient(
-						new CustomUrlConnectionClient(
-								MyApplication.tenentId, MyApplication.basicAuth,
+						new CustomUrlConnectionClient(MyApplication.tenentId,
+								MyApplication.basicAuth,
 								MyApplication.contentType)).build();
 		mOBSClient = restAdapter.create(OBSClient.class);
 		CLIENT_DATA = mApplication.getResources().getString(
@@ -80,9 +85,7 @@ public class MyProfileFragment extends Fragment {
 		 * items to the Options Menu
 		 */
 		setHasOptionsMenu(true);
-
 		super.onCreate(savedInstanceState);
-
 	}
 
 	private void GetnUpdateFromServer() {
@@ -219,14 +222,14 @@ public class MyProfileFragment extends Fragment {
 					.setText(":   " + client.getPhone());
 			((TextView) mRootView.findViewById(R.id.f_my_profile_country_value))
 					.setText(":   " + client.getCountry());
-			
+
 			String androidId = Settings.Secure.getString(getActivity()
 					.getApplicationContext().getContentResolver(),
 					Settings.Secure.ANDROID_ID);
-			
+
 			((TextView) mRootView.findViewById(R.id.f_my_profile_serial_value))
-					.setText(":   " + androidId);//client.getHwSerialNumber());
-			float bal = client.getBalanceAmount();
+					.setText(":   " + androidId);// client.getHwSerialNumber());
+			float bal = mApplication.getBalance();// client.getBalanceAmount();
 			((TextView) mRootView.findViewById(R.id.f_my_profile_balance_value))
 					.setText(":   " + Float.toString((bal == 0.0 ? bal : -bal))
 							+ " " + client.getCurrency());
@@ -241,6 +244,7 @@ public class MyProfileFragment extends Fragment {
 		refreshItem.setVisible(true);
 		super.onCreateOptionsMenu(menu, inflater);
 	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -307,7 +311,7 @@ public class MyProfileFragment extends Fragment {
 			client.setBalanceAmount((float) jsonObj.getDouble("balanceAmount"));
 			client.setCurrency(jsonObj.getString("currency"));
 			client.setBalanceCheck(jsonObj.getBoolean("balanceCheck"));
-			//client.setHwSerialNumber(MyApplication.androidId);
+			// client.setHwSerialNumber(MyApplication.androidId);
 
 			// paypal config data
 			JSONObject configJson = jsonObj
@@ -326,6 +330,89 @@ public class MyProfileFragment extends Fragment {
 		}
 
 		return client;
+	}
+	
+	public void ChangePwd_onClick(View v) {
+		// Create the fragment and show it as a dialog for pwd change.
+		ChangePwdDialogFragment newFragment = new ChangePwdDialogFragment();
+		newFragment.show(getFragmentManager(), "ChgPwdDialog");
+	}
+	
+	@Override
+	public void onChgPwdSubmitClickListener(ResetPwdDatum data) {
+		new ChangePwdTask().execute(data);
+	}
+
+	private class ChangePwdTask extends
+			AsyncTask<ResetPwdDatum, Void, ResForgetPwd> {
+
+		retrofit.RetrofitError error = null;
+		int status = -1;
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			if (mProgressDialog != null) {
+				mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			mProgressDialog = new ProgressDialog(getActivity(),
+					ProgressDialog.THEME_HOLO_DARK);
+			mProgressDialog.setMessage("Please wait...");
+			mProgressDialog.setCanceledOnTouchOutside(false);
+			mProgressDialog.setOnCancelListener(new OnCancelListener() {
+
+				public void onCancel(DialogInterface arg0) {
+					if (mProgressDialog.isShowing())
+						mProgressDialog.dismiss();
+					cancel(true);
+				}
+			});
+			mProgressDialog.show();
+		}
+
+		@Override
+		protected ResForgetPwd doInBackground(ResetPwdDatum... arg) {
+
+			ResetPwdDatum data = arg[0];
+			ResForgetPwd result = null;
+			if (mApplication.isNetworkAvailable()) {
+				OBSClient mOBSClient = mApplication.getOBSClient();
+				try {
+					result = mOBSClient.resetPassword(data);
+				} catch (Exception e) {
+					error = ((retrofit.RetrofitError) e);
+					status = error.getResponse().getStatus();
+				}
+
+			} else {
+				Toast.makeText(getActivity(), "Communication Error.",
+						Toast.LENGTH_LONG).show();
+			}
+
+			return result;
+		}
+
+		@Override
+		protected void onPostExecute(ResForgetPwd result) {
+			if (mProgressDialog != null) {
+				if (mProgressDialog.isShowing())
+					mProgressDialog.dismiss();
+				mProgressDialog = null;
+			}
+			if (result != null || status == -1) {
+
+				Toast.makeText(getActivity(),
+						getResources().getString(R.string.profile_pwd_changed),
+						Toast.LENGTH_LONG).show();
+			} else {
+				final String toastMsg = (status == 403 ? mApplication
+						.getDeveloperMessage(error)
+						: "Server Communication Error");// errMsg;
+				Toast.makeText(getActivity(), toastMsg, Toast.LENGTH_LONG)
+						.show();
+			}
+		}
 	}
 
 }

@@ -6,9 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -20,8 +17,6 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ExpandableListView;
@@ -30,11 +25,12 @@ import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.mobilevue.adapter.CustomExpandableListAdapter;
-import com.mobilevue.data.DeviceDatum;
 import com.mobilevue.data.PlanDatum;
 import com.mobilevue.data.ResponseObj;
 import com.mobilevue.retrofit.OBSClient;
+import com.mobilevue.service.DoBGTasksService;
 import com.mobilevue.utils.Utilities;
+import com.mobilevue.vod.MyApplication.DoBGTasks;
 
 public class PlanActivity extends Activity {
 
@@ -253,7 +249,17 @@ public class PlanActivity extends Activity {
 			}
 			if (resObj.getStatusCode() == 200) {
 				// update balance config n Values
-				CheckBalancenGetData();
+				Intent intent = new Intent(PlanActivity.this,
+						DoBGTasksService.class);
+				intent.putExtra(DoBGTasksService.TASK_ID,
+						DoBGTasks.UPDATESERVICES_CONFIGS.ordinal());
+				startService(intent);
+
+				Intent activityIntent = new Intent(PlanActivity.this,
+						MainActivity.class);
+				PlanActivity.this.finish();
+				startActivity(activityIntent);
+				//CheckBalancenGetData();
 			} else {
 				Toast.makeText(PlanActivity.this, resObj.getsErrorMessage(),
 						Toast.LENGTH_LONG).show();
@@ -261,7 +267,7 @@ public class PlanActivity extends Activity {
 		}
 	}
 
-	private void CheckBalancenGetData() {
+	/*private void CheckBalancenGetData() {
 		// Log.d("PlanActivity","CheckBalancenGetData");
 		validateDevice();
 	}
@@ -386,5 +392,5 @@ public class PlanActivity extends Activity {
 			}
 
 		}
-	};
+	};*/
 }

@@ -39,7 +39,9 @@ import com.mobilevue.data.MediaDetailsResDatum;
 import com.mobilevue.data.PriceDetail;
 import com.mobilevue.data.ResponseObj;
 import com.mobilevue.retrofit.OBSClient;
+import com.mobilevue.service.DoBGTasksService;
 import com.mobilevue.utils.Utilities;
+import com.mobilevue.vod.MyApplication.DoBGTasks;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.paypal.android.sdk.payments.PayPalPayment;
 import com.paypal.android.sdk.payments.PayPalService;
@@ -83,8 +85,13 @@ public class VodMovieDetailsActivity extends Activity {
 				&& (!(eventId.equalsIgnoreCase("")) || eventId != null)) {
 			RelativeLayout rl = (RelativeLayout) findViewById(R.id.a_vod_mov_dtls_root_layout);
 			rl.setVisibility(View.INVISIBLE);
-			// UpdateDetails();
-			validateDevice();
+
+			Intent updateDataIntent = new Intent(VodMovieDetailsActivity.this,
+					DoBGTasksService.class);
+			updateDataIntent.putExtra(DoBGTasksService.TASK_ID,
+					DoBGTasks.UPDATECLIENT_CONFIGS.ordinal());
+			VodMovieDetailsActivity.this.startService(updateDataIntent);
+			UpdateDetails();
 		}
 
 	}
@@ -413,135 +420,6 @@ public class VodMovieDetailsActivity extends Activity {
 				rl.setVisibility(View.VISIBLE);
 		}
 	}
-
-	private void validateDevice() {
-
-		// Log.d("VodMovieDetailsActivity","validateDevice");
-		if (mProgressDialog != null && mProgressDialog.isShowing()) {
-			mProgressDialog.dismiss();
-			mProgressDialog = null;
-		}
-
-		mProgressDialog = new ProgressDialog(this,
-				ProgressDialog.THEME_HOLO_DARK);
-		mProgressDialog.setMessage("Connecting Server...");
-		mProgressDialog.setCanceledOnTouchOutside(false);
-		mProgressDialog.setOnCancelListener(new OnCancelListener() {
-
-			public void onCancel(DialogInterface arg0) {
-				if (mProgressDialog.isShowing())
-					mProgressDialog.dismiss();
-				mProgressDialog = null;
-				mIsReqCanceled = true;
-			}
-		});
-		mProgressDialog.show();
-
-		String androidId = Settings.Secure.getString(this
-				.getApplicationContext().getContentResolver(),
-				Settings.Secure.ANDROID_ID);
-		mOBSClient.getMediaDevice(androidId, deviceCallBack);
-
-	}
-
-	final Callback<DeviceDatum> deviceCallBack = new Callback<DeviceDatum>() {
-
-		@Override
-		public void success(DeviceDatum device, Response arg1) {
-			// Log.d("VodMovieDetailsActivity","success");
-			if (!mIsReqCanceled) {
-				if (mProgressDialog != null) {
-					mProgressDialog.dismiss();
-					mProgressDialog = null;
-				}
-				if (device != null) {
-					try {
-						mApplication.setClientId(Long.toString(device
-								.getClientId()));
-						mApplication.setBalance(device.getBalanceAmount());
-						mApplication.setBalanceCheck(device.isBalanceCheck());
-						mApplication.setCurrency(device.getCurrency());
-						boolean isPayPalReq = false;
-						if (device.getPaypalConfigData() != null)
-							isPayPalReq = device.getPaypalConfigData()
-									.getEnabled();
-						isPayPalReq = device.getPaypalConfigData().getEnabled();
-						mApplication.setPayPalCheck(isPayPalReq);
-						if (isPayPalReq) {
-							String value = device.getPaypalConfigData()
-									.getValue();
-							if (value != null && value.length() > 0) {
-								try {
-									JSONObject json = new JSONObject(value);
-									if (json != null) {
-										mApplication.setPayPalClientID(json
-												.get("clientId").toString());
-									}
-								} catch (JSONException e) {
-									Log.e("VodMovieDetailsActivity",
-											(e.getMessage() == null) ? "Json Exception"
-													: e.getMessage());
-									Toast.makeText(
-											VodMovieDetailsActivity.this,
-											"Invalid Data-Json Exception",
-											Toast.LENGTH_LONG).show();
-								}
-							} else
-								Toast.makeText(VodMovieDetailsActivity.this,
-										"Invalid Data for PayPal details",
-										Toast.LENGTH_LONG).show();
-						}
-					} catch (NullPointerException npe) {
-						Log.e("VodMovieDetailsActivity",
-								(npe.getMessage() == null) ? "NPE Exception"
-										: npe.getMessage());
-						Toast.makeText(VodMovieDetailsActivity.this,
-								"Invalid Data-NPE Error", Toast.LENGTH_LONG)
-								.show();
-					} catch (Exception e) {
-						Log.e("VodMovieDetailsActivity",
-								(e.getMessage() == null) ? "Exception" : e
-										.getMessage());
-						Toast.makeText(VodMovieDetailsActivity.this,
-								"Invalid Data-Error", Toast.LENGTH_LONG).show();
-					}
-
-					UpdateDetails();
-				}
-			}
-			mIsReqCanceled = false;
-		}
-
-		@Override
-		public void failure(RetrofitError retrofitError) {
-			// Log.d("VodMovieDetailsActivity","failure");
-			if (!mIsReqCanceled) {
-				if (mProgressDialog != null) {
-					mProgressDialog.dismiss();
-					mProgressDialog = null;
-				}
-				if (retrofitError.isNetworkError()) {
-					Toast.makeText(VodMovieDetailsActivity.this,
-							getString(R.string.error_network),
-							Toast.LENGTH_LONG).show();
-				} else if (retrofitError.getResponse().getStatus() == 403) {
-					String msg = mApplication
-							.getDeveloperMessage(retrofitError);
-					msg = (msg != null && msg.length() > 0 ? msg
-							: "Internal Server Error");
-					Toast.makeText(VodMovieDetailsActivity.this, msg,
-							Toast.LENGTH_LONG).show();
-				} else {
-					Toast.makeText(
-							VodMovieDetailsActivity.this,
-							"Server Error : "
-									+ retrofitError.getResponse().getStatus(),
-							Toast.LENGTH_LONG).show();
-				}
-			}
-			mIsReqCanceled = false;
-		}
-	};
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {

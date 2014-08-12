@@ -588,7 +588,14 @@ public class MyPakagesFragment extends Fragment {
 			}
 			if (resObj.getStatusCode() == 200) {
 				// update balance config n Values
-				CheckBalancenGetData();
+				Toast.makeText(mActivity, "Plan Change Success",
+						Toast.LENGTH_LONG).show();
+				Intent intent = new Intent(mActivity, DoBGTasksService.class);
+				intent.putExtra(DoBGTasksService.TASK_ID,
+						DoBGTasks.UPDATESERVICES_CONFIGS.ordinal());
+				mActivity.startService(intent);
+				UpdateUI();
+				//CheckBalancenGetData();
 			} else {
 				Toast.makeText(getActivity(), resObj.getsErrorMessage(),
 						Toast.LENGTH_LONG).show();
@@ -596,7 +603,7 @@ public class MyPakagesFragment extends Fragment {
 		}
 	}
 
-	private void CheckBalancenGetData() {
+	/*private void CheckBalancenGetData() {
 		// Log.d("PlanActivity","CheckBalancenGetData");
 		validateDevice();
 	}
@@ -728,7 +735,7 @@ public class MyPakagesFragment extends Fragment {
 
 		}
 	};
-
+*/
 	public void onBackPressed() {
 		Button btn = (Button) mRootView.findViewById(R.id.a_plan_btn_submit);
 		if (btn.getText().toString()

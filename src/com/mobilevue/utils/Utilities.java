@@ -146,8 +146,8 @@ public class Utilities {
 					"application/json"));
 			httpPost.setEntity(se);
 
-			// Log.d("ApiPostMethod : URL", httpPost.getURI().toString());
-			// Log.d("ApiPostMethod : ", json.toString());
+			 //Log.d("ApiPostMethod : URL", httpPost.getURI().toString());
+			 //Log.d("ApiPostMethod : ", json.toString());
 
 			HttpResponse response = client.execute(httpPost);
 			StatusLine statusLine = response.getStatusLine();
@@ -163,6 +163,7 @@ public class Utilities {
 					builder.append(line);
 				}
 				resObj.setSuccessResponse(statusCode, builder.toString());
+				//Log.d("ApiPostMethod : ", builder.toString());
 			} else if (statusCode == 404) {
 				resObj.setFailResponse(statusCode, statusCode
 						+ " Communication Error.Please try again.");
@@ -347,6 +348,81 @@ public class Utilities {
 		return resObj;
 	}
 
+	public static ResponseObj callExternalApiPutMethod(String url, String tId,
+			String bAuth, String cType, HashMap<String, String> param) {
+		ResponseObj resObj = new ResponseObj();
+		StringBuilder builder = new StringBuilder();
+		HttpClient client = MySSLSocketFactory.getNewHttpClient();
+		url += (param.get("TagURL"));
+		param.remove("TagURL");
+		JSONObject json = new JSONObject();
+		try {
+
+			HttpPut httpPut = new HttpPut(url);
+			httpPut.setHeader("X-Obs-Platform-TenantId", tId);
+			httpPut.setHeader("Authorization", bAuth);
+			httpPut.setHeader("Content-Type", cType);
+			for (int i = 0; i < param.size(); i++) {
+				json.put((String) param.keySet().toArray()[i], (String) param
+						.values().toArray()[i]);
+			}
+			StringEntity se = null;
+			se = new StringEntity(json.toString());
+			se.setContentType(cType);
+			se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, cType));
+			httpPut.setEntity(se);
+
+			// Log.d("ApiPutMethod : URL", httpPut.getURI().toString());
+			// Log.d("ApiPutMethod : ", json.toString());
+
+			HttpResponse response = client.execute(httpPut);
+			StatusLine statusLine = response.getStatusLine();
+			int statusCode = statusLine.getStatusCode();
+			HttpEntity entity;
+			if (statusCode == 200) {
+				entity = response.getEntity();
+				InputStream content = entity.getContent();
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(content));
+				String line;
+				while ((line = reader.readLine()) != null) {
+					builder.append(line);
+				}
+				resObj.setSuccessResponse(statusCode, builder.toString());
+			} else if (statusCode == 404) {
+				resObj.setFailResponse(statusCode, statusCode
+						+ " Communication Error.Please try again.");
+				Log.e("callExternalAPI", statusCode
+						+ " Communication Error.Please try again.");
+			} else {
+				entity = response.getEntity();
+				String content = EntityUtils.toString(entity);
+				String sError = new JSONObject(content).getJSONArray("errors")
+						.getJSONObject(0).getString("developerMessage");
+				resObj.setFailResponse(statusCode, sError);
+				Log.e("callExternalAPI", sError + statusCode);
+			}
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+			resObj.setFailResponse(100, "No Valid Data");
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			resObj.setFailResponse(100, "Unknown Server Address.");
+		} catch (ConnectTimeoutException e) {
+			e.printStackTrace();
+			resObj.setFailResponse(100,
+					"Connection timed out.Please try again.");
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			resObj.setFailResponse(100, "Please send proper information");
+		} catch (Exception e) {
+			e.printStackTrace();
+			resObj.setFailResponse(100, "Communication Error.Please try again.");
+		}
+		return resObj;
+	}
+	
 	public static boolean isNetworkAvailable(Context context) {
 		ConnectivityManager connectivityManager = (ConnectivityManager) context
 				.getSystemService(Context.CONNECTIVITY_SERVICE);

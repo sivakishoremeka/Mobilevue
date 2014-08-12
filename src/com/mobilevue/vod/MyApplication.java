@@ -39,6 +39,7 @@ import com.mobilevue.database.DBHelper;
 import com.mobilevue.imagehandler.AuthImageDownloader;
 import com.mobilevue.retrofit.CustomUrlConnectionClient;
 import com.mobilevue.retrofit.OBSClient;
+import com.mobilevue.utils.CrashReportSender;
 import com.nostra13.universalimageloader.cache.memory.impl.LruMemoryCache;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -83,8 +84,7 @@ public class MyApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 
-		// The following line triggers the initialization of ACRA
-		ACRA.init(this);
+		
 
 		/** initializing the ImageLoader instance */
 		DisplayImageOptions defaultOptions = new DisplayImageOptions.Builder()
@@ -117,6 +117,13 @@ public class MyApplication extends Application {
 		editor = prefs.edit();
 		//androidId = Settings.Secure.getString(getApplicationContext()
 		//		.getContentResolver(), Settings.Secure.ANDROID_ID);
+		
+		
+		// The following line triggers the initialization of ACRA
+				ACRA.init(this);
+				CrashReportSender crashReportSender = new CrashReportSender(API_URL,
+						tenentId, basicAuth, contentType);
+				ACRA.getErrorReporter().setReportSender(crashReportSender);
 	}
 
 	public boolean isNetworkAvailable() {
@@ -293,7 +300,7 @@ public class MyApplication extends Application {
 	}
 	
 	public enum DoBGTasks {
-		UPDATESERVICES,UPDATECLIENT_CONFIGS
+		UPDATESERVICES_CONFIGS, UPDATECLIENT_CONFIGS, SENDMAIL_FORGETPWD
 	}
 	
 	public String getResponseOnSuccess(Response response) {
@@ -364,6 +371,7 @@ public class MyApplication extends Application {
 		getEditor().putString("CLIENTID", clientId);
 		getEditor().commit();
 		this.clientId = clientId;
+		CrashReportSender.ClientId = clientId;
 	}
 
 	public SharedPreferences getPrefs() {
