@@ -398,7 +398,7 @@ public class RegisterActivity extends Activity implements
 				mProgressDialog = null;
 			}
 
-			if (resObj.getStatusCode() == 200 || mIsHWAlocated) {
+			if (resObj.getStatusCode() == 200 && mIsHWAlocated) {
 				Intent intent = new Intent(RegisterActivity.this,
 						PlanActivity.class);
 				RegisterActivity.this.finish();

@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
 import com.mobilevue.vod.R;
 
 public class VodCategoryAdapter extends BaseAdapter {

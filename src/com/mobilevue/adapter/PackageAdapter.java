@@ -50,7 +50,7 @@ public class PackageAdapter extends BaseExpandableListAdapter {
 		if (convertView == null) {
 			LayoutInflater infalInflater = (LayoutInflater) this._context
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			convertView = infalInflater.inflate(R.layout.plan_list_item, null);
+			convertView = infalInflater.inflate(R.layout.plan_list_item,null);
 		}
 
 		TextView txtListChild = (TextView) convertView
@@ -97,7 +97,7 @@ public class PackageAdapter extends BaseExpandableListAdapter {
 		RadioButton rb1 = (RadioButton) convertView
 				.findViewById(R.id.plan_list_plan_rb);
 		rb1.setFocusable(false);
-		if (MyPakagesFragment.selectedGroupItem == groupPosition) {
+		if (MyPakagesFragment.selGroupId == groupPosition) {
 			rb1.setChecked(true);
 		}
 		else
@@ -117,7 +117,7 @@ public class PackageAdapter extends BaseExpandableListAdapter {
 							rb.setChecked(false);
 						}
 					}
-					MyPakagesFragment.selectedGroupItem = (Integer) ((RadioButton) v)
+					MyPakagesFragment.selGroupId = (Integer) ((RadioButton) v)
 							.getTag();
 				}
 			}

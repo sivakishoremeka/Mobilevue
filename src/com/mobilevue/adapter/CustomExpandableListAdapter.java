@@ -97,11 +97,9 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 		RadioButton rb1 = (RadioButton) convertView
 				.findViewById(R.id.plan_list_plan_rb);
 		rb1.setFocusable(false);
-		if (PlanActivity.selectedGroupItem == groupPosition) {
+		if (PlanActivity.selGroupId == groupPosition) {
 			rb1.setChecked(true);
-		}
-		else
-		{
+		} else {
 			rb1.setChecked(false);
 		}
 		rb1.setTag(groupPosition);
@@ -113,11 +111,11 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 					for (int i = 0; i < _mapRButton.size(); i++) {
 						RadioButton rb = _mapRButton.get(i);
 						int tag = (Integer) ((RadioButton) v).getTag();
-						if (null != rb && tag!=i) {
+						if (null != rb && tag != i) {
 							rb.setChecked(false);
 						}
 					}
-					PlanActivity.selectedGroupItem = (Integer) ((RadioButton) v)
+					PlanActivity.selGroupId = (Integer) ((RadioButton) v)
 							.getTag();
 				}
 			}

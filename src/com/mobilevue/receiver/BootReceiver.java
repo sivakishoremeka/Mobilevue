@@ -1,6 +1,7 @@
 package com.mobilevue.receiver;
 
 import com.mobilevue.service.ScheduleAfterBootService;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;

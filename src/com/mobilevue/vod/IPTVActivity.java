@@ -13,11 +13,15 @@ import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -76,6 +80,8 @@ public class IPTVActivity extends FragmentActivity {
 	boolean requiredLiveData = false;
 
 	AlertDialog mConfirmDialog;
+	
+	public static int INSTALL_MXPLAYER_MARKET = 1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -222,14 +228,88 @@ public class IPTVActivity extends FragmentActivity {
 			intent.setClass(getApplicationContext(), VideoPlayerActivity.class);
 			startActivity(intent);
 			break;
-		case MXPLAYER:
-			intent.setClass(getApplicationContext(), MXPlayerActivity.class);
-			startActivity(intent);
+		case MXPLAYER:			
+			initiallizeMXPlayer();
 			break;
 		default:
 			intent.setClass(getApplicationContext(), VideoPlayerActivity.class);
 			startActivity(intent);
 			break;
+		}
+	}
+
+	private void initiallizeMXPlayer() {
+		//String TAG = "mxvp.intent.test";
+		String MXVP = "com.mxtech.videoplayer.ad";
+		String MXVP_PRO = "com.mxtech.videoplayer.pro";
+
+		String MXVP_PLAYBACK_CLASS = "com.mxtech.videoplayer.ad.ActivityScreen";
+		//String MXVP_PRO_PLAYBACK_CLASS = "com.mxtech.videoplayer.ActivityScreen";
+
+		//String RESULT_VIEW = "com.mxtech.intent.result.VIEW";
+		String EXTRA_DECODE_MODE = "decode_mode"; // (byte)
+		String EXTRA_SECURE_URI = "secure_uri";
+		//String EXTRA_VIDEO_LIST = "video_list";
+		//String EXTRA_SUBTITLES = "subs";
+		//String EXTRA_SUBTITLES_ENABLE = "subs.enable";
+		//String EXTRA_TITLE = "title";
+		//String EXTRA_POSITION = "position";
+		String EXTRA_RETURN_RESULT = "return_result";
+		String EXTRA_HEADERS = "headers";
+		
+		Uri mUri = Uri.parse(mChannelURL);
+		Intent i = new Intent(Intent.ACTION_VIEW);
+		i.setDataAndType(mUri, "application/*");
+		i.putExtra(EXTRA_SECURE_URI, true);
+		// s/w decoder
+		i.putExtra(EXTRA_DECODE_MODE, (byte) 2);
+		// request result
+		i.putExtra(EXTRA_RETURN_RESULT, true);
+		String[] headers = new String[] { "User-Agent",
+				"MX Player Caller App/1.0", "Extra-Header", "911" };
+		i.putExtra(EXTRA_HEADERS, headers);
+		try {
+			i.setPackage(MXVP_PRO);
+			PackageManager pm = getPackageManager();
+			ResolveInfo info = pm.resolveActivity(i,
+					PackageManager.MATCH_DEFAULT_ONLY);
+			if (info == null) {
+			i.setPackage(MXVP);
+			i.setClassName(MXVP, MXVP_PLAYBACK_CLASS);
+			info = pm.resolveActivity(i,
+					PackageManager.MATCH_DEFAULT_ONLY);
+			if (info == null) {
+				AlertDialog mConfirmDialog = ((MyApplication) getApplicationContext())
+						.getConfirmDialog(this);
+				mConfirmDialog.setMessage("MXPlayer is not found in Device. Are you sure to download from Play Store.??");
+				mConfirmDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								Intent goToMarket = new Intent(Intent.ACTION_VIEW)
+							    .setData(Uri.parse("market://details?id=com.mxtech.videoplayer.ad&hl=en"));
+								startActivityForResult(goToMarket,INSTALL_MXPLAYER_MARKET);
+							}
+						});
+				mConfirmDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+							}
+						});
+				mConfirmDialog.show();
+			} else{
+			startActivity(i);
+			return;
+			}
+			}
+			else
+			{
+				startActivity(i);
+				return;
+			}
+		} catch (ActivityNotFoundException e2) {
+			Log.e("MxException", e2.getMessage().toString());
 		}
 	}
 
@@ -342,6 +422,11 @@ public class IPTVActivity extends FragmentActivity {
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		/** After Installation, start MXPLayer... */
+		if(requestCode == INSTALL_MXPLAYER_MARKET){
+			initiallizeMXPlayer();
+			return;
+		}
 		/** Stop PayPalIntent Service... */
 		stopService(new Intent(this, PayPalService.class));
 		if (mConfirmDialog != null && mConfirmDialog.isShowing()) {

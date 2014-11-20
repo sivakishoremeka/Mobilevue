@@ -19,6 +19,7 @@ import com.mobilevue.data.EPGData;
 import com.mobilevue.data.MediaDetailRes;
 import com.mobilevue.data.MediaDetailsResDatum;
 import com.mobilevue.data.OrderDatum;
+import com.mobilevue.data.Paytermdatum;
 import com.mobilevue.data.PlanDatum;
 import com.mobilevue.data.ResForgetPwd;
 import com.mobilevue.data.ResetPwdDatum;
@@ -28,6 +29,8 @@ import com.mobilevue.data.TemplateDatum;
 
 public interface OBSClient {
 
+	//https://41.76.90.173:8181/obsplatform/api/v1
+	
 	/**
 	 * getClientConfigDataSync get method used to get clientData n configData
 	 * Synchronously
@@ -35,7 +38,6 @@ public interface OBSClient {
 	@GET("/mediadevices/client/{clientId}")
 	ClientnConfigDatum getClientnConfigDataSync(
 			@Path("clientId") String clientId);
-
 	/**
 	 * getMediaDevice get method used to get client details based on device id
 	 * Async'ly
@@ -53,6 +55,9 @@ public interface OBSClient {
 	@GET("/plans?planType=prepaid")
 	void getPrepaidPlans(Callback<List<PlanDatum>> cb);
 
+	@GET("/orders/{planid}/template?template=true")
+	void getPlanPayterms(@Path("planid") String planid, Callback<List<Paytermdatum>> cb);
+	
 	@GET("/planservices/{clientId}?serviceType=IPTV")
 	ArrayList<ServiceDatum> getPlanServicesSync(
 			@Path("clientId") String clientId);
