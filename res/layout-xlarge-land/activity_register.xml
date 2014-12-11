@@ -1,7 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#FF7C00"
+    android:background="@color/orange"
     android:orientation="vertical" >
 
     <ScrollView
@@ -15,8 +15,8 @@
 
             <ImageView
                 android:id="@+id/a_reg_iv_img_acc"
-                android:layout_width="140dp"
-                android:layout_height="110dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="8dp"
                 android:layout_marginTop="8dp"
@@ -24,13 +24,13 @@
 
             <LinearLayout
                 android:id="@+id/a_reg_ll_container"
-                android:layout_width="390dp"
+                android:layout_width="420dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:orientation="vertical" >
 
                 <LinearLayout
-                    android:layout_width="390dp"
+                    android:layout_width="420dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:background="@drawable/img_bg_reg_forum"
@@ -45,38 +45,38 @@
                         android:layout_marginTop="15dp"
                         android:text="@string/user_login"
                         android:textColor="#5A5A5A"
-                        android:textSize="23sp"
+                        android:textSize="25sp"
                         android:textStyle="bold" />
 
                     <EditText
                         android:id="@+id/a_reg_et_login_email_id"
-                        android:layout_width="300dp"
-                        android:layout_height="35dp"
+                        android:layout_width="340dp"
+                        android:layout_height="37dp"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginBottom="22dp"
                         android:background="@drawable/img_et_reg"
-                        android:hint="@string/email_id"
                         android:inputType="textEmailAddress"
                         android:paddingLeft="10dp"
-                        android:textSize="18sp" >
+                        android:text="@string/email_id"
+                        android:textSize="22sp" >
 
                         <requestFocus />
                     </EditText>
 
                     <EditText
                         android:id="@+id/a_reg_et_password"
-                        android:layout_width="300dp"
-                        android:layout_height="35dp"
+                        android:layout_width="340dp"
+                        android:layout_height="37dp"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginBottom="22dp"
                         android:background="@drawable/img_et_reg"
-                        android:hint="@string/password"
                         android:inputType="textPassword"
                         android:paddingLeft="10dp"
-                        android:textSize="18sp" />
+                        android:text="@string/password"
+                        android:textSize="22sp" />
 
                     <LinearLayout
-                        android:layout_width="300dp"
+                        android:layout_width="340dp"
                         android:layout_height="40dp"
                         android:layout_gravity="center_horizontal"
                         android:layout_marginBottom="8dp"
@@ -114,20 +114,20 @@
                         android:onClick="textForgetPwd_onClick"
                         android:text="@string/reg_forget_pwd"
                         android:textColor="#0AA4E6"
-                        android:textSize="17sp" />
+                        android:textSize="20sp" />
 
                     <TextView
                         android:id="@+id/a_reg_tv_register"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="15dp"
-                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="12dp"
+                        android:layout_marginTop="4dp"
                         android:clickable="true"
                         android:gravity="center_horizontal"
                         android:onClick="textRegister_onClick"
                         android:text="@string/reg_new_user"
                         android:textColor="#0AA4E6"
-                        android:textSize="19sp" />
+                        android:textSize="20sp" />
 
                     <TextView
                         android:id="@+id/a_reg_tv_note"
@@ -140,7 +140,7 @@
                         android:gravity="center_horizontal"
                         android:text="@string/reg_note"
                         android:textColor="#5A5A5A"
-                        android:textSize="14sp" />
+                        android:textSize="16sp" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

@@ -24,6 +24,11 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		// logout logic
+				boolean isLogout = getIntent().getBooleanExtra("LOGOUT", false);
+				if (isLogout) {
+					finish();
+				}
 		setContentView(R.layout.activity_main);
 
 		listView = (ListView) findViewById(R.id.a_main_lv_menu);
@@ -61,6 +66,9 @@ public class MainActivity extends Activity {
 		case R.id.action_account:
 			startActivity(new Intent(this, MyAccountActivity.class));
 			break;
+		case R.id.action_logout:
+			logout();
+			break;
 		default:
 			break;
 		}
@@ -86,6 +94,41 @@ public class MainActivity extends Activity {
 			return super.onKeyDown(keyCode, event);
 		}
 		return super.onKeyDown(keyCode, event);
+	}
+	
+	public void logout() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this,
+				AlertDialog.THEME_HOLO_LIGHT);
+		builder.setIcon(R.drawable.ic_logo_confirm_dialog);
+		builder.setTitle("Confirmation");
+		builder.setMessage("Are you sure to Logout?");
+		builder.setCancelable(false);
+		AlertDialog dialog = builder.create();
+		dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int buttonId) {
+					}
+				});
+		dialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+						// Clear shared preferences..
+						((MyApplication) getApplicationContext()).getEditor().clear().commit();
+						// close all activities..
+						Intent Closeintent = new Intent(MainActivity.this,
+								MainActivity.class);
+						// set the new task and clear flags
+						Closeintent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK
+								| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						Closeintent.putExtra("LOGOUT", true);
+						startActivity(Closeintent);
+						finish();
+					}
+				});
+		dialog.show();
+
 	}
 
 }

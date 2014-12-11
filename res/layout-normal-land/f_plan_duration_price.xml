@@ -12,7 +12,7 @@
         android:layout_alignParentTop="true"
         android:gravity="center"
         android:padding="15dp"
-        android:background="#FF7C00"
+        android:background="@color/orange"
         android:text="@string/sel_pkg"
         android:textColor="#FFFFFF"
         android:textSize="20sp"
@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="3dp"
         android:layout_below="@+id/f_plan_d_p_tv_selpkg"
-        android:background="#FF7C00" />
+        android:background="@color/orange" />
 
     <LinearLayout
         android:id="@+id/f_plan_d_p_linlayout"
@@ -55,7 +55,7 @@
         android:layout_above="@+id/f_plan_d_p_linlayout"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/f_plan_d_p_hr_line1"
-        android:divider="#FF7C00"
+        android:divider="@color/orange"
         android:dividerHeight="2dp"
         android:scrollbars="vertical" />
 

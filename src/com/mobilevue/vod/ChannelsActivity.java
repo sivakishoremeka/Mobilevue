@@ -1,19 +1,25 @@
 package com.mobilevue.vod;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
+import android.content.ActivityNotFoundException;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
@@ -40,11 +46,16 @@ import com.mobilevue.database.ServiceProvider;
 import com.mobilevue.retrofit.OBSClient;
 import com.mobilevue.vod.MyApplication.SortBy;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.paypal.android.sdk.payments.PayPalPayment;
+import com.paypal.android.sdk.payments.PayPalService;
+import com.paypal.android.sdk.payments.PaymentActivity;
 
 public class ChannelsActivity extends Activity implements
 		LoaderCallbacks<Cursor> {
 
 	// private final String TAG = ChannelsActivity.this.getClass().getName();
+	public final static String CHANNEL_DESC = "Channel Desc";
+	public final static String CHANNEL_URL = "URL";
 	private ProgressDialog mProgressDialog;
 
 	MyApplication mApplication = null;
@@ -56,6 +67,10 @@ public class ChannelsActivity extends Activity implements
 	String mSelection;
 	String[] mSelectionArgs;
 	boolean mIsRefresh = false;
+	AlertDialog mConfirmDialog;
+	private String mChannelURL;
+	private int mChannelId;
+	public static int INSTALL_MXPLAYER_MARKET = 1;
 
 	public static int mSortBy = SortBy.CATEGORY.ordinal();
 
@@ -154,6 +169,9 @@ public class ChannelsActivity extends Activity implements
 		case R.id.action_sort_by_lang:
 			mSortBy = SortBy.LANGUAGE.ordinal();
 			getServices();
+			break;
+		case R.id.action_logout:
+			logout();
 			break;
 		default:
 			break;
@@ -269,14 +287,88 @@ public class ChannelsActivity extends Activity implements
 				public void onItemClick(AdapterView<?> parent, View imageVw,
 						int position, long arg3) {
 					ServiceDatum service = list.get(position);
+					mChannelId = service.getServiceId();
+					mChannelURL =  service.getUrl();
 					mApplication.getEditor().putString(
-							IPTVActivity.CHANNEL_DESC,
+							CHANNEL_DESC,
 							service.getChannelDescription());
 					mApplication.getEditor().putString(
-							IPTVActivity.CHANNEL_URL, service.getUrl());
+							CHANNEL_URL, service.getUrl());
 					mApplication.getEditor().commit();
-					startActivity(new Intent(ChannelsActivity.this,
-							IPTVActivity.class));
+					//startActivity(new Intent(ChannelsActivity.this,
+					//		IPTVActivity.class));
+					
+					if (mApplication.balanceCheck == true
+							&& (mApplication.getBalance() > 0)) {
+						final boolean isPayPalChk = mApplication
+								.isPayPalCheck();
+						AlertDialog.Builder builder = new AlertDialog.Builder(
+								(ChannelsActivity.this),
+								AlertDialog.THEME_HOLO_LIGHT);
+						builder.setIcon(R.drawable.ic_logo_confirm_dialog);
+						builder.setTitle("Confirmation");
+						String msg = "Insufficient Balance."
+								+ (isPayPalChk == true ? "Go to PayPal ??"
+										: "Please do Payment.");
+						builder.setMessage(msg);
+						builder.setCancelable(true);
+						mConfirmDialog = builder.create();
+						mConfirmDialog.setButton(AlertDialog.BUTTON_NEGATIVE,
+								(isPayPalChk == true ? "No" : ""),
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int buttonId) {
+									}
+								});
+						mConfirmDialog.setButton(AlertDialog.BUTTON_POSITIVE,
+								(isPayPalChk == true ? "Yes" : "Ok"),
+								new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
+										if (isPayPalChk == true) {
+											Intent svcIntent = new Intent(
+													ChannelsActivity.this,
+													PayPalService.class);
+
+											svcIntent
+													.putExtra(
+															PayPalService.EXTRA_PAYPAL_CONFIGURATION,
+															mApplication
+																	.getPaypalConfig());
+
+											startService(svcIntent);
+
+											PayPalPayment paymentData = new PayPalPayment(
+													new BigDecimal(mApplication
+															.getBalance()),
+													mApplication.getCurrency(),
+													getResources().getString(
+															R.string.app_name)
+															+ " -Payment",
+													PayPalPayment.PAYMENT_INTENT_SALE);
+
+											Intent actviIntent = new Intent(
+													ChannelsActivity.this,
+													PaymentActivity.class);
+
+											actviIntent
+													.putExtra(
+															PaymentActivity.EXTRA_PAYMENT,
+															paymentData);
+
+											startActivityForResult(
+													actviIntent,
+													MyApplication.REQUEST_CODE_PAYMENT);
+										}
+									}
+								});
+						mConfirmDialog.show();
+					} else {
+						startMediaPlayer();
+					}
+					
+					
 				}
 			});
 			LinearLayout layout = (LinearLayout) findViewById(R.id.a_ch_parent_layout);
@@ -285,6 +377,104 @@ public class ChannelsActivity extends Activity implements
 					LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		}
 	}
+	
+	
+	protected void startMediaPlayer() {
+
+		Intent intent = new Intent();
+		intent.putExtra("VIDEOTYPE", "LIVETV");
+		intent.putExtra(CHANNEL_URL, mChannelURL);
+		intent.putExtra("CHANNELID", mChannelId);
+		switch (MyApplication.player) {
+		case NATIVE_PLAYER:
+			intent.setClass(getApplicationContext(), VideoPlayerActivity.class);
+			startActivity(intent);
+			break;
+		case MXPLAYER:			
+			initiallizeMXPlayer();
+			break;
+		default:
+			intent.setClass(getApplicationContext(), VideoPlayerActivity.class);
+			startActivity(intent);
+			break;
+		}
+	}
+
+	private void initiallizeMXPlayer() {
+		//String TAG = "mxvp.intent.test";
+		String MXVP = "com.mxtech.videoplayer.ad";
+		String MXVP_PRO = "com.mxtech.videoplayer.pro";
+
+		String MXVP_PLAYBACK_CLASS = "com.mxtech.videoplayer.ad.ActivityScreen";
+		//String MXVP_PRO_PLAYBACK_CLASS = "com.mxtech.videoplayer.ActivityScreen";
+
+		//String RESULT_VIEW = "com.mxtech.intent.result.VIEW";
+		String EXTRA_DECODE_MODE = "decode_mode"; // (byte)
+		String EXTRA_SECURE_URI = "secure_uri";
+		//String EXTRA_VIDEO_LIST = "video_list";
+		//String EXTRA_SUBTITLES = "subs";
+		//String EXTRA_SUBTITLES_ENABLE = "subs.enable";
+		//String EXTRA_TITLE = "title";
+		//String EXTRA_POSITION = "position";
+		String EXTRA_RETURN_RESULT = "return_result";
+		String EXTRA_HEADERS = "headers";
+		
+		Uri mUri = Uri.parse(mChannelURL);
+		Intent i = new Intent(Intent.ACTION_VIEW);
+		i.setDataAndType(mUri, "application/*");
+		i.putExtra(EXTRA_SECURE_URI, true);
+		// s/w decoder
+		i.putExtra(EXTRA_DECODE_MODE, (byte) 2);
+		// request result
+		i.putExtra(EXTRA_RETURN_RESULT, true);
+		String[] headers = new String[] { "User-Agent",
+				"MX Player Caller App/1.0", "Extra-Header", "911" };
+		i.putExtra(EXTRA_HEADERS, headers);
+		try {
+			i.setPackage(MXVP_PRO);
+			PackageManager pm = getPackageManager();
+			ResolveInfo info = pm.resolveActivity(i,
+					PackageManager.MATCH_DEFAULT_ONLY);
+			if (info == null) {
+			i.setPackage(MXVP);
+			i.setClassName(MXVP, MXVP_PLAYBACK_CLASS);
+			info = pm.resolveActivity(i,
+					PackageManager.MATCH_DEFAULT_ONLY);
+			if (info == null) {
+				AlertDialog mConfirmDialog = ((MyApplication) getApplicationContext())
+						.getConfirmDialog(this);
+				mConfirmDialog.setMessage("MXPlayer is not found in Device. Are you sure to download from Play Store.??");
+				mConfirmDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								Intent goToMarket = new Intent(Intent.ACTION_VIEW)
+							    .setData(Uri.parse("market://details?id=com.mxtech.videoplayer.ad&hl=en"));
+								startActivityForResult(goToMarket,INSTALL_MXPLAYER_MARKET);
+							}
+						});
+				mConfirmDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+							}
+						});
+				mConfirmDialog.show();
+			} else{
+			startActivity(i);
+			return;
+			}
+			}
+			else
+			{
+				startActivity(i);
+				return;
+			}
+		} catch (ActivityNotFoundException e2) {
+			Log.e("MxException", e2.getMessage().toString());
+		}
+	}
+	
 
 	private void InitializeUI(Cursor cursor) {
 
@@ -385,7 +575,7 @@ public class ChannelsActivity extends Activity implements
 							int urlIdx = childCursor
 									.getColumnIndexOrThrow(DBHelper.URL);
 
-							ChannelsDatum channel = new ChannelsDatum();
+							final ChannelsDatum channel = new ChannelsDatum();
 							channel.serviceId = Integer.parseInt(childCursor
 									.getString(svcIdIdx));
 							channel.channelDescription = childCursor
@@ -406,16 +596,96 @@ public class ChannelsActivity extends Activity implements
 								public void onClick(View v) {
 									ChannelTag chTag = (ChannelTag) v.getTag();
 									mApplication.getEditor().putString(
-											IPTVActivity.CHANNEL_DESC,
+											CHANNEL_DESC,
 											chTag.desc);
 									mApplication.getEditor()
 											.putString(
-													IPTVActivity.CHANNEL_URL,
+													CHANNEL_URL,
 													chTag.url);
 									mApplication.getEditor().commit();
-									startActivity(new Intent(
-											ChannelsActivity.this,
-											IPTVActivity.class));
+									//startActivity(new Intent(
+									//		ChannelsActivity.this,
+									//		IPTVActivity.class));
+									mChannelId = channel.serviceId;
+									mChannelURL = channel.url;
+									mApplication.getEditor().putString(
+											CHANNEL_DESC,
+											channel.channelDescription);
+									mApplication.getEditor().putString(
+											CHANNEL_URL, mChannelURL);
+									mApplication.getEditor().commit();
+									//startActivity(new Intent(ChannelsActivity.this,
+									//		IPTVActivity.class));
+									
+									if (mApplication.balanceCheck == true
+											&& (mApplication.getBalance() > 0)) {
+										final boolean isPayPalChk = mApplication
+												.isPayPalCheck();
+										AlertDialog.Builder builder = new AlertDialog.Builder(
+												(ChannelsActivity.this),
+												AlertDialog.THEME_HOLO_LIGHT);
+										builder.setIcon(R.drawable.ic_logo_confirm_dialog);
+										builder.setTitle("Confirmation");
+										String msg = "Insufficient Balance."
+												+ (isPayPalChk == true ? "Go to PayPal ??"
+														: "Please do Payment.");
+										builder.setMessage(msg);
+										builder.setCancelable(true);
+										mConfirmDialog = builder.create();
+										mConfirmDialog.setButton(AlertDialog.BUTTON_NEGATIVE,
+												(isPayPalChk == true ? "No" : ""),
+												new DialogInterface.OnClickListener() {
+													public void onClick(DialogInterface dialog,
+															int buttonId) {
+													}
+												});
+										mConfirmDialog.setButton(AlertDialog.BUTTON_POSITIVE,
+												(isPayPalChk == true ? "Yes" : "Ok"),
+												new DialogInterface.OnClickListener() {
+													@Override
+													public void onClick(DialogInterface dialog,
+															int which) {
+														if (isPayPalChk == true) {
+															Intent svcIntent = new Intent(
+																	ChannelsActivity.this,
+																	PayPalService.class);
+
+															svcIntent
+																	.putExtra(
+																			PayPalService.EXTRA_PAYPAL_CONFIGURATION,
+																			mApplication
+																					.getPaypalConfig());
+
+															startService(svcIntent);
+
+															PayPalPayment paymentData = new PayPalPayment(
+																	new BigDecimal(mApplication
+																			.getBalance()),
+																	mApplication.getCurrency(),
+																	getResources().getString(
+																			R.string.app_name)
+																			+ " -Payment",
+																	PayPalPayment.PAYMENT_INTENT_SALE);
+
+															Intent actviIntent = new Intent(
+																	ChannelsActivity.this,
+																	PaymentActivity.class);
+
+															actviIntent
+																	.putExtra(
+																			PaymentActivity.EXTRA_PAYMENT,
+																			paymentData);
+
+															startActivityForResult(
+																	actviIntent,
+																	MyApplication.REQUEST_CODE_PAYMENT);
+														}
+													}
+												});
+										mConfirmDialog.show();
+									} else {
+										startMediaPlayer();
+									}
 								}
 							});
 
@@ -487,5 +757,39 @@ public class ChannelsActivity extends Activity implements
 	public class ChannelTag {
 		String desc;
 		String url;
+	}
+	public void logout() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this,
+				AlertDialog.THEME_HOLO_LIGHT);
+		builder.setIcon(R.drawable.ic_logo_confirm_dialog);
+		builder.setTitle("Confirmation");
+		builder.setMessage("Are you sure to Logout?");
+		builder.setCancelable(false);
+		AlertDialog dialog = builder.create();
+		dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int buttonId) {
+					}
+				});
+		dialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+						// Clear shared preferences..
+						((MyApplication) getApplicationContext()).getEditor().clear().commit();;
+						// close all activities..
+						Intent Closeintent = new Intent(ChannelsActivity.this,
+								MainActivity.class);
+						// set the new task and clear flags
+						Closeintent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK
+								| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						Closeintent.putExtra("LOGOUT", true);
+						startActivity(Closeintent);
+						finish();
+					}
+				});
+		dialog.show();
+
 	}
 }

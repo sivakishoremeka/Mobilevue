@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.mobilevue.data.ActivePlanDatum;
 import com.mobilevue.data.DeviceDatum;
 import com.mobilevue.retrofit.OBSClient;
+import com.mobilevue.vod.R;
 
 public class AuthenticationAcitivity extends Activity {
 	public static String TAG = AuthenticationAcitivity.class.getName();

@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FF7C00" >
+    android:background="@color/orange" >
 
     <TextView
         android:id="@+id/a_plan_tv_selpkg"
@@ -63,7 +63,7 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/a_plan_tv_selpkg"
         android:background="#DAD8D9"
-        android:divider="#FF7C00"
+        android:divider="@color/orange"
         android:dividerHeight="2dp"
         android:scrollbars="vertical" />
 
@@ -75,7 +75,7 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/a_plan_tv_selpkg"
         android:background="#DAD8D9"
-        android:divider="#FF7C00"
+        android:divider="@color/orange"
         android:dividerHeight="2dp"
         android:scrollbars="vertical"
         android:visibility="gone" />

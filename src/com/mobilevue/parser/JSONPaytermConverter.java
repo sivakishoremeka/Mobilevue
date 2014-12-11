@@ -19,11 +19,10 @@ import com.google.gson.reflect.TypeToken;
 import com.mobilevue.data.Paytermdatum;
 import com.mobilevue.data.Subscriptiondatum;
 import com.mobilevue.vod.MyApplication;
-import com.mobilevue.vod.MyProfileFragment;
 
 public class JSONPaytermConverter implements Converter {
 
-	public static String TAG = MyProfileFragment.class.getName();
+	public static String TAG = JSONPaytermConverter.class.getName();
 
 	@Override
 	public List<Paytermdatum> fromBody(TypedInput typedInput, Type type)
@@ -74,7 +73,7 @@ public class JSONPaytermConverter implements Converter {
 				}
 			}
 
-		} catch (JSONException e) {
+		} catch (Exception e) {
 			Log.i(TAG, e.getMessage());
 		}
 

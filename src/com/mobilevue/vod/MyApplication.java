@@ -430,9 +430,21 @@ public class MyApplication extends Application {
 						Uri.parse("https://www.example.com/legal"));
 
 		return config;
-
+		
 	}
-
+	
+	public void clearAll() {
+		setBalance(0.00f);
+		setBalanceCheck(false);
+		setClientId("");
+		setCurrency("");
+		setPayPalCheck(false);
+		setPayPalClientID("");
+		getEditor().clear().commit();
+	}
+	
+	
+	
 /*	public String getDeviceId() {
 		String deviceId = getPrefs().getString("DeviceId", "");
 		if(deviceId==null ||deviceId.length()==0)

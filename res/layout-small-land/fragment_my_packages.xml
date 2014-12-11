@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="3dp"
         android:layout_below="@+id/a_plan_tv_selpkg"
-        android:background="#FF7C00" />
+        android:background="@color/orange" />
 
     <LinearLayout
         android:id="@+id/a_plan_linlayout"
@@ -53,7 +53,7 @@
         android:layout_above="@+id/a_plan_linlayout"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/f_my_profile_hr_line1"
-        android:divider="#FF7C00"
+        android:divider="@color/orange"
         android:dividerHeight="2dp"
         android:scrollbars="vertical"
         />
@@ -64,7 +64,7 @@
         android:layout_above="@+id/a_plan_linlayout"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/a_plan_tv_selpkg"
-        android:divider="#FF7C00"
+        android:divider="@color/orange"
         android:dividerHeight="2dp"
         android:scrollbars="vertical"
         android:visibility="gone" />

@@ -14,6 +14,8 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.http.conn.scheme.Scheme;
+
 import android.content.Context;
 import android.util.Log;
 

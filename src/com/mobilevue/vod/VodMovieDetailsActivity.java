@@ -127,6 +127,9 @@ public class VodMovieDetailsActivity extends Activity {
 			// refresh data
 			UpdateDetails();
 			break;
+		case R.id.action_logout:
+			logout();
+			break;
 		default:
 			break;
 		}
@@ -647,6 +650,40 @@ public class VodMovieDetailsActivity extends Activity {
 						Toast.LENGTH_LONG).show();
 			}
 		}
+	}
+	public void logout() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this,
+				AlertDialog.THEME_HOLO_LIGHT);
+		builder.setIcon(R.drawable.ic_logo_confirm_dialog);
+		builder.setTitle("Confirmation");
+		builder.setMessage("Are you sure to Logout?");
+		builder.setCancelable(false);
+		AlertDialog dialog = builder.create();
+		dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int buttonId) {
+					}
+				});
+		dialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+						// Clear shared preferences..
+						((MyApplication) getApplicationContext()).getEditor().clear().commit();;
+						// close all activities..
+						Intent Closeintent = new Intent(VodMovieDetailsActivity.this,
+								MainActivity.class);
+						// set the new task and clear flags
+						Closeintent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK
+								| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						Closeintent.putExtra("LOGOUT", true);
+						startActivity(Closeintent);
+						finish();
+					}
+				});
+		dialog.show();
+
 	}
 	
 }

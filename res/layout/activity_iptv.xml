@@ -13,7 +13,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:background="#FF7c00"
+        android:background="@color/orange"
         android:gravity="center"
         android:text="@string/live_tv"
         android:textColor="#FFFFFF"
@@ -128,7 +128,7 @@
         android:layout_width="fill_parent"
         android:layout_height="2dp"
         android:layout_above="@+id/a_iptv_hsv_channels"
-        android:background="#FF7c00" />
+        android:background="@color/orange" />
 
     <HorizontalScrollView
         android:id="@+id/a_iptv_hsv_channels"
@@ -151,6 +151,6 @@
         android:layout_width="fill_parent"
         android:layout_height="2dp"
         android:layout_alignParentBottom="true"
-        android:background="#FF7c00" />
+        android:background="@color/orange" />
 
 </RelativeLayout>

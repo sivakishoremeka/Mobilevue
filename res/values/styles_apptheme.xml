@@ -34,7 +34,7 @@
         <item name="android:textAppearance">?android:textAppearanceLarge</item>
         <item name="android:textSize">20.0dip</item>
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/form_header</item>
+        <item name="android:textColor">@color/orange</item>
         <item name="android:layout_marginLeft">30.0dip</item>
     </style>
 

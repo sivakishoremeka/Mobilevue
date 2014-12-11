@@ -9,21 +9,21 @@
         android:layout_width="4dp"
         android:layout_height="fill_parent"
         android:layout_alignParentLeft="true"
-        android:background="#FF7c00" />
+        android:background="@color/orange" />
 
     <View
         android:id="@+id/a_ch_iv_rgt_line"
         android:layout_width="4dp"
         android:layout_height="fill_parent"
         android:layout_alignParentRight="true"
-        android:background="#FF7c00" />
+        android:background="@color/orange" />
 
     <View
         android:id="@+id/a_ch_iv_btm_line"
         android:layout_width="fill_parent"
         android:layout_height="4dp"
         android:layout_alignParentBottom="true"
-        android:background="#FF7c00" />
+        android:background="@color/orange" />
 
     <TextView
         android:id="@+id/a_ch_tv_channels"
@@ -32,7 +32,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
-        android:background="#FF7c00"
+        android:background="@color/orange"
         android:gravity="center"
         android:text="Channels"
         android:textColor="#FFFFFF"

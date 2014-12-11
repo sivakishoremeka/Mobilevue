@@ -18,6 +18,7 @@ import retrofit.converter.Converter;
 import retrofit.mime.TypedInput;
 import retrofit.mime.TypedOutput;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -255,6 +256,9 @@ public class MyProfileFragment extends Fragment implements
 		case R.id.action_refresh:
 			GetnUpdateFromServer();
 			break;
+		case R.id.action_logout:
+			logout();
+			break;
 		default:
 			break;
 		}
@@ -413,6 +417,40 @@ public class MyProfileFragment extends Fragment implements
 						.show();
 			}
 		}
+	}
+	public void logout() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),
+				AlertDialog.THEME_HOLO_LIGHT);
+		builder.setIcon(R.drawable.ic_logo_confirm_dialog);
+		builder.setTitle("Confirmation");
+		builder.setMessage("Are you sure to Logout?");
+		builder.setCancelable(false);
+		AlertDialog dialog = builder.create();
+		dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int buttonId) {
+					}
+				});
+		dialog.setButton(AlertDialog.BUTTON_POSITIVE, "Yes",
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+						// Clear shared preferences..
+						((MyApplication) getActivity().getApplicationContext()).clearAll();
+						// close all activities..
+						Intent Closeintent = new Intent(getActivity(),
+								MainActivity.class);
+						// set the new task and clear flags
+						Closeintent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK
+								| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						Closeintent.putExtra("LOGOUT", true);
+						startActivity(Closeintent);
+						getActivity().finish();
+					}
+				});
+		dialog.show();
+
 	}
 
 }
