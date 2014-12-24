@@ -5,7 +5,6 @@
     android:layout_gravity="center_horizontal"
     android:background="@drawable/img_bg_reg_forum"
     android:orientation="vertical" >
-
     <TextView
         android:id="@+id/a_reg_tv_user_reg"
         android:layout_width="wrap_content"
@@ -18,11 +17,32 @@
         android:textColor="#5A5A5A"
         android:textSize="12sp"
         android:textStyle="bold" />
-
+     <EditText
+        android:id="@+id/a_reg_et_full_name"
+        android:layout_width="220dp"
+        android:layout_height="23dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/img_et_reg"
+        android:ems="10"
+        android:hint="@string/reg_full_name"
+        android:inputType="text"
+        android:paddingLeft="12dp"
+        android:textSize="9sp" >
+        <requestFocus />
+    </EditText>
+    <Spinner
+        android:id="@+id/a_reg_sp_city"
+        android:layout_width="220dp"
+        android:layout_height="23dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="8dp"
+        android:spinnerMode="dropdown"
+        android:textSize="9sp" />
     <EditText
         android:id="@+id/a_reg_et_mobile_no"
         android:layout_width="220dp"
-        android:layout_height="26dp"
+        android:layout_height="23dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="8dp"
         android:background="@drawable/img_et_reg"
@@ -30,37 +50,7 @@
         android:inputType="phone"
         android:maxLength="16"
         android:paddingLeft="12dp"
-        android:textSize="9sp" >
-
-        <requestFocus />
-    </EditText>
-
-    <EditText
-        android:id="@+id/a_reg_et_first_name"
-        android:layout_width="220dp"
-        android:layout_height="23dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/img_et_reg"
-        android:ems="10"
-        android:hint="@string/first_name"
-        android:inputType="text"
-        android:paddingLeft="12dp"
         android:textSize="9sp" />
-
-    <EditText
-        android:id="@+id/a_reg_et_last_name"
-        android:layout_width="220dp"
-        android:layout_height="23dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/img_et_reg"
-        android:ems="10"
-        android:hint="@string/last_name"
-        android:inputType="text"
-        android:paddingLeft="12dp"
-        android:textSize="9sp" />
-
     <EditText
         android:id="@+id/a_reg_et_email_id"
         android:layout_width="220dp"
@@ -73,7 +63,6 @@
         android:inputType="textEmailAddress"
         android:paddingLeft="12dp"
         android:textSize="9sp" />
-
     <EditText
         android:id="@+id/a_reg_et_pwd"
         android:layout_width="220dp"
@@ -86,14 +75,12 @@
         android:inputType="textPassword"
         android:paddingLeft="12dp"
         android:textSize="9sp" />
-
     <LinearLayout
         android:layout_width="220dp"
         android:layout_height="23dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="6dp"
         android:layout_marginTop="5dp" >
-
         <Button
             android:id="@+id/a_reg_btn_cancel"
             android:layout_width="100dp"
@@ -103,7 +90,6 @@
             android:layout_weight="1"
             android:background="@drawable/selector_btn_cancel"
             android:onClick="btnCancel_onClick" />
-
         <Button
             android:id="@+id/a_reg_btn_submit"
             android:layout_width="100dp"
@@ -114,7 +100,6 @@
             android:background="@drawable/selector_btn_submit"
             android:onClick="btnRegister_onClick" />
     </LinearLayout>
-
     <TextView
         android:id="@+id/a_reg_tv_login"
         android:layout_width="match_parent"
@@ -127,7 +112,6 @@
         android:text="@string/reg_existing_user"
         android:textColor="#0AA4E6"
         android:textSize="13sp" />
-
     <TextView
         android:id="@+id/a_reg_tv_note"
         android:layout_width="wrap_content"
@@ -140,5 +124,4 @@
         android:text="@string/reg_note"
         android:textColor="#5A5A5A"
         android:textSize="10sp" />
-
 </LinearLayout>

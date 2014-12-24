@@ -19,7 +19,7 @@ public class ClientDatum {
 	private String country;
 	private String flag;
 	private String email;
-	public  String password;
+	private String password;
 	private String zipCode;
 	private String active;
 	private String dateFormat;
@@ -253,6 +253,15 @@ public class ClientDatum {
 	public void setConfigurationProperty(ConfigurationProperty configurationProperty) {
 		this.configurationProperty = configurationProperty;
 	}
+	
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
 
 
 

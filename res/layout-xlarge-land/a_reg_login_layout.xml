@@ -25,9 +25,9 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="22dp"
         android:background="@drawable/img_et_reg"
-        android:text="@string/email_id"
         android:inputType="textEmailAddress"
         android:paddingLeft="10dp"
+        android:text="@string/email_id"
         android:textSize="22sp" >
 
         <requestFocus />
@@ -40,9 +40,9 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="22dp"
         android:background="@drawable/img_et_reg"
-        android:text="@string/password"
         android:inputType="textPassword"
         android:paddingLeft="10dp"
+        android:text="@string/password"
         android:textSize="22sp" />
 
     <LinearLayout
@@ -85,19 +85,57 @@
         android:text="@string/reg_forget_pwd"
         android:textColor="#0AA4E6"
         android:textSize="20sp" />
-    
+
     <TextView
-        android:id="@+id/a_reg_tv_register"
+        android:id="@+id/a_reg_tv_new_user"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        android:layout_marginTop="4dp"
-        android:clickable="true"
+        android:layout_marginBottom="2dp"
+        android:layout_marginTop="6dp"
         android:gravity="center_horizontal"
-        android:onClick="textRegister_onClick"
         android:text="@string/reg_new_user"
-        android:textColor="#0AA4E6"
-        android:textSize="20sp" />
+        android:textSize="18sp" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="32dp"
+        android:gravity="center_horizontal" >
+
+        <TextView
+            android:id="@+id/a_reg_tv_register"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:layout_marginRight="4dp"
+            android:clickable="true"
+            android:gravity="center_horizontal"
+            android:onClick="textRegister_onClick"
+            android:text="@string/reg_new_user_register"
+            android:textColor="#0AA4E6"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/a_reg_tv_new_user_or"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:text="@string/reg_new_user_or"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/a_reg_tv_link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:layout_marginLeft="4dp"
+            android:clickable="true"
+            android:onClick="textLinkUser_onClick"
+            android:text="@string/reg_new_user_link"
+            android:textColor="#0AA4E6"
+            android:textSize="20sp" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/a_reg_tv_note"
