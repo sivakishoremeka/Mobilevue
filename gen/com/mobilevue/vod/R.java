@@ -2242,10 +2242,10 @@ containing a value of this type.
         public static final int back=0x7f0b0023;
         public static final int balance=0x7f0b0024;
         public static final int balance_updated_at=0x7f0b0025;
+        public static final int basic_auth=0x7f0b0026;
         /**  Spark  admin/obs@123 
          */
-        public static final int basic_auth=0x7f0b0027;
-        public static final int basic_auth_=0x7f0b0026;
+        public static final int basic_auth_=0x7f0b0027;
         /**  Peter  billing/password 
          */
         public static final int cancel=0x7f0b0028;
@@ -2308,11 +2308,11 @@ containing a value of this type.
         public static final int sel_country=0x7f0b0061;
         public static final int sel_pkg=0x7f0b0062;
         public static final int serialno=0x7f0b0063;
+        public static final int server_url=0x7f0b0064;
         /**  demo server 
  Spark 
          */
-        public static final int server_url=0x7f0b0065;
-        public static final int server_url_=0x7f0b0064;
+        public static final int server_url_=0x7f0b0065;
         /**  demo server 
  Spark 
          */
